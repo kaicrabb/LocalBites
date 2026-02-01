@@ -12,6 +12,7 @@ This is a cross-platform mobile application (iOS & Android) and website where us
 - Access the frontend by running ```cd expo-client```
 - If required modules are not installed on your system run ```npm install```
     - expo
+    - npx expo install react-native-maps (for our map functionality)
 - To start the frontend run ```npx start expo --tunnel```
 
 ### Starting server
