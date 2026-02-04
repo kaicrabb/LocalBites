@@ -20,3 +20,16 @@ This is a cross-platform mobile application (iOS & Android) and website where us
 - If required modules are not installed on your system run ```npm install```
     - express, cors, jsonwebtoken, body-parser, mongoose, bcryptjs
 - To start the server run ```node server.js```
+
+
+### Backend File Structure
+server/
+│-- server.js           # entry point
+│-- config/             # config files, e.g., db.js
+│   --- db.js
+│-- models/             # Mongoose models
+│   --- user.js
+│   --- restaurant.js
+│-- routes/             # Express routes, e.g., authenticate.js
+│   --- example_user.js
+
