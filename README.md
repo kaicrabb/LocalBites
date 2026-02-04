@@ -24,12 +24,20 @@ This is a cross-platform mobile application (iOS & Android) and website where us
 
 ### Backend File Structure
 server/
+
 │-- server.js           # entry point
+
 │-- config/             # config files, e.g., db.js
+
 │   --- db.js
+
 │-- models/             # Mongoose models
+
 │   --- user.js
+
 │   --- restaurant.js
+
 │-- routes/             # Express routes, e.g., authenticate.js
+
 │   --- example_user.js
 
