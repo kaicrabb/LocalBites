@@ -41,3 +41,15 @@ server/
 
 │   --- example_user.js
 
+
+
+
+|Task|Team Members|Time Frame|
+|---|---|---|
+|Authentication| Chris, Kai, Brooklen|Feb 10 - Feb 24|
+|Google Api Setup(pull)| Logan|Feb 10 - Feb 24|
+|CSS/App Design| Hayden|Feb 10 - Feb 24|
+|Google Api Map integration|||
+|Restaurants Page|||
+|Search and Filters |||
+|Reels|||
