@@ -22,8 +22,8 @@ app.use(cors());
 // Connect to the database
 connectDB();
 
-// Create example user
-createExampleUser();
+// Run Routes code
+createExampleUser(); // creates an example user in the database
 
 // listen on port
 app.listen(port, () => { 
