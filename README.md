@@ -46,9 +46,10 @@ server/
 
 |Task|Team Members|Time Frame|
 |---|---|---|
-|Authentication| Chris, Kai||
-|Google Api Setup(push/pull)| Logan, Brooklen||
-|CSS/App Design| Hayden||
+|Authentication| Chris, Kai, Brooklen|Feb 10 - Feb 24|
+|Google Api Setup(pull)| Logan|Feb 10 - Feb 24|
+|CSS/App Design| Hayden|Feb 10 - Feb 24|
 |Google Api Map integration|||
-|Reviews|||
-|
+|Restaurants Page|||
+|Search and Filters |||
+|Reels|||
