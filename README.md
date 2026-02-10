@@ -41,3 +41,14 @@ server/
 
 │   --- example_user.js
 
+
+
+
+|Task|Team Members|Time Frame|
+|---|---|---|
+|Authentication| Chris, Kai||
+|Google Api Setup(push/pull)| Logan, Brooklen||
+|CSS/App Design| Hayden||
+|Google Api Map integration|||
+|Reviews|||
+|
