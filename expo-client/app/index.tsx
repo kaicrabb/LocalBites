@@ -1,46 +1,61 @@
-import React, { useEffect, useRef } from 'react';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useNavigation } from 'expo-router';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { VideoView, useVideoPlayer } from 'expo-video';
+import { useRouter } from 'expo-router';
 
-const INITIAL_REGION = {
-  latitude: 40.3589695,
-  longitude: -94.8831951,
-  latitudeDelta: 0.0922,
-  longitudeDelta: 0.0421,
-};
+export default function SignUpLogin() {
+    const router = useRouter();
 
-export default function App() {
-  const mapRef = useRef<MapView>(null);
-
-  const navigation = useNavigation();
-
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity onPress={focusMap}>
-          <View style={{ padding: 10 }}>
-            <Text>Focus Map</Text>
-          </View>
-        </TouchableOpacity>
-      ),
-    });
-  }, []);
-
-  const focusMap = () => {
-    mapRef.current?.animateToRegion(INITIAL_REGION, 1000);
-  };
-
-  return (
-    <View style={{ flex: 1 }}>
-      <MapView 
-      style={StyleSheet.absoluteFill} 
-      provider={PROVIDER_GOOGLE}
-      initialRegion={INITIAL_REGION}
-      showsUserLocation
-      showsMyLocationButton
-      ref={mapRef}
-      />
-    </View>
-  );
+    return (
+        <View style={styles.container}>
+            <View style={styles.overlay}>
+                <Text style={styles.title}>LocalBites</Text>
+                <TouchableOpacity 
+                style={styles.button} 
+                onPress={() => router.push('/login')}
+                >
+                <Text style={styles.buttonText}>Login</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                style={styles.button} 
+                onPress={() => router.push('/signup')}
+                >
+                <Text style={styles.buttonText}>Sign Up</Text>
+                </TouchableOpacity>
+            </View>
+        </View>
+    );
 }
+
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  title: {
+    color: "white",
+    fontSize: 36,
+    marginBottom: 40,
+    fontWeight: "bold",
+  },
+  button: {
+    width: 200,
+    padding: 15,
+    backgroundColor: "white",
+    borderRadius: 10,
+    marginBottom: 15,
+    alignItems: "center",
+  },
+  signup: {
+    backgroundColor: "#4CAF50",
+  },
+  buttonText: {
+    fontSize: 18,
+    fontWeight: "600",
+  },
+});
