@@ -4,11 +4,11 @@ import { useState } from 'react';
 
 export default function Login() {
     const router = useRouter();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [Email, setEmail] = useState('');
+    const [Password, setPassword] = useState('');
 
     const handleLogin = async () => {
-        if(!email || !password) {
+        if(!Email || !Password) {
             Alert.alert('Error', 'Please enter both email and password');
             return;
         }
@@ -19,7 +19,7 @@ export default function Login() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ Email, Password }),
             });
 
         const data = await response.json();
@@ -43,14 +43,14 @@ export default function Login() {
             <TextInput
                 placeholder='Email'
                 placeholderTextColor="#000000"
-                value={email}
+                value={Email}
                 onChangeText={setEmail}
                 style={styles.input}
             />
             <TextInput
                 placeholder='Password'
                 placeholderTextColor="#000000"
-                value={password}
+                value={Password}
                 onChangeText={setPassword}
                 secureTextEntry
                 style={styles.input}
