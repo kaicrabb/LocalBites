@@ -4,23 +4,23 @@ import { useState } from 'react';
 
 export default function Signup() {
     const router = useRouter();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [username, setUsername] = useState('');
+    const [Email, setEmail] = useState('');
+    const [Password, setPassword] = useState('');
+    const [Username, setUsername] = useState('');
 
     const handleSignUp = async () => {
-        if(!email || !password || !username) {
+        if(!Email || !Password || !Username) {
             Alert.alert('Error', 'Please sign up with username, email, and password');
             return;
         }
         
         try{
-            const response = await fetch('http://localhost:3000/api/auth/signup', {
+            const response = await fetch('https://localbites-4m9e.onrender.com/Authentication/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username, email, password }),
+                body: JSON.stringify({ Username, Email, Password }),
             });
 
         const data = await response.json();
@@ -34,6 +34,7 @@ export default function Signup() {
     }
         catch (error) {
             Alert.alert('Error', 'An error occurred during sign up');
+            console.log(error);
         }
         
     };
@@ -43,19 +44,22 @@ export default function Signup() {
             <Text style={styles.title}>Sign Up</Text>
             <TextInput
                 placeholder='Username'
-                value={username}
+                placeholderTextColor="#000000"
+                value={Username}
                 onChangeText={setUsername}
                 style={styles.input}
             />
             <TextInput
                 placeholder='Email'
-                value={email}
+                placeholderTextColor="#000000"
+                value={Email}
                 onChangeText={setEmail}
                 style={styles.input}
             />
             <TextInput
                 placeholder='Password'
-                value={password}
+                placeholderTextColor="#000000"
+                value={Password}
                 onChangeText={setPassword}
                 secureTextEntry
                 style={styles.input}

@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const User = require('../Models/user');
+const User = require('../../Models/user');
 
 async function signup(req, res) {
     const { Username, Email, Password } = req.body;
@@ -23,6 +23,7 @@ async function signup(req, res) {
             return res.status(400).json({ message: 'Username must be 3-20 characters long and can only contain letters, numbers, and underscores' });
         }
         if (!passpattern.test(Password)) {
+            console.log(Password)
             return res.status(400).json({ message: 'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character' });
         }
 
