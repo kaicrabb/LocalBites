@@ -43,18 +43,21 @@ export default function Signup() {
             <Text style={styles.title}>Sign Up</Text>
             <TextInput
                 placeholder='Username'
+                placeholderTextColor="#000000"
                 value={username}
                 onChangeText={setUsername}
                 style={styles.input}
             />
             <TextInput
                 placeholder='Email'
+                placeholderTextColor="#000000"
                 value={email}
                 onChangeText={setEmail}
                 style={styles.input}
             />
             <TextInput
                 placeholder='Password'
+                placeholderTextColor="#000000"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry

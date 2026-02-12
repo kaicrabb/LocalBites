@@ -42,12 +42,14 @@ export default function Login() {
             <Text style={styles.title}>Login</Text>
             <TextInput
                 placeholder='Email'
+                placeholderTextColor="#000000"
                 value={email}
                 onChangeText={setEmail}
                 style={styles.input}
             />
             <TextInput
                 placeholder='Password'
+                placeholderTextColor="#000000"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
