@@ -15,7 +15,7 @@ export default function Signup() {
         }
         
         try{
-            const response = await fetch('http://localhost:3000/api/auth/signup', {
+            const response = await fetch('https://localbites-4m9e.onrender.com/Authentication/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -34,6 +34,7 @@ export default function Signup() {
     }
         catch (error) {
             Alert.alert('Error', 'An error occurred during sign up');
+            console.log(error);
         }
         
     };
