@@ -11,9 +11,6 @@ const cors = require('cors'); // Importing cors module
 const connectDB = require('./Config/db');
 const createExampleUser = require('./Routes/example_user');
 
-
-const authRoutes = require('./Routes/Authentication/auth');
-
 // Initialize Express app
 const app = express();
 const port = process.env.PORT || 3000;
@@ -25,10 +22,8 @@ app.use(cors());
 // Connect to the database
 connectDB();
 
-app.use('/api/auth', authRoutes); // Use authentication routes
-
-// Run Routes code
-createExampleUser(); // creates an example user in the database
+// Create example user
+createExampleUser();
 
 // listen on port
 app.listen(port, () => { 

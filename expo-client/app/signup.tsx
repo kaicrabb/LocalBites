@@ -2,13 +2,13 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'reac
 import { useRouter } from 'expo-router';       
 import { useState } from 'react';
 
-export default function Login() {
+export default function Signup() {
     const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [username, setUsername] = useState('');
 
-    const handleLogin = async () => {
+    const handleSignUp = async () => {
         if(!email || !password || !username) {
             Alert.alert('Error', 'Please sign up with username, email, and password');
             return;
@@ -29,11 +29,11 @@ export default function Login() {
             router.replace('/main/home');
         }
         else {
-            Alert.alert('Login Failed', data.message || 'Invalid credentials');
+            Alert.alert('Sign Up Failed', data.message || 'Invalid credentials');
         }
     }
         catch (error) {
-            Alert.alert('Error', 'An error occurred during login');
+            Alert.alert('Error', 'An error occurred during sign up');
         }
         
     };
@@ -60,8 +60,8 @@ export default function Login() {
                 secureTextEntry
                 style={styles.input}
             />
-            <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                <Text style={styles.buttonText}>Login</Text>
+            <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+                <Text style={styles.buttonText}>Sign Up</Text>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => router.push('/login')}>
