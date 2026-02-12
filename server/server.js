@@ -10,6 +10,7 @@ const cors = require('cors'); // Importing cors module
 // Import backend modules
 const connectDB = require('./Config/db');
 const createExampleUser = require('./Routes/example_user');
+const signup = require('./Routes/Authentication/signup');
 
 // Initialize Express app
 const app = express();
@@ -24,6 +25,7 @@ connectDB();
 
 // Create example user
 createExampleUser();
+app.post("/Authentication/signup", signup)
 
 // listen on port
 app.listen(port, () => { 
