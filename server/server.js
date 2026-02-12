@@ -23,7 +23,35 @@ app.use(cors());
 connectDB();
 
 // Run Routes code
-createExampleUser(); // creates an example user in the database
+//createExampleUser(); // creates an example user in the database
+
+//google places integration
+require('dotenv').config(); 
+const {PlacesClient} = require('@googlemaps/places').v1;
+const { GoogleAuth } = require('google-auth-library');
+const API_KEY = process.env.API_KEY;
+const authClient = new GoogleAuth().fromAPIKey(API_KEY);
+const placesClient = new PlacesClient({authClient});
+
+async function callSearchText(query) {
+  const request = {
+    textQuery: query,
+  };
+
+  // Run request
+  const [response] = await placesClient.searchText(request, {
+    otherArgs: {
+      headers: {
+        'X-Goog-FieldMask': 'places.displayName.text',
+      },
+    },
+  });
+  for (let i = 0; i < 10; i++) {
+    console.log(response.places[i].displayName.text); 
+    }
+}
+
+callSearchText("Restaurants in Maryville, MO");
 
 // listen on port
 app.listen(port, () => { 
