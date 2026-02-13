@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../../Models/user');
+const SECRET_KEY = process.env.SECRET_KEY;
 
 async function login(req, res){
     try{
@@ -19,8 +20,8 @@ async function login(req, res){
 
         const token = jwt.sign(
             { id: user._id, email: user.Email },
-            process.env.JWT_SECRET || 'your_jwt_secret',
-            { expiresIn: '1h' }
+            SECRET_KEY,
+            { expiresIn: '1y' }
         );
 
         const safeUser = { id: user._id, Username: user.Username, Email: user.Email };

@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const User = require('../../Models/user');
+const SECRET_KEY = process.env.SECRET_KEY;
 
 async function signup(req, res) {
     const { Username, Email, Password } = req.body;
@@ -39,7 +40,9 @@ async function signup(req, res) {
 
         // Save the new user to the database
         await newUser.save();
+        const token = jwt.sign({ Username: newUser.Username }, SECRET_KEY, { expiresIn: '1y' });
         return res.status(201).json({ message: 'User registered successfully' });
+        
     }
     catch(err){}
         console.error(err);
