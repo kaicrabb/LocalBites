@@ -1,9 +1,24 @@
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { VideoView, useVideoPlayer } from 'expo-video';
 import { useRouter } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
+import {useEffect} from 'react';
 
 export default function SignUpLogin() {
     const router = useRouter();
+
+    
+    useEffect(() => {
+      const checkAuth = async () => {
+        const token = await SecureStore.getItemAsync("token");
+
+        if (token) {
+          router.replace("/main/home");
+        }
+    };
+
+    checkAuth();
+    }, []);
 
     return (
         <View style={styles.container}>

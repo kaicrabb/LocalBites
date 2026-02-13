@@ -1,6 +1,12 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';       
 import { useState } from 'react';
+import * as SecureStore from 'expo-secure-store';
+
+interface LoginResponse {
+  token: string;
+  message?: string;
+}
 
 export default function Signup() {
     const router = useRouter();
@@ -23,9 +29,10 @@ export default function Signup() {
                 body: JSON.stringify({ Username, Email, Password }),
             });
 
-        const data = await response.json();
+        const data: LoginResponse = await response.json();
 
         if(response.ok) {
+            await SecureStore.setItemAsync("token", data.token);
             router.replace('/main/home');
         }
         else {
