@@ -40,8 +40,8 @@ async function signup(req, res) {
 
         // Save the new user to the database
         await newUser.save();
-        const token = jwt.sign({ Username: newUser.Username }, SECRET_KEY, { expiresIn: '1y' });
-        return res.status(201).json({ message: 'User registered successfully' });
+        const token = jwt.sign({ userId: newUser._id, email: newUser.Email  }, SECRET_KEY, { expiresIn: '1y' });
+        return res.status(201).json({ message: 'User registered successfully', token });
         
     }
     catch(err){}
