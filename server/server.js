@@ -9,7 +9,8 @@ const cors = require('cors'); // Importing cors module
 
 // Import backend modules
 const connectDB = require('./Config/db');
-// const createExampleUser = require('./Routes/example_user');
+//const createExampleUser = require('./Routes/example_user');
+const callSearchText = require('./Routes/search_places.js');
 const signup = require('./Routes/Authentication/signup');
 const login = require('./Routes/Authentication/login');
 
@@ -24,6 +25,8 @@ app.use(cors());
 // Connect to the database
 connectDB();
 
+//google maps api search
+callSearchText("Restaurants in Maryville, MO");
 // Create example user
 // createExampleUser();
 app.post("/Authentication/signup", signup)
