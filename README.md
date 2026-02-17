@@ -18,7 +18,7 @@ This is a cross-platform mobile application (iOS & Android) and website where us
 ### Starting server
 - Access the backend by running ```cd server``` 
 - If required modules are not installed on your system run ```npm install```
-    - express, cors, jsonwebtoken, body-parser, mongoose, bcryptjs, expo-image,
+    - express, cors, jsonwebtoken, body-parser, mongoose, bcryptjs, expo-image, expo-image-picker
 - To start the server run ```node server.js```
 
 

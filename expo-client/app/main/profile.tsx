@@ -3,6 +3,8 @@ import { useRouter } from 'expo-router';
 import Button from '../Button';
 import ImageViewer from '../ImageViewer';  
 import * as SecureStore from 'expo-secure-store'; 
+import * as ImagePicker from 'expo-image-picker';
+import { useState } from 'react';
 
 const PlaceholderImage = require ('@/assets/images/android-icon-background.png');
 
@@ -15,14 +17,27 @@ export default function App() {
     await SecureStore.deleteItemAsync("token");
     router.replace("/");
   };
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+  const pickImageAsync = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 1,
+    });
+    if (!result.canceled) {
+      setSelectedImage(result.assets[0].uri);
+    } else {
+      alert('You did not select any image.');
+    }
+  };
 
   return (
     <View style = {Styles.container}>
       <View style = {Styles.imageContainer}>
-        <ImageViewer imgSource={PlaceholderImage} />
+        <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} />
       </View>
       <View style={Styles.footerContainer}>
-        <Button theme='primary' label='Choose a photo' />
+        <Button theme='primary' label='Choose a photo' onPress={pickImageAsync} />
         <Button label='Use this photo' />
       </View>
       <View>
