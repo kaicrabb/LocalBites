@@ -9,8 +9,10 @@ const cors = require('cors'); // Importing cors module
 
 // Import backend modules
 const connectDB = require('./Config/db');
-const createExampleUser = require('./Routes/example_user');
+//const createExampleUser = require('./Routes/example_user');
 const callSearchText = require('./Routes/search_places.js');
+const signup = require('./Routes/Authentication/signup');
+const login = require('./Routes/Authentication/login');
 
 // Initialize Express app
 const app = express();
@@ -23,9 +25,13 @@ app.use(cors());
 // Connect to the database
 connectDB();
 
-// Run Routes code
-//createExampleUser(); // creates an example user in the database
+//google maps api search
 callSearchText("Restaurants in Maryville, MO");
+// Create example user
+// createExampleUser();
+app.post("/Authentication/signup", signup)
+app.post("/Authentication/login", login)
+
 // listen on port
 app.listen(port, () => { 
     console.log("Server started on port " + port);

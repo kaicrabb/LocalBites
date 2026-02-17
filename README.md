@@ -18,7 +18,7 @@ This is a cross-platform mobile application (iOS & Android) and website where us
 ### Starting server
 - Access the backend by running ```cd server``` 
 - If required modules are not installed on your system run ```npm install```
-    - express, cors, jsonwebtoken, body-parser, mongoose, bcryptjs
+    - express, cors, jsonwebtoken, body-parser, mongoose, bcryptjs, expo-image, expo-image-picker
 - To start the server run ```node server.js```
 
 
@@ -41,3 +41,15 @@ server/
 
 │   --- example_user.js
 
+
+
+
+|Task|Team Members|Time Frame|
+|---|---|---|
+|Authentication| Chris, Kai, Brooklen|Feb 10 - Feb 24|
+|Google Api Setup(pull)| Logan|Feb 10 - Feb 24|
+|CSS/App Design| Hayden|Feb 10 - Feb 24|
+|Google Api Map integration|||
+|Restaurants Page|||
+|Search and Filters |||
+|Reels|||
