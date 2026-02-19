@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const User = require('../../Models/user');
+const login = require('./login');
 const SECRET_KEY = process.env.SECRET_KEY;
 
 async function signup(req, res) {
@@ -40,9 +41,8 @@ async function signup(req, res) {
 
         // Save the new user to the database
         await newUser.save();
-        const token = jwt.sign({ userId: newUser._id, email: newUser.Email  }, SECRET_KEY, { expiresIn: '1y' });
-        const safeUser = { id: newUser._id, Username: newUser.Username, Email: newUser.Email };
-        res.json({ token, user: safeUser });
+        // Automatically log in the user after successful signup
+        return login(req, res);
         
         
     }
