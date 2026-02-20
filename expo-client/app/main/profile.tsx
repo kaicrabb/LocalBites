@@ -17,6 +17,10 @@ export default function App() {
     await SecureStore.deleteItemAsync("token");
     router.replace("/");
   };
+  const handleDeleteAccount = async (): Promise<void> => {
+    router.replace("/deleteAccount");
+  };
+
   const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -43,6 +47,9 @@ export default function App() {
       <View>
       <TouchableOpacity style={Styles.logoutButton} onPress={handleLogout}>
         <Text style={Styles.logoutText}>Logout</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={Styles.logoutButton} onPress={handleDeleteAccount}>
+        <Text style={Styles.logoutText}>Delete Account</Text>
       </TouchableOpacity>
       </View>
     </View>
