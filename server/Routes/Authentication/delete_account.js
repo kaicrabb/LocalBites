@@ -2,7 +2,7 @@ const User = require('../../Models/user');
 const bcrypt = require('bcryptjs');
 
 async function deleteAccount(req, res) {
-    const userId = req.user.userId; // Get user ID from the authenticated token
+    const userId = req.user.id; // Get user ID from the authenticated token
     const Password = req.body.Password; // Get password from the request body
     try {
         // Find the user in the database
