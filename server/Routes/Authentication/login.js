@@ -4,7 +4,7 @@ const User = require('../../Models/user');
 const admin = require('firebase-admin');
 const SECRET_KEY = process.env.SECRET_KEY;
 
-const serviceAccount = require('../../firebaseServiceAccountKey.json');
+const serviceAccount = require('../../serviceAccountKey.json');
 
 if (!admin.apps.length) {
     admin.initializeApp({
