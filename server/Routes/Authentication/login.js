@@ -24,8 +24,9 @@ async function login(req, res){
             { expiresIn: '1y' }
         );
 
+        const firebaseToken = await admin.auth().createCustomToken(user._id.toString());
         const safeUser = { id: user._id, Username: user.Username, Email: user.Email };
-        res.json({ token, user: safeUser });
+        res.json({ token, firebaseToken, user: safeUser });
 
     } catch (error){
         console.error('Login error:', error);
