@@ -2,6 +2,9 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'reac
 import { useRouter } from 'expo-router';       
 import { useState } from 'react';
 import * as SecureStore from 'expo-secure-store';
+// Correct way to import
+import { auth } from "../config/firebaseConfig"; // Get your unique 'auth' instance
+import { signInWithCustomToken, Auth } from "firebase/auth"; // Get the FUNCTION from the library
 
 export default function Login() {
     const router = useRouter();
@@ -26,6 +29,16 @@ export default function Login() {
         const data = await response.json();
 
         if(response.ok) {
+            try{
+                await signInWithCustomToken(auth as Auth, data.firebaseToken);
+            } catch (error : any) {
+                Alert.alert('Error', 'Failed to authenticate with Firebase');
+                console.log("Error Code:", error.code);     // Look for this!
+                console.log("Error Message:", error.message);
+                return;
+            }
+
+            await SecureStore.setItemAsync("firebaseToken", data.firebaseToken);
             await SecureStore.setItemAsync("token", data.token);
             router.replace('/main/home');
         }
