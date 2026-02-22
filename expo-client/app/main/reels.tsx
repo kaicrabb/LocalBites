@@ -3,8 +3,6 @@ import { Button, View, Alert, Text } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { ref, uploadBytesResumable, getDownloadURL} from 'firebase/storage';
 import { storage } from '../../config/firebaseConfig';
-import { getAuth } from 'firebase/auth'; // Add this import
-import { auth } from '../../config/firebaseConfig';
 
 export default function Reels() {
   const [uploading, setUploading] = useState<boolean>(false);
@@ -12,12 +10,6 @@ export default function Reels() {
   const [downloadURL, setDownloadURL] = useState<string | null>(null);
 
   const pickAndUploadVideo = async () : Promise<void>=> {
-    const user = auth.currentUser;
-  
-    if (!user) {
-      Alert.alert('Not Authenticated', 'You must be logged in to upload reels.');
-      return;
-    }
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Videos,
       allowsEditing: true,

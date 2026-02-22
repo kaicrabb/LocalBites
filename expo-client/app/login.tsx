@@ -27,15 +27,6 @@ export default function Login() {
 
         if(response.ok) {
             await SecureStore.setItemAsync("token", data.token);
-
-            if (data.firebaseToken) {
-                try {
-                    await SecureStore.setItemAsync("firebaseToken", data.firebaseToken);
-                    console.log("Firebase token stored successfully");
-                } catch (error) {
-                    console.error("Error storing Firebase token:", error);
-                }
-            }
             router.replace('/main/home');
         }
         else {
