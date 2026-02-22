@@ -2,11 +2,9 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'reac
 import { useRouter } from 'expo-router';       
 import { useState } from 'react';
 import * as SecureStore from 'expo-secure-store';
-import { auth, signInWithCustomToken } from '../config/firebaseConfig';
 
 interface SignUpResponse {
   token: string;
-  firebaseToken: string;
   message?: string;
 }
 
@@ -34,11 +32,7 @@ export default function Signup() {
         const data: SignUpResponse = await response.json();
 
         if(response.ok) {
-            await signInWithCustomToken(auth, data.firebaseToken);
-
             await SecureStore.setItemAsync("token", data.token);
-            await SecureStore.setItemAsync("firebaseToken", data.firebaseToken);
-
             router.replace('/main/home');
         }
         else {

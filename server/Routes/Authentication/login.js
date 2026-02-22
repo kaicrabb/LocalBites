@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../../Models/user');
 const SECRET_KEY = process.env.SECRET_KEY;
 
-
 async function login(req, res){
     try{
         const { Email, Password } = req.body;
@@ -25,14 +24,8 @@ async function login(req, res){
             { expiresIn: '1y' }
         );
 
-        const firebaseToken = await admin.auth().createCustomToken(
-            user._id.toString(),
-            { username: user.Username, email: user.Email }
-        );
-            
-
         const safeUser = { id: user._id, Username: user.Username, Email: user.Email };
-        res.json({ token, firebaseToken, user: safeUser });
+        res.json({ token, user: safeUser });
 
     } catch (error){
         console.error('Login error:', error);

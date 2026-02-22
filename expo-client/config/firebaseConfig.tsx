@@ -1,9 +1,12 @@
-// @ts-nocheck
-import { initializeApp, getApp, getApps } from "firebase/app";
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 import { getStorage } from "firebase/storage";
-import { initializeAuth, getReactNativePersistence, getAuth, Auth } from "firebase/auth";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getAuth } from "firebase/auth"
 
+// Initialize Firebase
+// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDiwARV5sctCT9OSjFNJMmaB5Jkvb47HxQ",
   authDomain: "localbites-c3696.firebaseapp.com",
@@ -13,18 +16,7 @@ const firebaseConfig = {
   appId: "1:1002500513104:web:5193906c42e30778cee055"
 };
 
-// 1. Initialize App
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-
-// 2. Initialize Auth with Persistence check
-let auth;
-if (getApps().length > 0) {
-  auth = getAuth(app);
-} else {
-  auth = initializeAuth(app, {
-    persistence: getReactNativePersistence(AsyncStorage)
-  });
-}
-
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
 export const storage = getStorage(app);
-export { auth };
+export const auth = getAuth(app);
