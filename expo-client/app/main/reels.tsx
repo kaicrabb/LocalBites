@@ -2,14 +2,34 @@ import React, { useState } from 'react';
 import { Button, View, Alert, Text } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { ref, uploadBytesResumable, getDownloadURL} from 'firebase/storage';
-import { storage } from '../../config/firebaseConfig';
+import { storage, auth } from '../../config/firebaseConfig';
 
 export default function Reels() {
   const [uploading, setUploading] = useState<boolean>(false);
   const [progress, setProgress] = useState<string>("0");
   const [downloadURL, setDownloadURL] = useState<string | null>(null);
 
+  const getBlobFromUri = async (uri: string): Promise<Blob> => {
+    return await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        resolve(xhr.response);
+      };
+      xhr.onerror = function (e) {
+        console.error(e);
+        reject(new TypeError("Network request failed"));
+      };
+      xhr.responseType = "blob";
+      xhr.open("GET", uri, true);
+      xhr.send(null);
+    });
+  };
+
   const pickAndUploadVideo = async () : Promise<void>=> {
+    if (!auth.currentUser) {
+      Alert.alert("Error", "You must be logged in to upload videos.");
+      return;
+    }
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Videos,
       allowsEditing: true,
@@ -23,10 +43,10 @@ export default function Reels() {
 
     const videoUri = result.assets[0].uri;
     setUploading(true);
+    setProgress("0");
 
     try {
-      const response = await fetch(videoUri);
-      const blob = await response.blob();
+      const blob = await getBlobFromUri(videoUri);
       const storageRef = ref(storage, `reels/${Date.now()}_${videoUri.split('/').pop()}`);
       const uploadTask = uploadBytesResumable(storageRef, blob);
 
