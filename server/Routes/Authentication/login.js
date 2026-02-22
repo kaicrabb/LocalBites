@@ -1,16 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../../Models/user');
-const admin = require('firebase-admin');
 const SECRET_KEY = process.env.SECRET_KEY;
-
-const serviceAccount = require('../../firebaseServiceAccountKey.json');
-
-if (!admin.apps.length) {
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-    });
-}
 
 async function login(req, res){
     try{
@@ -27,8 +18,6 @@ async function login(req, res){
             return res.status(401).json({ message: 'Invalid password' });
         }
 
-        const firebaseToken = await admin.auth().createCustomToken(user._id.toString());
-
         const token = jwt.sign(
             { id: user._id, email: user.Email },
             SECRET_KEY,
@@ -36,7 +25,7 @@ async function login(req, res){
         );
 
         const safeUser = { id: user._id, Username: user.Username, Email: user.Email };
-        res.json({ token, firebaseToken, user: safeUser });
+        res.json({ token, user: safeUser });
 
     } catch (error){
         console.error('Login error:', error);

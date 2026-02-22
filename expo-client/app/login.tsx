@@ -1,8 +1,6 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';       
 import { useState } from 'react';
-import { auth } from '../config/firebaseConfig';
-import { signInWithCustomToken } from 'firebase/auth';
 import * as SecureStore from 'expo-secure-store';
 
 export default function Login() {
@@ -29,16 +27,6 @@ export default function Login() {
 
         if(response.ok) {
             await SecureStore.setItemAsync("token", data.token);
-
-            if (data.firebaseToken) {
-                try {
-                    await signInWithCustomToken(auth, data.firebaseToken);
-                    console.log("Firebase Auth successful!");
-                } catch (fbError) {
-                    console.error("Firebase Auth Error:", fbError);
-                }
-            }
-
             router.replace('/main/home');
         }
         else {
