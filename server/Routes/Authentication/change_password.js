@@ -3,7 +3,7 @@ const User = require('../../Models/user');
 
 async function changePassword(req, res) {
     const { currentPassword, newPassword } = req.body;
-    const userId = req.user.userId; // Get user ID from the authenticated token
+    const userId = req.user.id; // Get user ID from the authenticated token
 
     try {
         // Find the user in the database
