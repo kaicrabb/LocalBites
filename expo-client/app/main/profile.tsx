@@ -17,8 +17,13 @@ export default function App() {
     await SecureStore.deleteItemAsync("token");
     router.replace("/");
   };
+
   const handleDeleteAccount = async (): Promise<void> => {
     router.replace("/deleteAccount");
+  };
+
+  const handleChangePassword = () => {
+    router.push('/changePassword'); 
   };
 
   const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
@@ -52,6 +57,9 @@ export default function App() {
         <Text style={Styles.logoutText}>Delete Account</Text>
       </TouchableOpacity>
       </View>
+      <TouchableOpacity style={Styles.changePasswordButton} onPress={handleChangePassword}>
+        <Text style={Styles.logoutText}>Change Password</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -82,6 +90,17 @@ const Styles = StyleSheet.create ({
     alignItems: "center",
   },
   logoutText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  changePasswordButton: {
+    marginTop: 30,
+    backgroundColor: "red",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  changePasswordText: {
     color: "white",
     fontWeight: "bold",
   },
