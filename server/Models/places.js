@@ -6,14 +6,30 @@ const places_schema = new mongoose.Schema({
         required: true, 
         unique: true
     },
+    primaryType: {
+        type: String,
+        required: true,
+        unique: false,
+    },
     types: {
         type: Array,
         required: true,
-        unique: true,
+        unique: false,
     },
     formattedAddress: {
         type: String, 
-        required: true 
+        required: true,
+        unique: false, 
+    },
+     rating: {
+        type: String, 
+        required: true,
+        unique: false,
+    },
+     priceLevel: {
+        type: String, 
+        required: true,
+        unique: false,
     },
 })
 
