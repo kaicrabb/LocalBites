@@ -26,9 +26,8 @@ app.use(cors());
 // Connect to the database
 connectDB();
 
-//google maps api search
-//callSearchText("Restaurants in Maryville, MO");
-
+//maryville api query
+//callSearchText("food", 40.3461, -94.8729, 100);
 
 // Create example user
 // createExampleUser();
