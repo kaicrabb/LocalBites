@@ -3,16 +3,17 @@
 // Import required outside modules
 const express = require('express');
 const bodyParser = require("body-parser"); // Import body-parser for middleware
-const jwt = require('jsonwebtoken'); // Import jsonwebtoken for tokenization
-const bcrypt = require('bcryptjs'); // Import bcrypt for encryption
 const cors = require('cors'); // Importing cors module
 
 // Import backend modules
 const connectDB = require('./Config/db');
 //const createExampleUser = require('./Routes/example_user');
-const callSearchText = require('./Routes/search_places.js');
+// const callSearchText = require('./Routes/search_places.js');
 const signup = require('./Routes/Authentication/signup');
 const login = require('./Routes/Authentication/login');
+const changePassword = require('./Routes/Authentication/change_password');
+const authenticateToken = require('./Routes/Authentication/authtoken');
+const deleteAccount = require('./Routes/Authentication/delete_account');
 
 // Initialize Express app
 const app = express();
@@ -26,11 +27,15 @@ app.use(cors());
 connectDB();
 
 //google maps api search
-callSearchText("Restaurants in Maryville, MO");
+//callSearchText("Restaurants in Maryville, MO");
+
+
 // Create example user
 // createExampleUser();
 app.post("/Authentication/signup", signup)
 app.post("/Authentication/login", login)
+app.post("/Authentication/change_password", authenticateToken, changePassword)
+app.post("/Authentication/delete_account", authenticateToken, deleteAccount)
 
 // listen on port
 app.listen(port, () => { 

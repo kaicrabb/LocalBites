@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import * as SecureStore from 'expo-secure-store';
 
-interface LoginResponse {
+interface SignUpResponse {
   token: string;
   message?: string;
 }
@@ -29,7 +29,7 @@ export default function Signup() {
                 body: JSON.stringify({ Username, Email, Password }),
             });
 
-        const data: LoginResponse = await response.json();
+        const data: SignUpResponse = await response.json();
 
         if(response.ok) {
             await SecureStore.setItemAsync("token", data.token);
