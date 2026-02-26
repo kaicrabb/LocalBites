@@ -15,6 +15,7 @@ const login = require('./Routes/Authentication/login');
 const changePassword = require('./Routes/Authentication/change_password');
 const authenticateToken = require('./Routes/Authentication/authtoken');
 const deleteAccount = require('./Routes/Authentication/delete_account');
+const userInfo = require('./Routes/user_info');
 
 // Initialize Express app
 const app = express();
@@ -37,6 +38,7 @@ app.post("/Authentication/signup", signup)
 app.post("/Authentication/login", login)
 app.post("/Authentication/change_password", authenticateToken, changePassword)
 app.post("/Authentication/delete_account", authenticateToken, deleteAccount)
+app.get("/user_info", authenticateToken, userInfo);
 
 // listen on port
 app.listen(port, () => { 
