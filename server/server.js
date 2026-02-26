@@ -8,7 +8,7 @@ const cors = require('cors'); // Importing cors module
 // Import backend modules
 const connectDB = require('./Config/db');
 //const createExampleUser = require('./Routes/example_user');
-// const callSearchText = require('./Routes/search_places.js');
+const callSearchText = require('./Routes/search_places.js');
 const signup = require('./Routes/Authentication/signup');
 const login = require('./Routes/Authentication/login');
 const changePassword = require('./Routes/Authentication/change_password');
@@ -27,7 +27,7 @@ app.use(cors());
 connectDB();
 
 //maryville api query
-//callSearchText("food", 40.3461, -94.8729, 100);
+callSearchText("food", 40.3461, -94.8729, 100);
 
 // Create example user
 // createExampleUser();

@@ -21,14 +21,14 @@ async function callSearchText(query, lat, long, radius) {
             },
             "radius": radius
         }
-    }
+    },
   };
 
   // Run request
   const [response] = await placesClient.searchText(request, {
     otherArgs: {
       headers: {
-        'X-Goog-FieldMask': 'places.displayName.text,places.types,places.primaryType,places.formattedAddress,places.rating,places.priceLevel',
+        'X-Goog-FieldMask': 'nextPageToken,places.displayName.text,places.types,places.primaryType,places.formattedAddress,places.rating,places.priceLevel',
       },
     },
   });
@@ -45,7 +45,7 @@ async function callSearchText(query, lat, long, radius) {
             priceLevel: response.places[i].priceLevel
         });
         await workingRestaurant.save();
-        console.log("New Restaurant saved!");
+        console.log("New Restaurant "+response.places[i].displayName.text+" saved!");
     } 
     else if (exists){
         console.log("Restaurant "+response.places[i].displayName.text+" already exists!");
@@ -57,10 +57,7 @@ async function callSearchText(query, lat, long, radius) {
         console.log("Restaurant "+response.places[i].displayName.text+" not saved--fast food restaurant!");
     }
     }
-    //console.log(response.places);
-    //console.log(response.places[i].displayName.text); 
-    //console.log(">"+response.places[i].types);
-    //console.log(">"+response.places[i].formattedAddress+"\n");
+    //console.log(response.nextPageToken)
 }
 
 module.exports = callSearchText;
