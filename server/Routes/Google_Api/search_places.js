@@ -1,4 +1,4 @@
-const Restaurant = require('../Models/places');
+const Restaurant = require('../../Models/places');
 //google places integration
 require('dotenv').config(); 
 const {PlacesClient} = require('@googlemaps/places').v1;
