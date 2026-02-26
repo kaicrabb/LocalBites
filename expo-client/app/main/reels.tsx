@@ -3,6 +3,7 @@ import { Button, View, Alert, Text } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { ref, uploadBytesResumable, getDownloadURL} from 'firebase/storage';
 import { storage } from '../../config/firebaseConfig';
+import * as SecureStore from 'expo-secure-store';
 
 export default function Reels() {
   const [uploading, setUploading] = useState<boolean>(false);
@@ -25,27 +26,48 @@ export default function Reels() {
     setUploading(true);
 
     try {
-      const response = await fetch(videoUri);
-      const blob = await response.blob();
-      const storageRef = ref(storage, `reels/${Date.now()}_${videoUri.split('/').pop()}`);
-      const uploadTask = uploadBytesResumable(storageRef, blob);
+      try{
+                  const token = await SecureStore.getItemAsync("token");
+                  const id_response = await fetch('https://localbites-4m9e.onrender.com/user_info', {
+                      method: 'GET',
+                      headers: {
+                          'Content-Type': 'application/json',
+                          'Authorization': `Bearer ${token}`,
+                      },
+                      body: JSON.stringify({ }),
+                  });
+                  const data = await id_response.json();
+                  if (!id_response.ok) {
+                      throw new Error(data.message || 'Failed to retrieve user information');
+                  }
+                  const user_id = data.id;
+                  const response = await fetch(videoUri);
+                  const blob = await response.blob();
+          const storageRef = ref(storage, `reels/${user_id}/${Date.now()}_${videoUri.split('/').pop()}`);
+          const uploadTask = uploadBytesResumable(storageRef, blob);
 
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const p = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setProgress(p.toFixed(0));
-        },
-        (error) => {
-          Alert.alert('Upload failed', error.message);
-          setUploading(false);
-        },
-        async () => {
-          const url = await getDownloadURL(uploadTask.snapshot.ref);
-          setDownloadURL(url);
-          setUploading(false);
-          Alert.alert('Upload successful', 'Your video has been uploaded!');
-        }
-      );
+          uploadTask.on('state_changed',
+            (snapshot) => {
+              const p = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              setProgress(p.toFixed(0));
+            },
+            (error) => {
+              Alert.alert('Upload failed', error.message);
+              setUploading(false);
+            },
+            async () => {
+              const url = await getDownloadURL(uploadTask.snapshot.ref);
+              setDownloadURL(url);
+              setUploading(false);
+              Alert.alert('Upload successful', 'Your video has been uploaded!');
+            }
+          );
+                    }
+          catch (error) {
+              Alert.alert('Error', 'Failed to retrieve user information');
+              setUploading(false);
+              return;
+          }
     } catch (error) {
       Alert.alert('Error', 'An error occurred while uploading the video');
       setUploading(false);

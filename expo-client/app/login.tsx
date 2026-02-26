@@ -27,6 +27,7 @@ export default function Login() {
 
         if(response.ok) {
             await SecureStore.setItemAsync("token", data.token);
+            await SecureStore.setItemAsync("firebaseToken", data.firebaseToken);
             router.replace('/main/home');
         }
         else {

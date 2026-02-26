@@ -5,6 +5,7 @@ import * as SecureStore from 'expo-secure-store';
 
 interface SignUpResponse {
   token: string;
+  firebaseToken: string;
   message?: string;
 }
 
@@ -33,6 +34,7 @@ export default function Signup() {
 
         if(response.ok) {
             await SecureStore.setItemAsync("token", data.token);
+            await SecureStore.setItemAsync("firebaseToken", data.firebaseToken);
             router.replace('/main/home');
         }
         else {
