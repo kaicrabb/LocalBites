@@ -27,7 +27,7 @@ async function login(req, res){
 
         const firebaseToken = await admin.auth().createCustomToken(
             user._id.toString(),
-            { username: user.Username, email: user.Email }
+            { username: user.Username, email: user.Email, user_id: user._id.toString()}
         );
             
         const safeUser = { id: user._id, Username: user.Username, Email: user.Email };
