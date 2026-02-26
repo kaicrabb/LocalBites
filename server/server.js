@@ -8,7 +8,7 @@ const cors = require('cors'); // Importing cors module
 // Import backend modules
 const connectDB = require('./Config/db');
 //const createExampleUser = require('./Routes/example_user');
-const callSearchText = require('./Routes/search_places.js');
+const callSearchText = require('./Routes/Google_Api/search_places.js');
 const signup = require('./Routes/Authentication/signup');
 const login = require('./Routes/Authentication/login');
 const changePassword = require('./Routes/Authentication/change_password');
