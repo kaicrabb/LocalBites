@@ -16,7 +16,7 @@ async function runDemo() {
       console.log('Demo user already exists.');
     }
   } catch (err) {
-    console.error('Error in demo user:', err);
+      //console.error('Error in demo user:', err);
   }
 }
 

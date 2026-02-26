@@ -8,6 +8,7 @@ const cors = require('cors'); // Importing cors module
 // Import backend modules
 const connectDB = require('./Config/db');
 //const createExampleUser = require('./Routes/example_user');
+//const runDemoReview = require('./Routes/example_review');
 const callSearchText = require('./Routes/Google_Api/search_places.js');
 const signup = require('./Routes/Authentication/signup');
 const login = require('./Routes/Authentication/login');
@@ -31,6 +32,7 @@ callSearchText("food", 40.3461, -94.8729, 100);
 
 // Create example user
 // createExampleUser();
+//runDemoReview();
 app.post("/Authentication/signup", signup)
 app.post("/Authentication/login", login)
 app.post("/Authentication/change_password", authenticateToken, changePassword)
