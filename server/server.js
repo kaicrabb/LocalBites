@@ -16,6 +16,7 @@ const changePassword = require('./Routes/Authentication/change_password');
 const authenticateToken = require('./Routes/Authentication/authtoken');
 const deleteAccount = require('./Routes/Authentication/delete_account');
 const userInfo = require('./Routes/user_info');
+const supplyFirebaseToken = require('./Routes/Authentication/firebasetoken');
 
 // Initialize Express app
 const app = express();
@@ -39,6 +40,7 @@ app.post("/Authentication/login", login)
 app.post("/Authentication/change_password", authenticateToken, changePassword)
 app.post("/Authentication/delete_account", authenticateToken, deleteAccount)
 app.get("/user_info", authenticateToken, userInfo);
+app.get("/Authentication/firebase_token", authenticateToken, supplyFirebaseToken);
 
 // listen on port
 app.listen(port, () => { 
