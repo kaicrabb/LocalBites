@@ -1,10 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import React, { useCallback, useMemo, useEffect, useRef, useState } from 'react';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { auth} from '../../config/firebaseConfig';
 import { signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
+import BottomSheet from '@gorhom/bottom-sheet';
+
 
 const INITIAL_REGION = {
   latitude: 40.3589695,
@@ -77,6 +79,14 @@ export default function App() {
 
 function HomeScreen() {
   const mapRef = useRef<MapView>(null);
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  // Snap positions
+  const snapPoints = useMemo(() => ['15%', '50%', '90%'], []);
+
+  const handleSheetChanges = useCallback((index: number) => {
+    console.log('Sheet position:', index);
+  }, []);
 
   const navigation = useNavigation();
 
@@ -120,7 +130,7 @@ function HomeScreen() {
   return (
     
     <View style={{ flex: 1 }}>
-      <MapView style={{ flex: 1 }}
+      <MapView style={StyleSheet.absoluteFillObject}
       provider={PROVIDER_GOOGLE}
       initialRegion={INITIAL_REGION}
       customMapStyle={mapStyle}
@@ -128,6 +138,23 @@ function HomeScreen() {
       showsMyLocationButton
       ref={mapRef}
       />
+      <BottomSheet
+      ref={bottomSheetRef}
+      index={0}
+      snapPoints={snapPoints}
+      onChange={handleSheetChanges}
+      enableDynamicSizing={false}
+    >
+
+        <View style={{ padding: 20 }}>
+        <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
+          Nearby Food
+        </Text>
+        <Text>Restaurant 1</Text>
+        <Text>Restaurant 2</Text>
+        <Text>Restaurant 3</Text>
+      </View>
+      </BottomSheet>
     </View>
   );
 }

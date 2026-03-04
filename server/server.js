@@ -32,7 +32,7 @@ connectDB();
 //maryville api query
 callSearchText("food", 40.3461, -94.8729, 100);
 
-// Create example user
+// Routes
 // createExampleUser();
 //runDemoReview();
 app.post("/Authentication/signup", signup)

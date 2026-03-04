@@ -53,3 +53,6 @@ server/
 |Restaurants Page|||
 |Search and Filters |||
 |Reels|||
+
+## Restart cmd for after pulling restaurant menu commits
+npx expo start -c --tunnel
