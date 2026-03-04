@@ -28,7 +28,7 @@ async function callSearchText(query, lat, long, radius) {
   const [response] = await placesClient.searchText(request, {
     otherArgs: {
       headers: {
-        'X-Goog-FieldMask': 'nextPageToken,places.displayName.text,places.types,places.primaryType,places.formattedAddress,places.rating,places.priceLevel',
+        'X-Goog-FieldMask': 'nextPageToken,places.displayName.text,places.types,places.primaryType,places.formattedAddress,places.rating,places.priceLevel,places.location',
       },
     },
   });
@@ -41,6 +41,10 @@ async function callSearchText(query, lat, long, radius) {
             primaryType: response.places[i].primaryType,
             types: response.places[i].types,
             formattedAddress: response.places[i].formattedAddress,
+            location: {
+                type: "Point",
+                coordinates: [response.places[i].location.longitude, response.places[i].location.latitude]
+            },
             rating: response.places[i].rating,
             priceLevel: response.places[i].priceLevel
         });
