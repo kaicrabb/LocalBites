@@ -24,11 +24,24 @@ async function startServer(){
     // Initialize Express app
     const app = express();
     const port = process.env.PORT || 3000;
+
     // Middleware
     app.use(bodyParser.json());
     app.use(cors());
+
     // Connect to the database
     await connectDB();
+
+    app.post("/Authentication/signup", signup)
+    app.post("/Authentication/login", login)
+    app.post("/Authentication/change_password", authenticateToken, changePassword)
+    app.post("/Authentication/delete_account", authenticateToken, deleteAccount)
+
+    app.get("/user_info", authenticateToken, userInfo);
+    app.get("/Authentication/firebase_token", authenticateToken, supplyFirebaseToken);
+    app.get("/Google_Api/nearby_restaurants", getNearbyRestaurants);
+    app.get("/Google_Api/restaurant_details", getRestaurantDetails);
+
     app.listen(port, () => { 
         console.log("Server started on port " + port);
     });
@@ -37,20 +50,7 @@ async function startServer(){
 //Start the server
 startServer();
 
-//maryville api query
-
-callSearchText("food", 40.3461, -94.8729, 100);
-
-// Create example user
+//Optional testing code, uncomment to run
+// callSearchText("food", 40.3461, -94.8729, 100);
 // createExampleUser();
-//runDemoReview();
-app.post("/Authentication/signup", signup)
-app.post("/Authentication/login", login)
-app.post("/Authentication/change_password", authenticateToken, changePassword)
-app.post("/Authentication/delete_account", authenticateToken, deleteAccount)
-
-
-app.get("/user_info", authenticateToken, userInfo);
-app.get("/Authentication/firebase_token", authenticateToken, supplyFirebaseToken);
-app.get("/Google_Api/nearby_restaurants", getNearbyRestaurants);
-app.get("/Google_Api/restaurant_details", getRestaurantDetails);
+// runDemoReview();
