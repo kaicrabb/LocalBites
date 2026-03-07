@@ -13,6 +13,7 @@ const INITIAL_REGION = {
   longitude: -94.8831951,
   latitudeDelta: 0.0922,
   longitudeDelta: 0.0421,
+  radius: 20,
 };
 
 export default function App() {
@@ -79,6 +80,7 @@ export default function App() {
 
 function HomeScreen() {
   const mapRef = useRef<MapView>(null);
+  const [restaurants, setRestaurants] = useState<any[]>([]);
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   // Snap positions
@@ -86,6 +88,28 @@ function HomeScreen() {
 
   const handleSheetChanges = useCallback((index: number) => {
     console.log('Sheet position:', index);
+  }, []);
+  const getNearbyRestaurants = async () => {
+    try {
+      const token = await SecureStore.getItemAsync('token');
+      const response = await fetch(
+        `https://localbites-4m9e.onrender.com/Google_Api/nearby_restaurants?latitude=${INITIAL_REGION.latitude}&longitude=${INITIAL_REGION.longitude}&radius=${INITIAL_REGION.radius*1609}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      setRestaurants(data.restaurants);
+      console.log('Nearby restaurants:', data);
+    } catch (error) {
+      console.error('Error fetching nearby restaurants:', error);
+    }
+  };
+
+  useEffect(() => {
+    getNearbyRestaurants();
   }, []);
 
   const navigation = useNavigation();
@@ -131,13 +155,27 @@ function HomeScreen() {
     
     <View style={{ flex: 1 }}>
       <MapView style={StyleSheet.absoluteFillObject}
+      
       provider={PROVIDER_GOOGLE}
       initialRegion={INITIAL_REGION}
       customMapStyle={mapStyle}
       showsUserLocation
       showsMyLocationButton
       ref={mapRef}
-      />
+      >
+      {Array.isArray(restaurants) &&
+      restaurants.map((restaurant, index) => (
+        <Marker
+          key={index}
+          coordinate={{
+            latitude: restaurant.location.coordinates[1],
+            longitude: restaurant.location.coordinates[0],
+          }}
+          title={restaurant.displayName}
+          description={restaurant.formattedAddress}
+        />
+      ))}
+      </MapView>
       <BottomSheet
       ref={bottomSheetRef}
       index={0}
