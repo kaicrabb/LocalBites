@@ -101,8 +101,9 @@ function HomeScreen() {
         },
       });
       const data = await response.json();
-      setRestaurants(data.restaurants);
-      console.log('Nearby restaurants:', data);
+      console.log('Raw nearby restaurants response:', data);
+      setRestaurants(data);
+      console.log('Nearby restaurants:', data.restaurants);
     } catch (error) {
       console.error('Error fetching nearby restaurants:', error);
     }
@@ -163,6 +164,7 @@ function HomeScreen() {
       showsMyLocationButton
       ref={mapRef}
       >
+      
       {Array.isArray(restaurants) &&
       restaurants.map((restaurant, index) => (
         <Marker
@@ -171,6 +173,7 @@ function HomeScreen() {
             latitude: restaurant.location.coordinates[1],
             longitude: restaurant.location.coordinates[0],
           }}
+          
           title={restaurant.displayName}
           description={restaurant.formattedAddress}
         />
@@ -188,9 +191,22 @@ function HomeScreen() {
         <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
           Nearby Food
         </Text>
-        <Text>Restaurant 1</Text>
-        <Text>Restaurant 2</Text>
-        <Text>Restaurant 3</Text>
+        {Array.isArray(restaurants) && restaurants.length > 0 ? (
+          restaurants.map((restaurant, index) => (
+            <View key={index} style={{ marginVertical: 10 }}>
+              <Text style={{ fontSize: 16, fontWeight: '600' }}>
+                {restaurant.displayName}
+              </Text>
+              <Text style={{ color: 'gray' }}>
+                {restaurant.formattedAddress}
+              </Text>
+            </View>
+          ))
+        ) : (
+          <Text style={{ marginTop: 20, fontStyle: 'italic', color: 'gray' }}>
+            No nearby restaurants found.
+          </Text>
+        )}
       </View>
       </BottomSheet>
     </View>
