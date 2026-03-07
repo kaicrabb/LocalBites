@@ -4,7 +4,7 @@ restaurant = require('../../Models/places');
 // get get restaurant details by placeId
 async function getRestaurantDetails(req, res) {
     try {
-        const { placeId } = req.body;
+        const { placeId } = req.query;
         const restaurantDetails = await restaurant.findOne({ _id: placeId });
         if (!restaurantDetails) {
             return res.status(404).json({ message: 'Restaurant not found' });

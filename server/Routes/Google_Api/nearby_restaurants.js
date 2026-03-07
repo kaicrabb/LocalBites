@@ -4,7 +4,7 @@ restuarant = require('../../Models/places');
 async function getNearbyRestaurants(req, res) {
     try {
         //Radius is in meters which is super dumb and annoying but whatever
-        const { latitude, longitude, radius } = req.body;
+        const { latitude, longitude, radius } = req.query;
         const nearbyRestaurants = await restaurant.find({
             location: {
                 $near: {
