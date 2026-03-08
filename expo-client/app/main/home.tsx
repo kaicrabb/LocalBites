@@ -81,6 +81,7 @@ export default function App() {
 function HomeScreen() {
   const mapRef = useRef<MapView>(null);
   const [restaurants, setRestaurants] = useState<any[]>([]);
+  const [selectedRestaurantData, setSelectedRestaurantData] = useState<any>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   // Snap positions
@@ -125,6 +126,9 @@ function HomeScreen() {
       });
       const data = await response.json();
       console.log('Restaurant details response:', data);
+      
+      setSelectedRestaurantData(data);
+      bottomSheetRef.current?.snapToIndex(2);
   };
 
   const navigation = useNavigation();
@@ -201,29 +205,53 @@ function HomeScreen() {
       onChange={handleSheetChanges}
       enableDynamicSizing={false}
     >
-
         <View style={{ padding: 20 }}>
-        <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
-          Nearby Food
-        </Text>
-        {Array.isArray(restaurants) && restaurants.length > 0 ? (
-          restaurants.map((restaurant, index) => (
-            <View key={index} style={{ marginVertical: 10 }}>
-              <TouchableOpacity onPress={() => handlerestaurantPress(restaurant._id)}>
-                <Text style={{ fontSize: 16, fontWeight: '600' }}>
-                  {restaurant.displayName}
-                </Text>
-              
-              <Text style={{ color: 'gray' }}>
-                {restaurant.formattedAddress}
-              </Text>
-              </TouchableOpacity>
-            </View>
-          ))
+        {selectedRestaurantData ? (
+          // Show restaurant details
+          <View>
+            <TouchableOpacity onPress={() => setSelectedRestaurantData(null)} style={{ marginBottom: 10 }}>
+              <Text style={{ color: 'blue' }}>← Back to list</Text>
+            </TouchableOpacity>
+            <Text style={{ fontSize: 26, fontWeight: 'bold', fontFamily: 'Arial' }}>
+              {selectedRestaurantData.displayName || 'Restaurant Details'}
+            </Text>
+            <Text style={{ color: 'black', fontSize: 18 }}>
+              {selectedRestaurantData.formattedAddress}
+            </Text>
+            <Text style={{ fontSize: 14 }}>
+              {"Google Ratings: " + selectedRestaurantData.rating}
+            </Text>
+            <Text style={{ fontSize: 14 }}>
+              {"Price Level: " + selectedRestaurantData.priceLevel}
+            </Text>
+            {/* Add more details as needed, e.g., photos, reviews, etc. */}
+          </View>
         ) : (
-          <Text style={{ marginTop: 20, fontStyle: 'italic', color: 'gray' }}>
-            No nearby restaurants found.
-          </Text>
+          // Show list of restaurants
+          <>
+            <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
+              Nearby Food
+            </Text>
+            {Array.isArray(restaurants) && restaurants.length > 0 ? (
+              restaurants.map((restaurant, index) => (
+                <View key={index} style={{ marginVertical: 10, paddingBottom: 10, borderBottomWidth: 1.5, borderColor: '#00eeff', backgroundColor: '#9eeee676', borderRadius: 8, padding: 15}}>
+                  <TouchableOpacity onPress={() => handlerestaurantPress(restaurant._id)}>
+                    <Text style={{ fontSize: 16, fontWeight: '600' }}>
+                      {restaurant.displayName}
+                    </Text>
+                  
+                  <Text style={{ color: 'gray' }}>
+                    {restaurant.formattedAddress}
+                  </Text>
+                  </TouchableOpacity>
+                </View>
+              ))
+            ) : (
+              <Text style={{ marginTop: 20, fontStyle: 'italic', color: 'gray' }}>
+                No nearby restaurants found.
+              </Text>
+            )}
+          </>
         )}
       </View>
       </BottomSheet>
