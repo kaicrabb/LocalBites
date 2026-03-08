@@ -1,7 +1,7 @@
 restaurant = require('../../Models/places');
 
 
-// get get restaurant details by placeId
+// get all details for a restaurant by placeId
 async function getRestaurantDetails(req, res) {
     try {
         const { placeId } = req.query;
