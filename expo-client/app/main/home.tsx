@@ -113,6 +113,20 @@ function HomeScreen() {
     getNearbyRestaurants();
   }, []);
 
+  const handlerestaurantPress = async (restaurantId: string) => {
+    const token = await SecureStore.getItemAsync('token');
+      const response = await fetch(
+        `https://localbites-4m9e.onrender.com/Google_Api/restaurant_details?placeId=${restaurantId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      console.log('Restaurant details response:', data);
+  };
+
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -176,6 +190,7 @@ function HomeScreen() {
           
           title={restaurant.displayName}
           description={restaurant.formattedAddress}
+          onPress={() => handlerestaurantPress(restaurant._id)}
         />
       ))}
       </MapView>
@@ -194,12 +209,15 @@ function HomeScreen() {
         {Array.isArray(restaurants) && restaurants.length > 0 ? (
           restaurants.map((restaurant, index) => (
             <View key={index} style={{ marginVertical: 10 }}>
-              <Text style={{ fontSize: 16, fontWeight: '600' }}>
-                {restaurant.displayName}
-              </Text>
+              <TouchableOpacity onPress={() => handlerestaurantPress(restaurant._id)}>
+                <Text style={{ fontSize: 16, fontWeight: '600' }}>
+                  {restaurant.displayName}
+                </Text>
+              
               <Text style={{ color: 'gray' }}>
                 {restaurant.formattedAddress}
               </Text>
+              </TouchableOpacity>
             </View>
           ))
         ) : (
