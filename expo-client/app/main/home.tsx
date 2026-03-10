@@ -3,6 +3,7 @@ import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
+import Ionicons from '@expo/vector-icons/Ionicons'
 import { auth} from '../../config/firebaseConfig';
 import { signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -192,7 +193,7 @@ function HomeScreen() {
       {Array.isArray(restaurants) &&
       restaurants.map((restaurant, index) => (
         <Marker
-          key={index}
+          key={restaurant._id}
           coordinate={{
             latitude: restaurant.location.coordinates[1],
             longitude: restaurant.location.coordinates[0],
@@ -201,7 +202,12 @@ function HomeScreen() {
           title={restaurant.displayName}
           description={restaurant.formattedAddress}
           onPress={() => handlerestaurantPress(restaurant._id)}
-        />
+        >
+          <View style={{ position: 'relative', width: 32, height: 32, justifyContent: 'center', alignItems: 'center' }}>
+            <Ionicons name="location-sharp" size={32} color="rgb(51, 204, 255)" style={{ position: 'absolute' }} />
+            <Ionicons name="restaurant" size={12} color="black" style={{ position: 'absolute', top: 5 }} />
+          </View>
+        </Marker>
       ))}
       </MapView>
       <BottomSheet
@@ -224,9 +230,22 @@ function HomeScreen() {
             <Text style={{ color: 'black', fontSize: 18 }}>
               {selectedRestaurantData.formattedAddress}
             </Text>
-            <Text style={{ fontSize: 14 }}>
-              {"Google Ratings: " + selectedRestaurantData.rating}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
+              <Text style={{ fontSize: 14 }}>
+                {"Google Ratings: " + selectedRestaurantData.rating + ""}
+              </Text>
+              {Array.from({ length: 5 }, (_, i) => {
+                const starIndex = i + 1;
+                if (starIndex <= Math.floor(selectedRestaurantData.rating)) {
+                  return <Ionicons name="star" size={16} color="gold" />; 
+                } else if (starIndex === Math.ceil(selectedRestaurantData.rating) && selectedRestaurantData.rating % 1 !== 0) {
+                  return <Ionicons name="star-half" size={16} color="gold" />; 
+                } else {
+                  return <Ionicons name="star-outline" size={16} color="gold" />; 
+                }
+              })}
+            </View>
+
             <Text style={{ fontSize: 14 }}>
               {"Price Level: " + selectedRestaurantData.priceLevel}
             </Text>
