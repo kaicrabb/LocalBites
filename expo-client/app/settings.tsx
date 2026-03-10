@@ -47,7 +47,7 @@ export default function App() {
       <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} />
     </View>
 
-    <View style={Styles.footerContainer}>
+    <View style={Styles.photoButtonContainer}>
       <Button theme="primary" label="Choose a photo" onPress={pickImageAsync} />
     </View>
 
@@ -72,22 +72,22 @@ const Styles = StyleSheet.create({
     flex: 1, // take full screen
     padding: 20,
     justifyContent: "space-between", // evenly distributes top/middle/bottom sections
-    backgroundColor: "#000000",
+    backgroundColor: "#36454F",
   },
   imageContainer: {
     alignItems: "center",
     marginTop: 20,
   },
-  footerContainer: {
+  photoButtonContainer: {
     flexDirection: "column",
-    justifyContent: "space-around", // spreads buttons evenly in this section
+    justifyContent: "space-between", // spreads buttons evenly in this section
     gap: 10, // spacing between buttons (RN >= 0.71)
   },
   accountActions: {
     flexDirection: "column",
     justifyContent: "space-between", // spreads account buttons evenly vertically
     gap: 10,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   logoutButton: {
     padding: 12,
