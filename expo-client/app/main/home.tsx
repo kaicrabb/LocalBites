@@ -6,6 +6,7 @@ import * as SecureStore from 'expo-secure-store';
 import { auth} from '../../config/firebaseConfig';
 import { signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
 import BottomSheet from '@gorhom/bottom-sheet';
+import CreateReview from '../review';
 
 
 const INITIAL_REGION = {
@@ -83,7 +84,11 @@ function HomeScreen() {
   const [restaurants, setRestaurants] = useState<any[]>([]);
   const [selectedRestaurantData, setSelectedRestaurantData] = useState<any>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const [showReviewForm, setShowReviewForm] = useState(false);
 
+  const setShowReviewFormFalse = () => {
+    setShowReviewForm(false);
+  }
   // Snap positions
   const snapPoints = useMemo(() => ['15%', '50%', '90%'], []);
 
@@ -115,6 +120,7 @@ function HomeScreen() {
   }, []);
 
   const handlerestaurantPress = async (restaurantId: string) => {
+    setShowReviewForm(false);
     const token = await SecureStore.getItemAsync('token');
       const response = await fetch(
         `https://localbites-4m9e.onrender.com/Google_Api/restaurant_details?placeId=${restaurantId}`, {
@@ -225,6 +231,22 @@ function HomeScreen() {
               {"Price Level: " + selectedRestaurantData.priceLevel}
             </Text>
             {/* Add more details as needed, e.g., photos, reviews, etc. */}
+            <Text style={{ marginTop: 15, fontSize: 16, fontWeight: '600' }}>
+              User Reviews
+            </Text>
+            <Text style={{ fontStyle: 'italic', color: 'gray' }}>
+              (User reviews will be displayed here)
+            </Text>
+            <TouchableOpacity onPress={()  => setShowReviewForm(true)} >
+              <Text style={{ color: 'blue', marginTop: 15 }}>
+                Add a review
+              </Text>
+            </TouchableOpacity>
+            {showReviewForm && (<CreateReview
+              restaurantId={selectedRestaurantData._id}
+              _onClose={() => setShowReviewForm(false)}
+              />
+            )}
           </View>
         ) : (
           // Show list of restaurants
