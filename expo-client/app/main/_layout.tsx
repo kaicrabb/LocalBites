@@ -13,6 +13,11 @@ export default function RootLayout() {
       title: "Home",
       tabBarLabel: "Home",
       }} />
+      <Tabs.Screen name="upload" 
+    options={{ 
+      title: "Upload",
+      tabBarLabel: "Upload",
+      }} />
     <Tabs.Screen name="profile" 
     options={{ 
       title: "Profile",
