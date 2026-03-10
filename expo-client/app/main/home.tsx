@@ -191,7 +191,7 @@ function HomeScreen() {
       >
       
       {Array.isArray(restaurants) &&
-      restaurants.map((restaurant, index) => (
+      restaurants.map((restaurant) => (
         <Marker
           key={restaurant._id}
           coordinate={{
@@ -237,11 +237,11 @@ function HomeScreen() {
               {Array.from({ length: 5 }, (_, i) => {
                 const starIndex = i + 1;
                 if (starIndex <= Math.floor(selectedRestaurantData.rating)) {
-                  return <Ionicons name="star" size={16} color="gold" />; 
+                  return <Ionicons key={`star-${starIndex}`} name="star" size={16} color="gold" />;
                 } else if (starIndex === Math.ceil(selectedRestaurantData.rating) && selectedRestaurantData.rating % 1 !== 0) {
-                  return <Ionicons name="star-half" size={16} color="gold" />; 
+                  return <Ionicons key={`star-${starIndex}`} name="star-half" size={16} color="gold" />;
                 } else {
-                  return <Ionicons name="star-outline" size={16} color="gold" />; 
+                  return <Ionicons key={`star-${starIndex}`} name="star-outline" size={16} color="gold" />;
                 }
               })}
             </View>
@@ -274,8 +274,8 @@ function HomeScreen() {
               Nearby Food
             </Text>
             {Array.isArray(restaurants) && restaurants.length > 0 ? (
-              restaurants.map((restaurant, index) => (
-                <View key={index} style={{ marginVertical: 10, paddingBottom: 10, borderBottomWidth: 1.5, borderColor: '#00eeff', backgroundColor: '#9eeee676', borderRadius: 8, padding: 15}}>
+              restaurants.map((restaurant) => (
+                <View key={restaurant._id} style={{ marginVertical: 10, paddingBottom: 10, borderBottomWidth: 1.5, borderColor: '#00eeff', backgroundColor: '#9eeee676', borderRadius: 8, padding: 15}}>
                   <TouchableOpacity onPress={() => handlerestaurantPress(restaurant._id)}>
                     <Text style={{ fontSize: 16, fontWeight: '600' }}>
                       {restaurant.displayName}
