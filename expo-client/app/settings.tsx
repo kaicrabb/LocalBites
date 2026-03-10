@@ -49,7 +49,6 @@ export default function App() {
 
     <View style={Styles.footerContainer}>
       <Button theme="primary" label="Choose a photo" onPress={pickImageAsync} />
-      <Button label="Use this photo" />
     </View>
 
     <View style={Styles.accountActions}>
