@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, FlatList, Dimensions } from 'react-native';
-import { ResizeMode, Video } from 'expo-av';
+import { ResizeMode, Video, Audio } from 'expo-av';
 import { ref, listAll, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../config/firebaseConfig';
 
@@ -10,19 +10,28 @@ export default function ReelFeed() {
   const [videos, setVideos] = useState<string[]>([]);
 
   useEffect(() => {
+    const setupAudio = async () => {
+      await Audio.setAudioModeAsync({
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: false,
+        shouldDuckAndroid: true,
+      });
+    };
+
     const fetchVideos = async () => {
-      const reelsRef = ref(storage, 'reels/'); // adjust path as needed
+      const reelsRef = ref(storage, 'reels/');
       const result = await listAll(reelsRef);
 
       const urls = await Promise.all(result.items.map(itemRef => getDownloadURL(itemRef)));
       setVideos(urls);
     };
 
+    setupAudio();
     fetchVideos();
   }, []);
 
   const renderItem = ({ item }: { item: string }) => (
-    <View style={{ height, backgroundColor: '#000' }}>
+    <View style={{ height: height - 100, backgroundColor: '#000' }}>
       <Video
         source={{ uri: item }}
         style={{ flex: 1 }}

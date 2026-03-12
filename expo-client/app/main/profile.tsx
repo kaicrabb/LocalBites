@@ -18,10 +18,10 @@ const ProfilePage: React.FC = () => {
   });
 
   const [editing, setEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState<"videos" | "liked">("videos");
+  const [activeTab, setActiveTab] = useState<"videos" | "reviews">("videos");
 
   const videos = Array.from({ length: 9 }, (_, i) => `Video ${i + 1}`);
-  const liked = Array.from({ length: 6 }, (_, i) => `Liked ${i + 1}`);
+  const reviews = Array.from({ length: 6 }, (_, i) => `Review ${i + 1}`);
 
   return (
     <ScrollView style={styles.container}>
@@ -61,13 +61,13 @@ const ProfilePage: React.FC = () => {
         <TouchableOpacity style={[styles.tab, activeTab === "videos" && styles.activeTab]} onPress={() => setActiveTab("videos")}>
           <Text>Videos</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.tab, activeTab === "liked" && styles.activeTab]} onPress={() => setActiveTab("liked")}>
-          <Text>Liked</Text>
+        <TouchableOpacity style={[styles.tab, activeTab === "reviews" && styles.activeTab]} onPress={() => setActiveTab("reviews")}>
+          <Text>Reviews</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.videoGrid}>
-        {(activeTab === "videos" ? videos : liked).map((item, i) => (
+        {(activeTab === "videos" ? videos : reviews).map((item, i) => (
           <View key={i} style={styles.videoTile}>
             <Text>{item}</Text>
           </View>
