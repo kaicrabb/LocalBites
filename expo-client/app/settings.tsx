@@ -70,24 +70,25 @@ export default function App() {
 const Styles = StyleSheet.create({
   container: {
     flex: 1, // take full screen
-    padding: 20,
-    justifyContent: "space-between", // evenly distributes top/middle/bottom sections
-    backgroundColor: "#36454F",
+    padding: 30,
+    justifyContent: "space-evenly", // evenly distributes top/middle/bottom sections
+    backgroundColor: "#fff",
   },
   imageContainer: {
     alignItems: "center",
-    marginTop: 20,
+    marginTop: -80,
   },
   photoButtonContainer: {
     flexDirection: "column",
     justifyContent: "space-between", // spreads buttons evenly in this section
     gap: 10, // spacing between buttons (RN >= 0.71)
+    marginTop:-60,
   },
   accountActions: {
     flexDirection: "column",
     justifyContent: "space-between", // spreads account buttons evenly vertically
     gap: 10,
-    marginBottom: 10,
+    marginTop: -90, // pull the whole block up (adjust value as needed)
   },
   logoutButton: {
     padding: 12,
