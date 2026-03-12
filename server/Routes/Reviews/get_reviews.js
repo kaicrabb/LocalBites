@@ -5,18 +5,17 @@ const Review = require('../../Models/reviews');
 
 async function getReviews(req, res) {
     try {
-        const { placeId } = req.query.placeId;
-        const { userId } = req.query.userId;
+        const { placeId, userId } = req.query
         if (placeId) {
             const reviews = await Review.find({ Place: placeId }).populate('User', 'Username Email');
-            res.status(200).json({ reviews });
+            return res.status(200).json({ reviews });
         }
         else if (userId){
-            const reviews = await Review.find({ Place: userId }).populate('Restaurant');
-            res.status(200).json({ reviews });
+            const reviews = await Review.find({ User: userId }).populate('Place');
+            return res.status(200).json({ reviews });
         }
         else {
-            return res.status(400).json({ message: 'placeId parameter is required' });
+            return res.status(400).json({ message: 'placeId or UserId parameter is required' });
         }
         res.status(200).json({ reviews });
     } catch (err) {
