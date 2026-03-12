@@ -3,7 +3,7 @@ const Review = require('../../Models/reviews');
 async function addReview(req, res) {
     try {
         const userId = req.user?.id;
-        const { placeId, rating, comment } = req.query;
+        const { placeId, rating, comment } = req.body;
 
         if (!userId) {
             return res.status(401).json({ message: 'Unauthorized' });
