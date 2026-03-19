@@ -8,6 +8,7 @@ const { height } = Dimensions.get('window');
 
 export default function ReelFeed() {
   const [videos, setVideos] = useState<string[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     const setupAudio = async () => {
@@ -19,28 +20,35 @@ export default function ReelFeed() {
     };
 
     const fetchVideos = async () => {
-      const reelsRef = ref(storage, 'reels/');
-      const result = await listAll(reelsRef);
+      try {
+        const reelsRef = ref(storage, 'reels/');
+        const result = await listAll(reelsRef);
 
-      const urls = await Promise.all(result.items.map(itemRef => getDownloadURL(itemRef)));
-      setVideos(urls);
+        const urls = await Promise.all(
+          result.items.map(itemRef => getDownloadURL(itemRef))
+        );
+
+        setVideos(urls);
+      } catch (error) {
+        console.log('Error fetching reels:', error);
+      }
     };
 
     setupAudio();
     fetchVideos();
   }, []);
 
-  const renderItem = ({ item }: { item: string }) => (
-    <View style={{ height: height - 100, backgroundColor: '#000' }}>
+  const renderItem = ({ item, index }: { item: string; index: number }) => (
+    <View style={{ height: height, width: '100%', backgroundColor: '#000' }}>
       <Video
         source={{ uri: item }}
         style={{ flex: 1 }}
         resizeMode={ResizeMode.COVER}
-        shouldPlay
+        shouldPlay={index === currentIndex} // ✅ only active video plays
         isLooping
-        useNativeControls={false} 
-        isMuted={false}            
+        isMuted={false}
         volume={1.0}
+        useNativeControls={false}
       />
     </View>
   );
@@ -51,7 +59,21 @@ export default function ReelFeed() {
       renderItem={renderItem}
       keyExtractor={(item, index) => index.toString()}
       pagingEnabled
+      snapToInterval={height}              // ✅ full screen snapping
+      snapToAlignment="start"
+      decelerationRate="fast"              // ✅ smooth fast swipe
       showsVerticalScrollIndicator={false}
+      onMomentumScrollEnd={(event) => {
+        const index = Math.round(
+          event.nativeEvent.contentOffset.y / height
+        );
+        setCurrentIndex(index);
+      }}
+      getItemLayout={(_, index) => ({
+        length: height,
+        offset: height * index,
+        index,
+      })}
     />
   );
 }
