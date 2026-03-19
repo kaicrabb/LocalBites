@@ -260,7 +260,7 @@ function HomeScreen() {
             </Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
               <Text style={{ fontSize: 14 }}>
-                {"Google Ratings: " + selectedRestaurantData.rating + ""}
+                {"Google Ratings: " + selectedRestaurantData.rating + " "}
               </Text>
               {/* Creates stars for the rating value */}
               {Array.from({ length: 5 }, (_, i) => {
@@ -274,20 +274,20 @@ function HomeScreen() {
                 }
               })}
             </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
+              <Text style={{ fontSize: 14 }}>
+                {"Price Level: " + ""}
+              </Text>
             
+            </View>
             <Text style={{ fontSize: 14 }}>
               {"Price Level: " + selectedRestaurantData.priceLevel}
             </Text>
             {/* Add more details as needed, e.g., photos, reels, Hours, etc. */}
-            <Text style={{ marginTop: 15, fontSize: 16, fontWeight: '600' }}>
-              User Reviews
-            </Text>
-            <Text style={{ fontStyle: 'italic', color: 'gray' }}>
-              (User reviews will be displayed here)
-            </Text>
+            
             <TouchableOpacity onPress={()  => setShowReviewForm(true)} >
               <Text style={{ color: 'blue', marginTop: 15 }}>
-                Add a review
+                Add a review for {selectedRestaurantData.displayName}
               </Text>
             </TouchableOpacity>
             {showReviewForm && (<CreateReview
@@ -295,7 +295,14 @@ function HomeScreen() {
               _onClose={() => setShowReviewForm(false)}
               />
             )}
+            <Text style={{ marginTop: 15, fontSize: 16, fontWeight: '600' }}>
+              User Reviews
+            </Text>
+            <Text style={{ fontStyle: 'italic', color: 'gray', paddingBottom:30 }}>
+              (User reviews will be displayed here)
+            </Text>
           </View>
+          
         ) : (
           // Show list of restaurants if a specific one has yet to be chosen.
           <>
