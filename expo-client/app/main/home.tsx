@@ -4,6 +4,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import Ionicons from '@expo/vector-icons/Ionicons'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { auth} from '../../config/firebaseConfig';
 import { signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
 import BottomSheet from '@gorhom/bottom-sheet';
@@ -178,8 +179,9 @@ function HomeScreen() {
   ];
 
   return (
-    
+    // Sets up home page view
     <View style={{ flex: 1 }}>
+      {/* Setup the map and its markers */}
       <MapView style={StyleSheet.absoluteFillObject}
       
       provider={PROVIDER_GOOGLE}
@@ -191,7 +193,27 @@ function HomeScreen() {
       >
       
       {Array.isArray(restaurants) &&
-      restaurants.map((restaurant) => (
+      restaurants.map((restaurant) => {
+
+        // function for choosing what icon to use on map for that restaurant.
+        const getRestaurantIcon = (primaryType: string) => {
+          const lowerType = primaryType?.toLowerCase() || '';
+          if (lowerType.includes('american_restaurant') || lowerType.includes('burger')) return 'hamburger';
+          if (lowerType.includes('bar_and_grill')) return 'grill';
+          if (lowerType.includes('japanese_restaurant') || lowerType.includes('sushi')) return 'noodles';
+          if (lowerType.includes('pizza_delivery')) return 'pizza';
+          if (lowerType.includes('italian_restaurant')) return 'pasta';
+          if (lowerType.includes('mexican_restaurant')) return 'taco';
+          if (lowerType.includes('chinese_restaurant')) return 'rice';
+          if (lowerType.includes('steak_house')) return 'food-steak';
+          if (lowerType.includes('asian_restaurant')) return 'noodles';
+          if (lowerType.includes('buffet_restaurant')) return 'buffet';
+          if (lowerType.includes('fast_food_restaurant')) return 'food';
+
+          return 'food-fork-drink'; // default
+        };
+        return(
+          //set marker information and create marker
         <Marker
           key={restaurant._id}
           coordinate={{
@@ -204,12 +226,17 @@ function HomeScreen() {
           onPress={() => handlerestaurantPress(restaurant._id)}
         >
           <View style={{ position: 'relative', width: 32, height: 32, justifyContent: 'center', alignItems: 'center' }}>
-            <Ionicons name="location-sharp" size={32} color="rgb(51, 204, 255)" style={{ position: 'absolute' }} />
-            <Ionicons name="restaurant" size={12} color="black" style={{ position: 'absolute', top: 5 }} />
+            <MaterialCommunityIcons name={getRestaurantIcon(restaurant.primaryType)} size={12} color="white" style={{ position: 'absolute', top: 5, zIndex:3}} />
+            <MaterialCommunityIcons name="circle-medium"  size={32} color="rgb(51, 204, 255)" style={{ position: 'absolute', bottom:4, zIndex:1}} />
+            <MaterialCommunityIcons name="map-marker" size={32} color="rgb(51, 204, 255)" style={{ position: 'absolute', zIndex:1}} />
           </View>
         </Marker>
-      ))}
+        );
+      })}
+
       </MapView>
+
+      {/* Create a bottom sheet that will display restaurants*/}
       <BottomSheet
       ref={bottomSheetRef}
       index={0}
@@ -219,7 +246,7 @@ function HomeScreen() {
     >
         <View style={{ padding: 20 }}>
         {selectedRestaurantData ? (
-          // Show restaurant details
+          // Show restaurant details of selected restaurant
           <View>
             <TouchableOpacity onPress={() => setSelectedRestaurantData(null)} style={{ marginBottom: 10 }}>
               <Text style={{ color: 'blue' }}>← Back to list</Text>
@@ -234,6 +261,7 @@ function HomeScreen() {
               <Text style={{ fontSize: 14 }}>
                 {"Google Ratings: " + selectedRestaurantData.rating + ""}
               </Text>
+              {/* Creates stars for the rating value */}
               {Array.from({ length: 5 }, (_, i) => {
                 const starIndex = i + 1;
                 if (starIndex <= Math.floor(selectedRestaurantData.rating)) {
@@ -249,7 +277,7 @@ function HomeScreen() {
             <Text style={{ fontSize: 14 }}>
               {"Price Level: " + selectedRestaurantData.priceLevel}
             </Text>
-            {/* Add more details as needed, e.g., photos, reviews, etc. */}
+            {/* Add more details as needed, e.g., photos, reels, Hours, etc. */}
             <Text style={{ marginTop: 15, fontSize: 16, fontWeight: '600' }}>
               User Reviews
             </Text>
@@ -268,7 +296,7 @@ function HomeScreen() {
             )}
           </View>
         ) : (
-          // Show list of restaurants
+          // Show list of restaurants if a specific one has yet to be chosen.
           <>
             <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
               Nearby Food
