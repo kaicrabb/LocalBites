@@ -8,6 +8,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { auth} from '../../config/firebaseConfig';
 import { signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
 import BottomSheet from '@gorhom/bottom-sheet';
+import { BottomSheetScrollView} from '@gorhom/bottom-sheet';
 import CreateReview from '../review';
 
 
@@ -109,9 +110,9 @@ function HomeScreen() {
         },
       });
       const data = await response.json();
-      console.log('Raw nearby restaurants response:', data);
+      // console.log('Raw nearby restaurants response:', data);
       setRestaurants(data);
-      console.log('Nearby restaurants:', data.restaurants);
+      // console.log('Nearby restaurants:', data.restaurants);
     } catch (error) {
       console.error('Error fetching nearby restaurants:', error);
     }
@@ -133,7 +134,7 @@ function HomeScreen() {
         },
       });
       const data = await response.json();
-      console.log('Restaurant details response:', data);
+      // console.log('Restaurant details response:', data);
       
       setSelectedRestaurantData(data);
       bottomSheetRef.current?.snapToIndex(2);
@@ -146,7 +147,7 @@ function HomeScreen() {
       headerRight: () => (
         <TouchableOpacity onPress={focusMap}>
           <View style={{ padding: 10 }}>
-            <Text>Focus Map</Text>
+            <MaterialCommunityIcons name= 'home-map-marker' size={32}/>
           </View>
         </TouchableOpacity>
       ),
@@ -244,7 +245,7 @@ function HomeScreen() {
       onChange={handleSheetChanges}
       enableDynamicSizing={false}
     >
-        <View style={{ padding: 20 }}>
+        <BottomSheetScrollView style={{ padding: 20 }}>
         {selectedRestaurantData ? (
           // Show restaurant details of selected restaurant
           <View>
@@ -273,7 +274,7 @@ function HomeScreen() {
                 }
               })}
             </View>
-
+            
             <Text style={{ fontSize: 14 }}>
               {"Price Level: " + selectedRestaurantData.priceLevel}
             </Text>
@@ -322,7 +323,7 @@ function HomeScreen() {
             )}
           </>
         )}
-      </View>
+      </BottomSheetScrollView>
       </BottomSheet>
     </View>
   );
