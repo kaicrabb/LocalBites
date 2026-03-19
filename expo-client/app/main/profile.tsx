@@ -1,18 +1,13 @@
 import { router, useRouter } from "expo-router";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, StyleSheet } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
-import ImageViewer from '../ImageViewer';
-import * as ImagePicker from 'expo-image-picker';
-import * as SecureStore from 'expo-secure-store';
 
 interface UserProfile {
   username: string;
   bio: string;
   profilePic: string;
 }
-
-const PlaceholderImage = require('../../assets/images/default.jpg');
 
 const ProfilePage: React.FC = () => {
   const router = useRouter();
@@ -29,30 +24,6 @@ const ProfilePage: React.FC = () => {
   const videos = Array.from({ length: 9 }, (_, i) => `Video ${i + 1}`);
   const reviews = Array.from({ length: 6 }, (_, i) => `Review ${i + 1}`);
 
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
-  const pickImageAsync = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      quality: 1,
-    });
-    if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
-    } else {
-      console.log('No image selected.');  
-    }
-  };
-
-  useEffect(() => {
-    const loadProfilePic = async () => {
-      const pic = await SecureStore.getItemAsync("profilePic");
-      if (pic) {
-        setUser(prev => ({ ...prev, profilePic: pic }));
-      }
-    };
-    loadProfilePic();
-  }, []);
-
   return (
     <ScrollView style={styles.container}>
       <View style={styles.topBar}>
@@ -62,7 +33,7 @@ const ProfilePage: React.FC = () => {
       </View>
 
       <View style={styles.profileHeader}>
-        <Image source={user.profilePic === "placeholder.jpg" ? PlaceholderImage : { uri: user.profilePic }} style={styles.profilePic} />
+        <Image source={{ uri: user.profilePic }} style={styles.profilePic} />
         <Text style={styles.usernameText}>@{user.username}</Text>
 
         <View style={styles.stats}>
@@ -109,21 +80,9 @@ const ProfilePage: React.FC = () => {
           <Text>Edit Profile</Text>
           <TextInput style={styles.input} value={user.username} onChangeText={(text) => setUser({ ...user, username: text })} />
           <TextInput style={styles.input} value={user.bio} onChangeText={(text) => setUser({ ...user, bio: text })} />
-          <TouchableOpacity style={styles.editBtn} onPress={pickImageAsync}>
-            <Text>Pick Profile Picture</Text>
-          </TouchableOpacity>
-          {selectedImage && (
-            <View style={styles.imageContainer}>
-              <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} />
-            </View>
-          )}
-          <TouchableOpacity style={styles.editBtn} onPress={async () => {
-            const newPic = selectedImage || user.profilePic;
-            setUser({ ...user, profilePic: newPic });
-            await SecureStore.setItemAsync("profilePic", newPic);
-            setSelectedImage(undefined);
-            setEditing(false);
-          }}>
+          <TextInput style={styles.input} value={user.profilePic} onChangeText={(text) => setUser({ ...user, profilePic: text })} />
+
+          <TouchableOpacity style={styles.editBtn} onPress={() => setEditing(false)}>
             <Text>Save</Text>
           </TouchableOpacity>
         </View>
@@ -151,7 +110,6 @@ const styles = StyleSheet.create({
   videoTile: { width: "33%", aspectRatio: 9 / 16, backgroundColor: "#ddd", justifyContent: "center", alignItems: "center" },
   editModal: { position: "absolute", top: "20%", left: "10%", right: "10%", backgroundColor: "#fff", padding: 20, borderRadius: 10, elevation: 5 },
   input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 5, padding: 5, marginBottom: 10 },
-  imageContainer: { alignItems: "center", marginVertical: 10 },
 });
 
 export default ProfilePage;

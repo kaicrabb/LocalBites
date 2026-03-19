@@ -34,9 +34,7 @@ export default function App() {
       quality: 1,
     });
     if (!result.canceled) {
-      const uri = result.assets[0].uri;
-      setSelectedImage(uri);
-      await SecureStore.setItemAsync("profilePic", uri);
+      setSelectedImage(result.assets[0].uri);
     } else {
       console.log('No image selected.');  
     }
