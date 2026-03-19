@@ -1,6 +1,7 @@
 import { router, useRouter } from "expo-router";
 import React, { useState } from "react";
 import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, StyleSheet } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
 
 interface UserProfile {
   username: string;
@@ -27,7 +28,7 @@ const ProfilePage: React.FC = () => {
     <ScrollView style={styles.container}>
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => router.push('../settings')}>
-          <Text style={styles.settingsBtn}>⚙</Text>
+          <Ionicons name="settings" size={24} />
         </TouchableOpacity>
       </View>
 
