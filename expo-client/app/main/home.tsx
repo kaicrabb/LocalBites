@@ -93,7 +93,7 @@ function HomeScreen() {
     setShowReviewForm(false);
   }
   // Snap positions
-  const snapPoints = useMemo(() => ['15%', '50%', '90%'], []);
+  const snapPoints = useMemo(() => ['5%', '50%', '75','100%'], []);
 
   const handleSheetChanges = useCallback((index: number) => {
     console.log('Sheet position:', index);
@@ -137,7 +137,7 @@ function HomeScreen() {
       // console.log('Restaurant details response:', data);
       
       setSelectedRestaurantData(data);
-      bottomSheetRef.current?.snapToIndex(2);
+      bottomSheetRef.current?.snapToIndex(3);
   };
 
   const navigation = useNavigation();
@@ -177,7 +177,33 @@ function HomeScreen() {
       }
     ]
   },
+  
   ];
+  const getPriceLevel = (priceLevel: string): React.ReactNode => {
+          const lowerType = priceLevel?.toLowerCase() || '';
+          if (lowerType.includes('price_level_free')) return <Text style={{fontSize:16, fontWeight:"600"}}>FREE</Text>;
+          const icon = <Ionicons name="logo-usd" key="usd" size={16} color="rgb(55, 128, 55)" />;
+          if (lowerType.includes('price_level_inexpensive')) return icon;
+          if (lowerType.includes('price_level_moderate'))
+            return (
+              <>
+                {[...Array(2)].map((_, i) => <Ionicons key={i} name="logo-usd" size={16} color="rgb(55, 128, 55)"/>)}
+              </>
+            );
+          if (lowerType.includes('price_level_expensive'))
+            return (
+              <>
+                {[...Array(3)].map((_, i) => <Ionicons key={i} name="logo-usd" size={16} color="rgb(55, 128, 55)"/>)}
+              </>
+            );
+          if (lowerType.includes('price_level_very_expensive'))
+            return (
+              <>
+                {[...Array(4)].map((_, i) => <Ionicons key={i} name="logo-usd" size={24} color="rgb(55, 128, 55)"/>)}
+              </>
+            );
+          return <Text style={{fontSize:16, fontWeight:"600"}}>Unknown</Text>;
+        };
 
   return (
     // Sets up home page view
@@ -213,6 +239,7 @@ function HomeScreen() {
 
           return 'food-fork-drink'; // default
         };
+        
         return(
           //set marker information and create marker
         <Marker
@@ -276,9 +303,9 @@ function HomeScreen() {
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
               <Text style={{ fontSize: 14 }}>
-                {"Price Level: " + ""}
+                {"Price Level: "}
               </Text>
-            
+              {getPriceLevel(selectedRestaurantData.priceLevel)}
             </View>
             <Text style={{ fontSize: 14 }}>
               {"Price Level: " + selectedRestaurantData.priceLevel}
