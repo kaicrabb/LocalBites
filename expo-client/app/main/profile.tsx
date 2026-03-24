@@ -113,7 +113,7 @@ const ProfilePage: React.FC = () => {
             onPress={() =>
               router.push({
                 pathname: "/main/video/[videoURL]",
-                params: { videoUrl: encodeURIComponent(item) },
+                params: { videoURL: encodeURIComponent(item) },
               })
             }
           >
