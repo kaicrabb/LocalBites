@@ -3,12 +3,13 @@ import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
+import { Checkbox } from 'expo-checkbox';
 import Ionicons from '@expo/vector-icons/Ionicons'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import { auth} from '../../config/firebaseConfig';
+import { auth } from '../../config/firebaseConfig';
 import { signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
 import BottomSheet from '@gorhom/bottom-sheet';
-import { BottomSheetScrollView} from '@gorhom/bottom-sheet';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import CreateReview from '../review';
 
 
@@ -17,7 +18,7 @@ const INITIAL_REGION = {
   longitude: -94.8831951,
   latitudeDelta: 0.0922,
   longitudeDelta: 0.0421,
-  radius: 20,
+  radius: 50,
 };
 
 export default function App() {
@@ -88,10 +89,9 @@ function HomeScreen() {
   const [selectedRestaurantData, setSelectedRestaurantData] = useState<any>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [showFilterForm, setShowFilterForm] = useState(false);
+  const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
 
-  const setShowReviewFormFalse = () => {
-    setShowReviewForm(false);
-  }
   // Snap positions
   const snapPoints = useMemo(() => ['5%', '50%', '75','100%'], []);
 
@@ -147,16 +147,58 @@ function HomeScreen() {
       headerRight: () => (
         <TouchableOpacity onPress={focusMap}>
           <View style={{ padding: 10 }}>
-            <MaterialCommunityIcons name= 'home-map-marker' size={32}/>
+            <MaterialCommunityIcons name = 'home-map-marker' size={32}/>
           </View>
         </TouchableOpacity>
       ),
+      headerLeft: () => (
+        <TouchableOpacity onPress={filtermenu}>
+          <View style = {{ padding: 10}}>
+            <MaterialCommunityIcons name = 'filter' size={32}/>
+          </View>
+        </TouchableOpacity>
+      )
     });
   }, []);
 
   const focusMap = () => {
     mapRef.current?.animateToRegion(INITIAL_REGION, 1000);
   };
+
+  const filtermenu = () => {
+    setShowFilterForm(true);
+  };
+
+  const toggleCuisine = (cuisine: string) => {
+  setSelectedCuisines(prev =>
+    prev.includes(cuisine)
+      ? prev.filter(c => c !== cuisine) // remove if already selected
+      : [...prev, cuisine] // add if not selected
+  );
+};
+
+  const cuisineMap: Record<string, string> = {
+  American: 'american_restaurant',
+  Mexican: 'mexican_restaurant',
+  Japanese: 'japanese_restaurant',
+  Chinese: 'chinese_restaurant',
+  'Bar and Grill': 'bar_and_grill',
+  Pizza: 'pizza',
+  Italian: 'italian_restaurant',
+  Buffet: 'buffet_restaurant',
+  'Fast Food': 'fast_food_restaurant',
+};
+
+  const filteredRestaurants = Array.isArray(restaurants)
+    ? restaurants.filter(r => {
+        if (selectedCuisines.length === 0) return true;
+
+        return selectedCuisines.some(label => {
+          const apiType = cuisineMap[label];
+          return r.primaryType?.toLowerCase().includes(apiType);
+        });
+      })
+    : [];
 
   const mapStyle = [
   {
@@ -208,6 +250,9 @@ function HomeScreen() {
   return (
     // Sets up home page view
     <View style={{ flex: 1 }}>
+      {/* Show filter menu if filter option is clicked */}
+       
+
       {/* Setup the map and its markers */}
       <MapView style={StyleSheet.absoluteFillObject}
       
@@ -219,21 +264,22 @@ function HomeScreen() {
       ref={mapRef}
       >
       
+      
+      
       {Array.isArray(restaurants) &&
-      restaurants.map((restaurant) => {
+      filteredRestaurants.map((restaurant) => {
 
         // function for choosing what icon to use on map for that restaurant.
         const getRestaurantIcon = (primaryType: string) => {
           const lowerType = primaryType?.toLowerCase() || '';
-          if (lowerType.includes('american_restaurant') || lowerType.includes('burger')) return 'hamburger';
+          if (lowerType.includes('american_restaurant')) return 'hamburger';
           if (lowerType.includes('bar_and_grill')) return 'grill';
-          if (lowerType.includes('japanese_restaurant') || lowerType.includes('sushi')) return 'noodles';
+          if (lowerType.includes('japanese_restaurant') || lowerType.includes('asian_restaurant')) return 'noodles';
           if (lowerType.includes('pizza_delivery')) return 'pizza';
           if (lowerType.includes('italian_restaurant')) return 'pasta';
           if (lowerType.includes('mexican_restaurant')) return 'taco';
           if (lowerType.includes('chinese_restaurant')) return 'rice';
           if (lowerType.includes('steak_house')) return 'food-steak';
-          if (lowerType.includes('asian_restaurant')) return 'noodles';
           if (lowerType.includes('buffet_restaurant')) return 'buffet';
           if (lowerType.includes('fast_food_restaurant')) return 'food';
 
@@ -263,6 +309,57 @@ function HomeScreen() {
       })}
 
       </MapView>
+
+      {showFilterForm && ( <><TouchableOpacity
+      activeOpacity={1}
+      onPress={() => setShowFilterForm(false)} // optional: tap outside to close
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.4)', // THIS is the dim effect
+        zIndex: 999,
+      }}
+    />
+      <View style={{
+          position: 'absolute',
+          top: 40, 
+          left: 20,
+          right: 20,
+          bottom: 40,
+          backgroundColor: 'rgb(255, 251, 251)',
+          padding: 15,
+          borderRadius: 10,
+          zIndex: 1000,
+          elevation: 10, 
+        }}>
+          {/* filter by multiple information types, primary type (cuisine), pricelevel, rating(google), rating(reviews)?, distance up to 50 miles (defualt radius)*/}
+          <View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 10}}>
+              <TouchableOpacity onPress={() => setShowFilterForm(false)} style={{position: 'absolute', left: 0, padding: 5}}>
+                <MaterialCommunityIcons name="arrow-u-left-top-bold" size={32} />
+              </TouchableOpacity>
+
+              <Text style={{ fontSize: 32, fontWeight: 'bold', marginLeft: 20}}>
+                Filters
+              </Text>
+            </View>
+            <Text style={{fontSize:20, fontWeight: 'bold', paddingTop:25}}>Cuisine Type</Text>
+            {Object.keys(cuisineMap).map(label => (
+              <View key={label} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Checkbox
+                  value={selectedCuisines.includes(label)}
+                  onValueChange={() => toggleCuisine(label)}
+                />
+                <Text>{label}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+        </>
+      )}
 
       {/* Create a bottom sheet that will display restaurants*/}
       <BottomSheet
@@ -307,9 +404,6 @@ function HomeScreen() {
               </Text>
               {getPriceLevel(selectedRestaurantData.priceLevel)}
             </View>
-            <Text style={{ fontSize: 14 }}>
-              {"Price Level: " + selectedRestaurantData.priceLevel}
-            </Text>
             {/* Add more details as needed, e.g., photos, reels, Hours, etc. */}
             
             <TouchableOpacity onPress={()  => setShowReviewForm(true)} >
@@ -336,8 +430,8 @@ function HomeScreen() {
             <Text style={{ fontSize: 20, fontWeight: 'bold' }}>
               Nearby Food
             </Text>
-            {Array.isArray(restaurants) && restaurants.length > 0 ? (
-              restaurants.map((restaurant) => (
+            {Array.isArray(restaurants) && filteredRestaurants.length > 0 ? (
+              filteredRestaurants.map((restaurant) => (
                 <View key={restaurant._id} style={{ marginVertical: 10, paddingBottom: 10, borderBottomWidth: 1.5, borderColor: '#00eeff', backgroundColor: '#9eeee676', borderRadius: 8, padding: 15}}>
                   <TouchableOpacity onPress={() => handlerestaurantPress(restaurant._id)}>
                     <Text style={{ fontSize: 16, fontWeight: '600' }}>
