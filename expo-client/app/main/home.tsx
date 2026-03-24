@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useEffect, useRef, useState } from 'react';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
 import { useNavigation } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { Checkbox } from 'expo-checkbox';
@@ -91,6 +91,8 @@ function HomeScreen() {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showFilterForm, setShowFilterForm] = useState(false);
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
+  const [selectedPriceLevel, setSelectedPriceLevel] = useState<string[]>([]);
+  const [selectedGoogleRating, setSelectedGoogleRating] = useState<string[]>([]);
 
   // Snap positions
   const snapPoints = useMemo(() => ['5%', '50%', '75','100%'], []);
@@ -170,35 +172,89 @@ function HomeScreen() {
   };
 
   const toggleCuisine = (cuisine: string) => {
-  setSelectedCuisines(prev =>
-    prev.includes(cuisine)
-      ? prev.filter(c => c !== cuisine) // remove if already selected
-      : [...prev, cuisine] // add if not selected
-  );
-};
+    setSelectedCuisines(prev =>
+      prev.includes(cuisine)
+        ? prev.filter(c => c !== cuisine) // remove if already selected
+        : [...prev, cuisine] // add if not selected
+    );
+  };
 
   const cuisineMap: Record<string, string> = {
-  American: 'american_restaurant',
-  Mexican: 'mexican_restaurant',
-  Japanese: 'japanese_restaurant',
-  Chinese: 'chinese_restaurant',
-  'Bar and Grill': 'bar_and_grill',
-  Pizza: 'pizza',
-  Italian: 'italian_restaurant',
-  Buffet: 'buffet_restaurant',
-  'Fast Food': 'fast_food_restaurant',
-};
+    American: 'american_restaurant',
+    Mexican: 'mexican_restaurant',
+    Japanese: 'japanese_restaurant',
+    Chinese: 'chinese_restaurant',
+    'Bar and Grill': 'bar_and_grill',
+    Pizza: 'pizza',
+    Italian: 'italian_restaurant',
+    Buffet: 'buffet_restaurant',
+    'Fast Food': 'fast_food_restaurant',
+    Greek: 'greek_restaurant',
+    Thai: 'thai_restaurant',
+    Catering: 'catering_service',
+    'Health Food': 'health_food_store',
+  };
+
+  const togglePriceLevel = (priceLevel: string) => {
+    setSelectedPriceLevel(prev =>
+      prev.includes(priceLevel)
+        ? prev.filter(c => c !== priceLevel)
+        : [...prev, priceLevel] 
+    );
+  };
+
+  const priceMap: Record<string, string> ={
+    Free: 'price_level_free',
+    'Inexpensive ($)': 'price_level_inexpensive',
+    'Moderate ($$)': 'price_level_moderate',
+    'Expensive ($$$)': 'price_level_expensive',
+    'Very Expensive ($$$$)': 'price_level_very_expensive',
+    Unknown: 'price_level_unspecified',
+  }
+
+  const toggleGoogleRating = (rating: string) => {
+    setSelectedGoogleRating(prev =>
+      prev.includes(rating)
+        ? prev.filter(c => c !== rating)
+        : [...prev, rating] 
+    );
+  };
+
+  type range = [number,number];
+
+  const googleRatingMap: Record<string, range> = {
+    '0 - 1 Stars': [0,1],
+    '1 - 2 Stars': [1,2],
+    '2 - 3 Stars': [2,3],
+    '3 - 4 Stars': [3,4],
+    '4 - 5 Stars': [4,5]
+  }
+
 
   const filteredRestaurants = Array.isArray(restaurants)
     ? restaurants.filter(r => {
-        if (selectedCuisines.length === 0) return true;
-
-        return selectedCuisines.some(label => {
+      const matchesCuisine =
+        selectedCuisines.length === 0 || selectedCuisines.some(label => {
           const apiType = cuisineMap[label];
           return r.primaryType?.toLowerCase().includes(apiType);
         });
+      
+      const matchesPrice = 
+        selectedPriceLevel.length === 0 || selectedPriceLevel.some(label => {
+          const apiType = priceMap[label];
+          return r.priceLevel?.toLowerCase().includes(apiType);
+        });
+      
+      const matchesGoogleRating = 
+        selectedGoogleRating.length === 0 || selectedGoogleRating.some(label => {
+          const [min, max] = googleRatingMap[label] || [];
+          return r.rating >= min && r.rating <= max;
+        });
+      return matchesCuisine && matchesPrice && matchesGoogleRating;
       })
     : [];
+
+  
 
   const mapStyle = [
   {
@@ -250,9 +306,6 @@ function HomeScreen() {
   return (
     // Sets up home page view
     <View style={{ flex: 1 }}>
-      {/* Show filter menu if filter option is clicked */}
-       
-
       {/* Setup the map and its markers */}
       <MapView style={StyleSheet.absoluteFillObject}
       
@@ -274,7 +327,7 @@ function HomeScreen() {
           const lowerType = primaryType?.toLowerCase() || '';
           if (lowerType.includes('american_restaurant')) return 'hamburger';
           if (lowerType.includes('bar_and_grill')) return 'grill';
-          if (lowerType.includes('japanese_restaurant') || lowerType.includes('asian_restaurant')) return 'noodles';
+          if (lowerType.includes('japanese_restaurant') || lowerType.includes('thai_restaurant') || lowerType.includes('asian_restaurant')) return 'noodles';
           if (lowerType.includes('pizza_delivery')) return 'pizza';
           if (lowerType.includes('italian_restaurant')) return 'pasta';
           if (lowerType.includes('mexican_restaurant')) return 'taco';
@@ -312,7 +365,7 @@ function HomeScreen() {
 
       {showFilterForm && ( <><TouchableOpacity
       activeOpacity={1}
-      onPress={() => setShowFilterForm(false)} // optional: tap outside to close
+      onPress={() => setShowFilterForm(false)} // tap outside to close
       style={{
         position: 'absolute',
         top: 0,
@@ -323,7 +376,7 @@ function HomeScreen() {
         zIndex: 999,
       }}
     />
-      <View style={{
+      <ScrollView style={{
           position: 'absolute',
           top: 40, 
           left: 20,
@@ -341,10 +394,10 @@ function HomeScreen() {
               <TouchableOpacity onPress={() => setShowFilterForm(false)} style={{position: 'absolute', left: 0, padding: 5}}>
                 <MaterialCommunityIcons name="arrow-u-left-top-bold" size={32} />
               </TouchableOpacity>
-
               <Text style={{ fontSize: 32, fontWeight: 'bold', marginLeft: 20}}>
                 Filters
               </Text>
+
             </View>
             <Text style={{fontSize:20, fontWeight: 'bold', paddingTop:25}}>Cuisine Type</Text>
             {Object.keys(cuisineMap).map(label => (
@@ -356,8 +409,30 @@ function HomeScreen() {
                 <Text>{label}</Text>
               </View>
             ))}
+
+            <Text style={{fontSize:20, fontWeight: 'bold', paddingTop:25}}>Price Level</Text>
+              {Object.keys(priceMap).map(label => (
+              <View key={label} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Checkbox
+                  value={selectedPriceLevel.includes(label)}
+                  onValueChange={() => togglePriceLevel(label)}
+                />
+                <Text>{label}</Text>
+              </View>
+              ))}
+
+              <Text style={{fontSize:20, fontWeight: 'bold', paddingTop:25}}>Google Rating</Text>
+              {Object.keys(googleRatingMap).map(label => (
+              <View key={label} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Checkbox
+                  value={selectedGoogleRating.includes(label)}
+                  onValueChange={() => toggleGoogleRating(label)}
+                />
+                <Text>{label}</Text>
+              </View>
+              ))}
           </View>
-        </View>
+        </ScrollView>
         </>
       )}
 
