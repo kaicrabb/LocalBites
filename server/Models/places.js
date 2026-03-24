@@ -16,6 +16,17 @@ const places_schema = new mongoose.Schema({
         required: true,
         unique: false,
     },
+    location: {
+        type: {
+            type: String,
+            enum: ["Point"],
+            required: true
+        },
+        coordinates: {
+            type: [Number],
+            required: true
+        }
+    },
     formattedAddress: {
         type: String, 
         required: true,
@@ -31,6 +42,8 @@ const places_schema = new mongoose.Schema({
         required: true,
         unique: false,
     },
-})
+});
+
+places_schema.index({ location: "2dsphere" })
 
 module.exports = mongoose.model('Restaurant', places_schema);

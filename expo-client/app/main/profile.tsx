@@ -1,108 +1,209 @@
-import { View, StyleSheet, TouchableOpacity, Text} from 'react-native';
-import { useRouter } from 'expo-router';      
-import Button from '../Button';
-import ImageViewer from '../ImageViewer';  
-import * as SecureStore from 'expo-secure-store'; 
-import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
+import { useRouter } from "expo-router";
+import React, { useState, useEffect } from "react";
+import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, StyleSheet } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
+import { Video, ResizeMode } from "expo-av";
+import { ref, listAll, getDownloadURL } from "firebase/storage";
+import { storage, auth } from "../../config/firebaseConfig";
+import { onAuthStateChanged, User } from 'firebase/auth';
 
-const PlaceholderImage = require ('@/assets/images/android-icon-background.png');
-
-
-
-export default function App() {
-  const router = useRouter();
-
-  const handleLogout = async (): Promise<void> => {
-    await SecureStore.deleteItemAsync("token");
-    router.replace("/");
-  };
-
-  const handleDeleteAccount = async (): Promise<void> => {
-    router.replace("/deleteAccount");
-  };
-
-  const handleChangePassword = () => {
-    router.push('/changePassword'); 
-  };
-
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
-  const pickImageAsync = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      quality: 1,
-    });
-    if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
-    } else {
-      alert('You did not select any image.');
-    }
-  };
-
-  return (
-    <View style = {Styles.container}>
-      <View style = {Styles.imageContainer}>
-        <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} />
-      </View>
-      <View style={Styles.footerContainer}>
-        <Button theme='primary' label='Choose a photo' onPress={pickImageAsync} />
-        <Button label='Use this photo' />
-      </View>
-      <View>
-      <TouchableOpacity style={Styles.logoutButton} onPress={handleLogout}>
-        <Text style={Styles.logoutText}>Logout</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={Styles.logoutButton} onPress={handleDeleteAccount}>
-        <Text style={Styles.logoutText}>Delete Account</Text>
-      </TouchableOpacity>
-      </View>
-      <TouchableOpacity style={Styles.changePasswordButton} onPress={handleChangePassword}>
-        <Text style={Styles.logoutText}>Change Password</Text>
-      </TouchableOpacity>
-    </View>
-  );
+interface UserProfile {
+  username: string;
+  bio: string;
+  profilePic: string;
 }
 
-const Styles = StyleSheet.create ({
-  container: {
-    flex: 1,
-    backgroundColor: '#25292e',
-    alignItems: 'center',
-  },
-  imageContainer: {
-    flex: 1, 
-  },
-  image: {
-    width: 320,
-    height: 440,
-    borderRadius: 18,
-  },
-  footerContainer: {
-    flex: 1/3,
-    alignItems: 'center',
-  },
-  logoutButton: {
-    marginTop: 30,
-    backgroundColor: "red",
-    padding: 12,
-    borderRadius: 8,
+const ProfilePage: React.FC = () => {
+  const router = useRouter();
+
+  const [user, setUserprofile] = useState<UserProfile>({
+    username: "username",
+    bio: "Big Back Reviews",
+    profilePic: "placeholder.jpg",
+  });
+
+  useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    setUser(firebaseUser);
+  });
+
+  return () => unsubscribe();
+}, []);
+
+  const [userFirebase, setUser] = useState<User | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [activeTab, setActiveTab] = useState<"videos" | "reviews">("videos");
+  const [userVideos, setUserVideos] = useState<string[]>([]);
+  const reviews = Array.from({ length: 6 }, (_, i) => `Review ${i + 1}`);
+
+  useEffect(() => {
+  if (!userFirebase) return;
+
+  const fetchUserVideos = async () => {
+    const user_id = userFirebase.uid;
+
+    const reelsRef = ref(storage, `reels/${user_id}`);
+    const result = await listAll(reelsRef);
+
+    const urls = await Promise.all(
+      result.items.map((itemRef) => getDownloadURL(itemRef))
+    );
+
+    setUserVideos(urls);
+  };
+
+  fetchUserVideos();
+}, [userFirebase]);
+
+  return (
+    <ScrollView style={styles.container}>
+      <View style={styles.topBar}>
+        <TouchableOpacity onPress={() => router.push('../settings')}>
+          <Ionicons name="settings" size={24} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.profileHeader}>
+        <Image source={{ uri: user.profilePic }} style={styles.profilePic} />
+        <Text style={styles.usernameText}>@{user.username}</Text>
+
+        <View style={styles.stats}>
+          <View style={styles.stat}>
+            <Text style={styles.statNumber}>120</Text>
+            <Text>Following</Text>
+          </View>
+          <View style={styles.stat}>
+            <Text style={styles.statNumber}>4.2K</Text>
+            <Text>Followers</Text>
+          </View>
+          <View style={styles.stat}>
+            <Text style={styles.statNumber}>15K</Text>
+            <Text>Likes</Text>
+          </View>
+        </View>
+
+        <TouchableOpacity style={styles.editBtn} onPress={() => setEditing(true)}>
+          <Text>Edit Profile</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.bio}>{user.bio}</Text>
+      </View>
+
+      <View style={styles.tabs}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "videos" && styles.activeTab]}
+          onPress={() => setActiveTab("videos")}
+        >
+          <Text>Videos</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "reviews" && styles.activeTab]}
+          onPress={() => setActiveTab("reviews")}
+        >
+          <Text>Reviews</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.videoGrid}>
+        {(activeTab === "videos" ? userVideos : reviews).map((item, i) => (
+          <TouchableOpacity
+            key={i}
+            style={styles.videoTile}
+            onPress={() =>
+              router.push({
+                pathname: "/main/video/[videoURL]",
+                params: { videoUrl: encodeURIComponent(item) },
+              })
+            }
+          >
+            {activeTab === "videos" ? (
+              <Video
+                source={{ uri: item }}
+                style={{ width: "100%", height: "100%" }}
+                resizeMode={ResizeMode.COVER}
+                shouldPlay={false}
+                isMuted
+                isLooping
+              />
+            ) : (
+              <Text>{item}</Text>
+            )}
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {editing && (
+        <View style={styles.editModal}>
+          <Text>Edit Profile</Text>
+
+          <TextInput
+            style={styles.input}
+            value={user.username}
+            onChangeText={(text) => setUserprofile({ ...user, username: text })}
+          />
+
+          <TextInput
+            style={styles.input}
+            value={user.bio}
+            onChangeText={(text) => setUserprofile({ ...user, bio: text })}
+          />
+
+          <TextInput
+            style={styles.input}
+            value={user.profilePic}
+            onChangeText={(text) => setUserprofile({ ...user, profilePic: text })}
+          />
+
+          <TouchableOpacity style={styles.editBtn} onPress={() => setEditing(false)}>
+            <Text>Save</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </ScrollView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#fff" },
+  topBar: { flexDirection: "row", justifyContent: "space-between", padding: 10 },
+  settingsBtn: { fontSize: 20 },
+  profileHeader: { alignItems: "center", padding: 20 },
+  profilePic: { width: 110, height: 110, borderRadius: 55 },
+  usernameText: { fontWeight: "bold", fontSize: 18, marginVertical: 5 },
+  stats: { flexDirection: "row", justifyContent: "space-around", width: "80%", marginVertical: 10 },
+  stat: { alignItems: "center" },
+  statNumber: { fontWeight: "bold" },
+  editBtn: { marginTop: 10, paddingVertical: 8, paddingHorizontal: 20, borderWidth: 1, borderRadius: 8 },
+  bio: { marginTop: 10, color: "gray", textAlign: "center" },
+  tabs: { flexDirection: "row", borderTopWidth: 1, borderBottomWidth: 1, borderColor: "#eee" },
+  tab: { flex: 1, padding: 10, alignItems: "center" },
+  activeTab: { borderBottomWidth: 3, borderBottomColor: "black" },
+  videoGrid: { flexDirection: "row", flexWrap: "wrap" },
+  videoTile: {
+    width: "33%",
+    aspectRatio: 9 / 16,
+    backgroundColor: "#ddd",
+    justifyContent: "center",
     alignItems: "center",
   },
-  logoutText: {
-    color: "white",
-    fontWeight: "bold",
+  editModal: {
+    position: "absolute",
+    top: "20%",
+    left: "10%",
+    right: "10%",
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    elevation: 5,
   },
-  changePasswordButton: {
-    marginTop: 30,
-    backgroundColor: "red",
-    padding: 12,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  changePasswordText: {
-    color: "white",
-    fontWeight: "bold",
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 5,
+    marginBottom: 10,
   },
 });
 
+export default ProfilePage;
