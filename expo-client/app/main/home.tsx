@@ -193,6 +193,7 @@ function HomeScreen() {
     Thai: 'thai_restaurant',
     Catering: 'catering_service',
     'Health Food': 'health_food_store',
+    'Coffee Shop': 'coffee_shop',
   };
 
   const togglePriceLevel = (priceLevel: string) => {
@@ -335,6 +336,7 @@ function HomeScreen() {
           if (lowerType.includes('steak_house')) return 'food-steak';
           if (lowerType.includes('buffet_restaurant')) return 'buffet';
           if (lowerType.includes('fast_food_restaurant')) return 'food';
+          if (lowerType.includes('coffee_shop')) return 'coffee';
 
           return 'food-fork-drink'; // default
         };
