@@ -9,16 +9,17 @@ const cors = require('cors'); // Importing cors module
 const connectDB = require('./Config/db');
 //const createExampleUser = require('./Routes/example_user');
 //const runDemoReview = require('./Routes/example_review');
-//const callSearchText = require('./Routes/Google_Api/search_places.js');
+const callSearchText = require('./Routes/Google_Api/search_places.js');
 const getNearbyRestaurants = require('./Routes/Google_Api/nearby_restaurants');
 const getRestaurantDetails = require('./Routes/Google_Api/restaurant_details');
-/* const signup = require('./Routes/Authentication/signup');
+const signup = require('./Routes/Authentication/signup');
 const login = require('./Routes/Authentication/login');
 const changePassword = require('./Routes/Authentication/change_password');
 const authenticateToken = require('./Routes/Authentication/authtoken');
 const deleteAccount = require('./Routes/Authentication/delete_account');
 const userInfo = require('./Routes/user_info');
-const supplyFirebaseToken = require('./Routes/Authentication/firebasetoken'); */
+
+const supplyFirebaseToken = require('./Routes/Authentication/firebasetoken');
 const addReview = require('./Routes/Reviews/add_review');
 const getReview = require('./Routes/Reviews/get_reviews');
 
@@ -34,14 +35,14 @@ async function startServer(){
     // Connect to the database
     await connectDB();
 
-    /* app.post("/Authentication/signup", signup)
+    app.post("/Authentication/signup", signup)
     app.post("/Authentication/login", login)
     app.post("/Authentication/change_password", authenticateToken, changePassword)
     app.post("/Authentication/delete_account", authenticateToken, deleteAccount)
     app.post("/reviews", authenticateToken, addReview); 
 
     app.get("/user_info", authenticateToken, userInfo);
-    app.get("/Authentication/firebase_token", authenticateToken, supplyFirebaseToken); */
+    app.get("/Authentication/firebase_token", authenticateToken, supplyFirebaseToken);
     app.get("/Google_Api/nearby_restaurants", getNearbyRestaurants);
     app.get("/Google_Api/restaurant_details", getRestaurantDetails);
     app.get("/reviews", getReview);
