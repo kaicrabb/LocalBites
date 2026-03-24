@@ -26,7 +26,7 @@ async function getNearbyRestaurants(req, res) {
             location: {
                 coordinates: [rest.location.coordinates[0], rest.location.coordinates[1]]
             },
-            primaryType: rest.primaryType
+            primaryType: rest.primaryType,
             priceLevel: rest.priceLevel
         }));
         res.status(200).json(basicInfo);
