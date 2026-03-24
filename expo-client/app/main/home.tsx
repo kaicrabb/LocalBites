@@ -374,7 +374,7 @@ function HomeScreen() {
           // Show restaurant details of selected restaurant
           <View>
             <TouchableOpacity onPress={() => setSelectedRestaurantData(null)} style={{ marginBottom: 10 }}>
-              <Text style={{ color: 'blue' }}>← Back to list</Text>
+              <MaterialCommunityIcons name="arrow-u-left-top-bold" size={32} />
             </TouchableOpacity>
             <Text style={{ fontSize: 26, fontWeight: 'bold', fontFamily: 'Arial' }}>
               {selectedRestaurantData.displayName || 'Restaurant Details'}
