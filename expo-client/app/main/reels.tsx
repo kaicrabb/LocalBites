@@ -13,7 +13,6 @@ export default function ReelFeed() {
   const [pausedIndex, setPausedIndex] = useState<number | null>(null);
 
   const isFocused = useIsFocused();
-
   const videoRefs = useRef<(Video | null)[]>([]);
 
   useEffect(() => {
@@ -30,11 +29,25 @@ export default function ReelFeed() {
         const reelsRef = ref(storage, 'reels/');
         const result = await listAll(reelsRef);
 
-        const urls = await Promise.all(
-          result.items.map(itemRef => getDownloadURL(itemRef))
-        );
+        const userFolders = result.prefixes;
+        const allUrls: string[] = [];
 
-        setVideos(urls);
+        for (const folderRef of userFolders) {
+          const folderResult = await listAll(folderRef);
+
+          const urls = await Promise.all(
+            folderResult.items.map((itemRef) => getDownloadURL(itemRef))
+          );
+
+          allUrls.push(...urls);
+        }
+
+        for (let i = allUrls.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [allUrls[i], allUrls[j]] = [allUrls[j], allUrls[i]];
+        }
+
+        setVideos(allUrls);
       } catch (error) {
         console.log('Error fetching reels:', error);
       }
@@ -46,9 +59,7 @@ export default function ReelFeed() {
 
   useEffect(() => {
     if (!isFocused) {
-      videoRefs.current.forEach((video) => {
-        video?.pauseAsync();
-      });
+      videoRefs.current.forEach((video) => video?.pauseAsync());
     }
   }, [isFocused]);
 
@@ -68,14 +79,14 @@ export default function ReelFeed() {
     });
 
     const nextVideo = videoRefs.current[currentIndex + 1];
-    if (nextVideo) {
+    if (nextVideo && videos[currentIndex + 1]) {
       nextVideo.loadAsync(
         { uri: videos[currentIndex + 1] },
         {},
         false
       );
     }
-  }, [currentIndex, pausedIndex, isFocused]);
+  }, [currentIndex, pausedIndex, isFocused, videos]);
 
   const renderItem = ({ item, index }: { item: string; index: number }) => {
     const handlePress = () => {
@@ -114,11 +125,9 @@ export default function ReelFeed() {
       decelerationRate="fast"
       showsVerticalScrollIndicator={false}
       onMomentumScrollEnd={(event) => {
-        const index = Math.round(
-          event.nativeEvent.contentOffset.y / height
-        );
+        const index = Math.round(event.nativeEvent.contentOffset.y / height);
         setCurrentIndex(index);
-        setPausedIndex(null); // reset pause on scroll
+        setPausedIndex(null);
       }}
       getItemLayout={(_, index) => ({
         length: height,

@@ -1,25 +1,27 @@
 import { useLocalSearchParams } from "expo-router";
-import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Video, ResizeMode } from "expo-av";
+import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
 import { useRouter } from "expo-router";
-import { Text } from "react-native";
 
 export default function VideoPlayer() {
-  const { videoUrl } = useLocalSearchParams();
+  const { videoURL } = useLocalSearchParams();
+  const decodedUrl = decodeURIComponent(videoURL as string);
   const router = useRouter();
 
   return (
     <View style={styles.container}>
       <Video
-        source={{ uri: decodeURIComponent(videoUrl as string) }}
+        source={{ uri: decodedUrl }}
         style={styles.video}
         resizeMode={ResizeMode.COVER}
         shouldPlay
         isLooping
       />
 
-      {/* Back Button */}
-      <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+      <TouchableOpacity
+        style={styles.backBtn}
+        onPress={() => router.push("/main/profile")}
+      >
         <Text style={{ color: "white", fontSize: 18 }}>Back</Text>
       </TouchableOpacity>
     </View>
@@ -27,17 +29,7 @@ export default function VideoPlayer() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "black",
-  },
-  video: {
-    width: "100%",
-    height: "100%",
-  },
-  backBtn: {
-    position: "absolute",
-    top: 50,
-    left: 20,
-  },
+  container: { flex: 1, backgroundColor: "black" },
+  video: { width: "100%", height: "100%" },
+  backBtn: { position: "absolute", top: 50, left: 20 },
 });
