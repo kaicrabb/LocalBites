@@ -36,11 +36,13 @@ const places_schema = new mongoose.Schema({
         type: String, 
         required: true,
         unique: false,
+        default: "-1",
     },
      priceLevel: {
         type: String, 
-        required: true,
+        required: false,
         unique: false,
+        default: "PRICE_LEVEL_UNKNOWN",
     },
 });
 

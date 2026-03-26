@@ -53,6 +53,6 @@ startServer();
 
 //Optional testing code, uncomment to run
 //callSearchText("food", 40.3461, -94.8729, 100);
-httpSearchText("food in maryville, missouri");
+httpSearchText("restaurants in maryville, missouri");
 // createExampleUser();
 // runDemoReview();
