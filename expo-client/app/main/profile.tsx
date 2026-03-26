@@ -1,4 +1,4 @@
-import { useRouter } from "expo-router";
+import { useRouter, useNavigation} from "expo-router";
 import React, { useState, useEffect } from "react";
 import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, StyleSheet } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
@@ -21,6 +21,16 @@ const ProfilePage: React.FC = () => {
     bio: "Big Back Reviews",
     profilePic: "placeholder.jpg",
   });
+  const navigation = useNavigation();
+    useEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => router.push('../settings')}>
+          <View style={{ padding: 10 }}>
+            <Ionicons name="settings" size={24} />
+          </View>
+        </TouchableOpacity>
+      )})})
 
   useEffect(() => {
   const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -57,12 +67,6 @@ const ProfilePage: React.FC = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => router.push('../settings')}>
-          <Ionicons name="settings" size={24} />
-        </TouchableOpacity>
-      </View>
-
       <View style={styles.profileHeader}>
         <Image source={{ uri: user.profilePic }} style={styles.profilePic} />
         <Text style={styles.usernameText}>@{user.username}</Text>
