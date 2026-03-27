@@ -10,6 +10,7 @@ import { auth } from '../../config/firebaseConfig';
 import { signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import Slider from '@react-native-community/slider';
 import CreateReview from '../review';
 
 
@@ -93,6 +94,7 @@ function HomeScreen() {
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
   const [selectedPriceLevel, setSelectedPriceLevel] = useState<string[]>([]);
   const [selectedGoogleRating, setSelectedGoogleRating] = useState<string[]>([]);
+  const [radius, setRadius] = useState(50);
 
   // Snap positions
   const snapPoints = useMemo(() => ['5%', '50%', '75','100%'], []);
@@ -100,6 +102,31 @@ function HomeScreen() {
   const handleSheetChanges = useCallback((index: number) => {
     console.log('Sheet position:', index);
   }, []);
+  
+
+  const getDistanceInMiles = (
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+  ) => {
+    const toRad = (value: number) => (value * Math.PI) / 180;
+
+    const R = 3958.8; // Earth radius in miles
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) ** 2;
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
+  };
+
   const getNearbyRestaurants = async () => {
     try {
       const token = await SecureStore.getItemAsync('token');
@@ -111,6 +138,7 @@ function HomeScreen() {
           'Authorization': `Bearer ${token}`,
         },
       });
+
       const data = await response.json();
       // console.log('Raw nearby restaurants response:', data);
       setRestaurants(data);
@@ -135,6 +163,7 @@ function HomeScreen() {
           'Authorization': `Bearer ${token}`,
         },
       });
+
       const data = await response.json();
       // console.log('Restaurant details response:', data);
       
@@ -251,11 +280,18 @@ function HomeScreen() {
           const [min, max] = googleRatingMap[label] || [];
           return r.rating >= min && r.rating <= max;
         });
-      return matchesCuisine && matchesPrice && matchesGoogleRating;
+      
+      const matchesRadius = 
+        radius === 0 || getDistanceInMiles(
+          INITIAL_REGION.latitude,
+          INITIAL_REGION.longitude,
+          r.location.coordinates[1], // lat
+          r.location.coordinates[0]  // lng
+        ) <= radius;
+      return matchesCuisine && matchesPrice && matchesGoogleRating && matchesRadius;
       })
     : [];
 
-  
 
   const mapStyle = [
   {
@@ -399,8 +435,20 @@ function HomeScreen() {
               <Text style={{ fontSize: 32, fontWeight: 'bold', marginLeft: 20}}>
                 Filters
               </Text>
-
             </View>
+            <Text style={{fontSize:20, fontWeight: 'bold', paddingTop:25}}>Set Radius (Miles)</Text>
+            <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 10, color: '#51CCFF' }}>{radius}</Text>
+            <Slider
+                minimumValue={0}
+                maximumValue={50}
+                step={1}
+                value={radius}
+                onValueChange={val => setRadius(val)}
+                minimumTrackTintColor="#51CCFF"
+                maximumTrackTintColor="#000000"
+                
+              />
+
             <Text style={{fontSize:20, fontWeight: 'bold', paddingTop:25}}>Cuisine Type</Text>
             {Object.keys(cuisineMap).map(label => (
               <View key={label} style={{ flexDirection: 'row', alignItems: 'center' }}>
