@@ -5,9 +5,10 @@ const Restaurant = require('../../Models/places');
 
 const API_KEY = process.env.API_KEY;
 const endpoint = 'https://places.googleapis.com/v1/places:searchText';
+const endpoint2 = `https://places.googleapis.com/v1/places:searchText&key={API_KEY}`;
 
 //chain restaurants list
-const chains = ["McAlister's Deli", "Planet Sub", "Buffalo Wild Wings GO", "Applebee's Grill + Bar", "Chick-fil-A", "McDonalds", "Taco Bell", "Burger King", "Pizza Ranch", "Sonic Drive-In", "Jimmy John's"];
+const chains = ["McAlister's Deli", "Planet Sub", "Buffalo Wild Wings GO", "Applebee's Grill + Bar", "Chick-fil-A", "McDonalds", "Taco Bell", "Burger King", "Pizza Ranch", "Sonic Drive-In", "Jimmy John's", "McDonald's", "Starbucks Coffee Company", "Pizza Hut", "Dominos" "Hunt Brothers"];
 
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -82,11 +83,17 @@ async function logResults(response, pageToken, q){
 }
 
 async function nextPage(pageToken, q){
-    const response = await axios.post(endpoint,{
+    const response = await axios.post(endpoint,
+        {
+            textQuery: q.textQuery,
+            pageToken: pageToken
+        },
+        { headers: {
             'pageSize' : 20,
-            'pagetoken': pageToken,
             'X-Goog-Api-Key' : API_KEY,
-    });
+            'X-Goog-FieldMask': 'nextPageToken,places.displayName.text,places.types,places.primaryType,places.formattedAddress,places.rating,places.priceLevel,places.location',
+        }}
+    );
     console.log("next page q token:", pageToken)
     console.log("next page q nextPageToken:", response.data.nextPageToken)
     logResults(response, response.data.nextPageToken, q);
