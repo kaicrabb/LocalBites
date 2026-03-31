@@ -88,6 +88,9 @@ function HomeScreen() {
   const mapRef = useRef<MapView>(null);
   const [restaurants, setRestaurants] = useState<any[]>([]);
   const [selectedRestaurantData, setSelectedRestaurantData] = useState<any>(null);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showFilterForm, setShowFilterForm] = useState(false);
@@ -148,6 +151,37 @@ function HomeScreen() {
     }
   };
 
+  const fetchReviews = async (restaurantId: string) => {
+    setReviewLoading(true);
+    setReviewError(null);
+    try {
+      const token = await SecureStore.getItemAsync('token');
+      const response = await fetch(
+        `https://localbites-4m9e.onrender.com/reviews?placeId=${restaurantId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setReviewError(data.message || 'Unable to load reviews.');
+        setReviews([]);
+      } else {
+        setReviews(Array.isArray(data.reviews) ? data.reviews : []);
+      }
+    } catch (error) {
+      console.error('Error loading reviews:', error);
+      setReviewError('Unable to load reviews.');
+      setReviews([]);
+    } finally {
+      setReviewLoading(false);
+    }
+  };
+
   useEffect(() => {
     getNearbyRestaurants();
   }, []);
@@ -168,6 +202,7 @@ function HomeScreen() {
       // console.log('Restaurant details response:', data);
       
       setSelectedRestaurantData(data);
+      await fetchReviews(restaurantId);
       bottomSheetRef.current?.snapToIndex(3);
   };
 
@@ -339,6 +374,57 @@ function HomeScreen() {
             );
           return <Text style={{fontSize:16, fontWeight:"600"}}>Unknown</Text>;
         };
+
+  const renderReviewSection = () => {
+    if (reviewLoading) {
+      return (
+        <Text style={{ marginTop: 10, fontStyle: 'italic', color: 'gray' }}>
+          Loading reviews...
+        </Text>
+      );
+    }
+
+    if (reviewError) {
+      return (
+        <Text style={{ marginTop: 10, color: 'red' }}>
+          {reviewError}
+        </Text>
+      );
+    }
+
+    if (reviews.length === 0) {
+      return (
+        <Text style={{ marginTop: 10, fontStyle: 'italic', color: 'gray', paddingBottom:30 }}>
+          No reviews yet for this restaurant.
+        </Text>
+      );
+    }
+
+    return (
+      <View style={{ marginTop: 10, paddingBottom: 30 }}>
+        {reviews.map((review) => (
+          <View key={review._id} style={{ marginVertical: 6, backgroundColor: '#ffffff', borderRadius: 8, padding: 12, borderWidth: 1, borderColor: '#ddd' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+              <Text style={{ fontWeight: '700', marginRight: 8 }}>
+                {review.User?.Username || review.User?.Email || 'Anonymous'}
+              </Text>
+              <Text style={{ color: '#666' }}>
+                {Array.from({ length: 5 }, (_, i) => {
+                  const starIndex = i + 1;
+                  return (
+                    <Text key={starIndex} style={{ color: starIndex <= review.Rating ? '#FFD700' : '#ccc' }}>
+                      ★
+                    </Text>
+                  );
+                })}
+              </Text>
+            </View>
+            <Text style={{ color: '#444' }}>{review.Comment || 'No comment provided.'}</Text>
+          </View>
+        ))}
+      </View>
+    );
+  };
 
   return (
     // Sets up home page view
@@ -538,15 +624,16 @@ function HomeScreen() {
             </TouchableOpacity>
             {showReviewForm && (<CreateReview
               restaurantId={selectedRestaurantData._id}
-              _onClose={() => setShowReviewForm(false)}
+              _onClose={async () => {
+                setShowReviewForm(false);
+                await fetchReviews(selectedRestaurantData._id);
+              }}
               />
             )}
             <Text style={{ marginTop: 15, fontSize: 16, fontWeight: '600' }}>
               User Reviews
             </Text>
-            <Text style={{ fontStyle: 'italic', color: 'gray', paddingBottom:30 }}>
-              (User reviews will be displayed here)
-            </Text>
+            {renderReviewSection()}
           </View>
           
         ) : (

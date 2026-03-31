@@ -4,6 +4,7 @@ import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, StyleSheet 
 import { Ionicons } from '@expo/vector-icons';
 import { Video, ResizeMode } from "expo-av";
 import { ref, listAll, getDownloadURL } from "firebase/storage";
+import * as SecureStore from 'expo-secure-store';
 import { storage, auth } from "../../config/firebaseConfig";
 import { onAuthStateChanged, User } from 'firebase/auth';
 
@@ -34,7 +35,9 @@ const ProfilePage: React.FC = () => {
   const [editing, setEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<"videos" | "reviews">("videos");
   const [userVideos, setUserVideos] = useState<string[]>([]);
-  const reviews = Array.from({ length: 6 }, (_, i) => `Review ${i + 1}`);
+  const [profileReviews, setProfileReviews] = useState<any[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviewsError, setReviewsError] = useState<string | null>(null);
 
   useEffect(() => {
   if (!userFirebase) return;
@@ -54,6 +57,101 @@ const ProfilePage: React.FC = () => {
 
   fetchUserVideos();
 }, [userFirebase]);
+
+  useEffect(() => {
+    const fetchProfileReviews = async () => {
+      setReviewsLoading(true);
+      setReviewsError(null);
+      setProfileReviews([]);
+
+      try {
+        const token = await SecureStore.getItemAsync('token');
+        if (!token) {
+          setReviewsError('You must be logged in to view your reviews.');
+          return;
+        }
+
+        const userInfoResponse = await fetch('https://localbites-4m9e.onrender.com/user_info', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        const userInfo = await userInfoResponse.json();
+        if (!userInfo.userId) {
+          setReviewsError('Unable to load user information.');
+          return;
+        }
+
+        const reviewsResponse = await fetch(`https://localbites-4m9e.onrender.com/reviews?userId=${userInfo.userId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        const reviewsData = await reviewsResponse.json();
+        if (!reviewsResponse.ok) {
+          setReviewsError(reviewsData.message || 'Unable to load reviews.');
+          return;
+        }
+
+        setProfileReviews(Array.isArray(reviewsData.reviews) ? reviewsData.reviews : []);
+      } catch (error) {
+        console.error('Error fetching profile reviews:', error);
+        setReviewsError('Unable to load reviews.');
+      } finally {
+        setReviewsLoading(false);
+      }
+    };
+
+    fetchProfileReviews();
+  }, [userFirebase]);
+
+  const renderReviewsTab = () => {
+    if (reviewsLoading) {
+      return (
+        <View style={styles.reviewPlaceholder}>
+          <Text style={{ color: 'gray' }}>Loading your reviews...</Text>
+        </View>
+      );
+    }
+
+    if (reviewsError) {
+      return (
+        <View style={styles.reviewPlaceholder}>
+          <Text style={{ color: 'red' }}>{reviewsError}</Text>
+        </View>
+      );
+    }
+
+    if (profileReviews.length === 0) {
+      return (
+        <View style={styles.reviewPlaceholder}>
+          <Text style={{ color: 'gray' }}>You have not left any reviews yet.</Text>
+        </View>
+      );
+    }
+
+    return profileReviews.map((review) => (
+      <View key={review._id} style={styles.reviewTile}>
+        <Text style={styles.reviewTitle}>
+          {review.Place?.displayName || 'Unknown Place'}
+        </Text>
+        <Text style={styles.reviewRating}>
+          {Array.from({ length: 5 }, (_, index) => (
+            <Text key={index} style={{ color: index < review.Rating ? '#FFD700' : '#ccc' }}>
+              ★
+            </Text>
+          ))}
+        </Text>
+        <Text style={styles.reviewComment}>{review.Comment || 'No comment provided.'}</Text>
+      </View>
+    ));
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -106,18 +204,18 @@ const ProfilePage: React.FC = () => {
       </View>
 
       <View style={styles.videoGrid}>
-        {(activeTab === "videos" ? userVideos : reviews).map((item, i) => (
-          <TouchableOpacity
-            key={i}
-            style={styles.videoTile}
-            onPress={() =>
-              router.push({
-                pathname: "/main/video/[videoURL]",
-                params: { videoUrl: encodeURIComponent(item) },
-              })
-            }
-          >
-            {activeTab === "videos" ? (
+        {activeTab === "videos" ? (
+          userVideos.map((item) => (
+            <TouchableOpacity
+              key={item}
+              style={styles.videoTile}
+              onPress={() =>
+                router.push({
+                  pathname: "/main/video/[videoURL]",
+                  params: { videoURL: encodeURIComponent(item) },
+                })
+              }
+            >
               <Video
                 source={{ uri: item }}
                 style={{ width: "100%", height: "100%" }}
@@ -126,11 +224,11 @@ const ProfilePage: React.FC = () => {
                 isMuted
                 isLooping
               />
-            ) : (
-              <Text>{item}</Text>
-            )}
-          </TouchableOpacity>
-        ))}
+            </TouchableOpacity>
+          ))
+        ) : (
+          renderReviewsTab()
+        )}
       </View>
 
       {editing && (
@@ -186,6 +284,33 @@ const styles = StyleSheet.create({
     backgroundColor: "#ddd",
     justifyContent: "center",
     alignItems: "center",
+  },
+  reviewPlaceholder: {
+    width: "100%",
+    padding: 20,
+    alignItems: "center",
+  },
+  reviewTile: {
+    width: "100%",
+    padding: 15,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    backgroundColor: "#fafafa",
+    marginBottom: 12,
+  },
+  reviewTitle: {
+    fontWeight: "700",
+    marginBottom: 6,
+    fontSize: 16,
+  },
+  reviewRating: {
+    flexDirection: "row",
+    marginBottom: 8,
+  },
+  reviewComment: {
+    color: "#444",
+    fontSize: 14,
   },
   editModal: {
     position: "absolute",

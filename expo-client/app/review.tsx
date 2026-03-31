@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Text, TouchableOpacity, View, TextInput} from 'react-native';
+import { Text, TouchableOpacity, View, TextInput, Alert } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 import { MaterialIcons } from '@expo/vector-icons';
 
 export default function CreateReview({ restaurantId, _onClose }: Readonly<{ restaurantId: string; _onClose: () => void }>) {
@@ -31,9 +32,50 @@ export default function CreateReview({ restaurantId, _onClose }: Readonly<{ rest
         return stars;
     };
 
-    const handleSubmit = () => {
-        console.log('Submitting review:', { restaurantId, rating, comment });
-        _onClose(); 
+    const handleSubmit = async () => {
+        if (!restaurantId) {
+            Alert.alert('Error', 'Restaurant ID is missing.');
+            return;
+        }
+
+        if (rating < 1) {
+            Alert.alert('Validation', 'Please select a rating before submitting.');
+            return;
+        }
+
+        try {
+            const token = await SecureStore.getItemAsync('token');
+            if (!token) {
+                Alert.alert('Error', 'You must be logged in to submit a review.');
+                return;
+            }
+
+            const response = await fetch('https://localbites-4m9e.onrender.com/reviews', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    placeId: restaurantId,
+                    rating,
+                    comment,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                Alert.alert('Error', data.message || 'Unable to submit review.');
+                return;
+            }
+
+            Alert.alert('Success', 'Review submitted successfully.');
+            _onClose();
+        } catch (error) {
+            console.error('Error submitting review:', error);
+            Alert.alert('Error', 'Unexpected error submitting review.');
+        }
     }
 
     return (
