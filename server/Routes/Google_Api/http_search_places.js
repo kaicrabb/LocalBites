@@ -8,7 +8,7 @@ const endpoint = 'https://places.googleapis.com/v1/places:searchText';
 const endpoint2 = `https://places.googleapis.com/v1/places:searchText&key={API_KEY}`;
 
 //chain restaurants list
-const chains = ["McAlister's Deli", "Planet Sub", "Buffalo Wild Wings GO", "Applebee's Grill + Bar", "Chick-fil-A", "McDonalds", "Taco Bell", "Burger King", "Pizza Ranch", "Sonic Drive-In", "Jimmy John's", "McDonald's", "Starbucks Coffee Company", "Pizza Hut", "Dominos" "Hunt Brothers"];
+const chains = ["McAlister's Deli", "Planet Sub", "Buffalo Wild Wings GO", "Applebee's Grill + Bar", "Chick-fil-A", "McDonalds", "Taco Bell", "Burger King", "Pizza Ranch", "Sonic Drive-In", "Jimmy John's", "McDonald's", "Starbucks Coffee Company", "Pizza Hut", "Dominos", "Hunt Brothers"];
 
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
