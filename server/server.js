@@ -11,6 +11,7 @@ const connectDB = require('./Config/db');
 //const runDemoReview = require('./Routes/example_review');
 const callSearchText = require('./Routes/Google_Api/search_places.js');
 const httpSearchText = require('./Routes/Google_Api/http_search_places.js');
+const getLocation = require('./Routes/Google_Api/get_location.js');
 const getNearbyRestaurants = require('./Routes/Google_Api/nearby_restaurants');
 const getRestaurantDetails = require('./Routes/Google_Api/restaurant_details');
 //const signup = require('./Routes/Authentication/signup');
@@ -53,6 +54,7 @@ startServer();
 
 //Optional testing code, uncomment to run
 //callSearchText("food", 40.3461, -94.8729, 100);
-httpSearchText("restaurants in maryville, missouri");
+//httpSearchText(40.3461, -94.8729);
+getLocation(40.3461, -94.8729);
 // createExampleUser();
 // runDemoReview();

@@ -5,10 +5,9 @@ const Restaurant = require('../../Models/places');
 
 const API_KEY = process.env.API_KEY;
 const endpoint = 'https://places.googleapis.com/v1/places:searchText';
-const endpoint2 = `https://places.googleapis.com/v1/places:searchText&key={API_KEY}`;
 
 //chain restaurants list
-const chains = ["McAlister's Deli", "Planet Sub", "Buffalo Wild Wings GO", "Applebee's Grill + Bar", "Chick-fil-A", "McDonalds", "Taco Bell", "Burger King", "Pizza Ranch", "Sonic Drive-In", "Jimmy John's", "McDonald's", "Starbucks Coffee Company", "Pizza Hut", "Dominos", "Hunt Brothers"];
+const chains = ["McAlister's Deli", "Planet Sub", "Buffalo Wild Wings GO", "Applebee's Grill + Bar", "Chick-fil-A", "McDonalds", "Taco Bell", "Burger King", "Pizza Ranch", "Sonic Drive-In", "Jimmy John's", "McDonald's", "Starbucks Coffee Company", "Pizza Hut", "Dominos", "Hunt Brothers", "KFC", "Taco John's", "Scooter's Coffee", "Dairy Queen Grill & Chill", "Pizza Hut", "Starbucks Coffee Company", "Domino's Pizza"];
 
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -26,16 +25,14 @@ async function httpSearchText(query){
             'X-Goog-FieldMask': 'nextPageToken,places.displayName.text,places.types,places.primaryType,places.formattedAddress,places.rating,places.priceLevel,places.location',
         },
     });
-    console.log("page1:"+response.data.nextPageToken)
-    logResults(response, response.data.nextPageToken, q);
+    logResults(response, response.data.nextPageToken, query);
 }
 
-async function logResults(response, pageToken, q){
-    console.log("log start:"+pageToken)
+async function logResults(response, pageToken, query){
     for (let i = 0; i < response.data.places.length; i++) {
         const exists = await Restaurant.findOne({displayName: response.data.places[i].displayName.text});
         const chain = chains.includes(response.data.places[i].displayName.text);
-        if (!exists && !chain && response.data.places[i].primaryType != "fast_food_restauraunt"){
+        if (!exists && !chain && response.data.places[i].types.includes("restaurant") && response.data.places[i].primaryType != "fast_food_restauraunt" && response.data.places[i].types.includes("fast_food_restaurant") == false){
             let rating;
             if (response.data.places[i].rating == "undefined"){rating == "-1"}
             else {rating = response.data.places[i].rating}
@@ -51,20 +48,22 @@ async function logResults(response, pageToken, q){
                 rating: rating,
                 priceLevel: response.data.places[i].priceLevel
             });
-        await workingRestaurant.save();
-        console.log("New Restaurant "+response.data.places[i].displayName.text+" saved!");
+            await workingRestaurant.save();
+            console.log("New Restaurant "+response.data.places[i].displayName.text+" saved!");
         }
         else if (exists){
-        console.log("Restaurant "+response.data.places[i].displayName.text+" already exists!");
+            console.log("Restaurant "+response.data.places[i].displayName.text+" already exists!");
         }
         else if (chain){
-        console.log("Restaurant "+response.data.places[i].displayName.text+" not saved--chain restaurant!");
+            console.log("Restaurant "+response.data.places[i].displayName.text+" not saved--chain restaurant!");
         }
-        else if (response.data.places[i].primaryType == "fast_food_restaurant"){
-        console.log("Restaurant "+response.data.places[i].displayName.text+" not saved--fast food restaurant!");
+        else if (response.data.places[i].primaryType == "fast_food_restaurant" || response.data.places[i].types.includes("fast_food_restauraunt")){
+            console.log("Restaurant "+response.data.places[i].displayName.text+" not saved--fast food restaurant!");
+        }
+        else if (response.data.places[i].types.includes("restaurant") == false){
+            console.log(response.data.places[i].displayName.text+" not saved--not a restaurant!")
         }
     }
-    console.log("after log:"+pageToken);
     if (pageToken){
         process.stdout.write("Waiting until pageToken is valid");
         process.stdout.write(".");
@@ -75,17 +74,17 @@ async function logResults(response, pageToken, q){
         await delay(1000);
         console.log("Parsing next page of results...");
         await delay(1000);
-        nextPage(pageToken, q);
+        nextPage(pageToken, query);
     }
     else {
         console.log("No more results...")
     }
 }
 
-async function nextPage(pageToken, q){
+async function nextPage(pageToken, query){
     const response = await axios.post(endpoint,
         {
-            textQuery: q.textQuery,
+            textQuery: query,
             pageToken: pageToken
         },
         { headers: {
@@ -94,8 +93,6 @@ async function nextPage(pageToken, q){
             'X-Goog-FieldMask': 'nextPageToken,places.displayName.text,places.types,places.primaryType,places.formattedAddress,places.rating,places.priceLevel,places.location',
         }}
     );
-    console.log("next page q token:", pageToken)
-    console.log("next page q nextPageToken:", response.data.nextPageToken)
-    logResults(response, response.data.nextPageToken, q);
+    logResults(response, response.data.nextPageToken, query);
 }
 module.exports = httpSearchText;
