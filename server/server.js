@@ -21,6 +21,7 @@ const userInfo = require('./Routes/user_info');
 const supplyFirebaseToken = require('./Routes/Authentication/firebasetoken'); */
 const addReview = require('./Routes/Reviews/add_review');
 const getReview = require('./Routes/Reviews/get_reviews');
+const deleteReview = require('./Routes/Reviews/delete_review');
 
 async function startServer(){
     // Initialize Express app
@@ -45,6 +46,7 @@ async function startServer(){
     app.get("/Google_Api/nearby_restaurants", getNearbyRestaurants);
     app.get("/Google_Api/restaurant_details", getRestaurantDetails);
     app.get("/reviews", getReview);
+    app.post("/reviews", authenticateToken, deleteReview);
 
     app.listen(port, () => { 
         console.log("Server started on port " + port);
