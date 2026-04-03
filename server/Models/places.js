@@ -44,6 +44,56 @@ const places_schema = new mongoose.Schema({
         unique: false,
         default: "PRICE_LEVEL_UNKNOWN",
     },
+        servesLunch: {
+        type: Boolean,
+        required: false,
+        unique: false,
+        default: false,
+    },
+    servesBreakfast: {
+        type: Boolean,
+        required: false,
+        unique: false,
+        default: false,
+    },
+    servesDinner: {
+        type: Boolean,
+        required: false,
+        unique: false,
+        default: false,
+    },
+    delivery: {
+        type: Boolean,
+        required: false,
+        unique: false,
+        default: false,
+    },
+    dineIn: {
+        type: Boolean,
+        required: false,
+        unique: false,
+        default: false,
+    },
+    nationalPhoneNumber: {
+        type: String,
+        required: false,
+        unique: false,
+    },
+    websiteUri: {
+        type: String,
+        required: false,
+        unique: false,
+    },
+    regularOpeningHours: {
+        type: Object,
+        required: false,
+        unique: false,
+    },
+    photos: {
+        type: Array,
+        required: false,
+        unique: false,
+    },
 });
 
 places_schema.index({ location: "2dsphere" })

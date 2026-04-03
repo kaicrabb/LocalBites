@@ -22,7 +22,7 @@ async function httpSearchText(query){
             'Content-Type' : 'application/json',
             'X-Goog-Api-Key' : API_KEY,
             'pageSize' : 20,
-            'X-Goog-FieldMask': 'nextPageToken,places.displayName.text,places.types,places.primaryType,places.formattedAddress,places.rating,places.priceLevel,places.location',
+            'X-Goog-FieldMask': 'nextPageToken,places.displayName.text,places.types,places.primaryType,places.formattedAddress,places.rating,places.priceLevel,places.location,places.servesLunch,places.servesBreakfast,places.servesDinner,places.delivery,places.dineIn,places.nationalPhoneNumber,places.websiteUri,places.regularOpeningHours,places.photos',
         },
     });
     logResults(response, response.data.nextPageToken, query);
@@ -46,7 +46,16 @@ async function logResults(response, pageToken, query){
                     coordinates: [response.data.places[i].location.longitude, response.data.places[i].location.latitude]
                 },
                 rating: rating,
-                priceLevel: response.data.places[i].priceLevel
+                priceLevel: response.data.places[i].priceLevel,
+                servesLunch: response.data.places[i].servesLunch,
+                servesBreakfast: response.data.places[i].servesBreakfast,
+                servesDinner: response.data.places[i].servesDinner,
+                delivery: response.data.places[i].delivery,
+                dineIn: response.data.places[i].dineIn,
+                nationalPhoneNumber: response.data.places[i].nationalPhoneNumber,
+                websiteUri: response.data.places[i].websiteUri,
+                regularOpeningHours: response.data.places[i].regularOpeningHours,
+                photos: response.data.places[i].photos
             });
             await workingRestaurant.save();
             console.log("New Restaurant "+response.data.places[i].displayName.text+" saved!");
