@@ -73,7 +73,7 @@ export default function Reels() {
               const url = await getDownloadURL(uploadTask.snapshot.ref);
               setDownloadURL(url);
               setUploading(false);
-              Alert.alert('Upload successful', 'Your video has been uploaded!');
+              Alert.alert('Upload successful', 'Your video can be viewed from your profile');
             }
           );}
                     }
@@ -97,12 +97,6 @@ export default function Reels() {
       )}
       <Button title="Pick and Upload Video" onPress={pickAndUploadVideo} disabled={uploading || loadingUser} />
       {uploading && <Text>Uploading: {progress}%</Text>}
-      {downloadURL && (
-        <View style={{ marginTop: 20 }}>
-          <Text>Download URL:</Text>
-          <Text style={{ color: 'blue' }}>{downloadURL}</Text>
-        </View>
-      )}
     </View>
   );
 }

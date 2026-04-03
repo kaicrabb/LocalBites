@@ -1,6 +1,11 @@
-import { router, useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useRouter, useNavigation} from "expo-router";
+import React, { useState, useEffect } from "react";
 import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, StyleSheet } from "react-native";
+import { Ionicons } from '@expo/vector-icons';
+import { Video, ResizeMode } from "expo-av";
+import { ref, listAll, getDownloadURL } from "firebase/storage";
+import { storage, auth } from "../../config/firebaseConfig";
+import { onAuthStateChanged, User } from 'firebase/auth';
 
 interface UserProfile {
   username: string;
@@ -11,26 +16,57 @@ interface UserProfile {
 const ProfilePage: React.FC = () => {
   const router = useRouter();
 
-  const [user, setUser] = useState<UserProfile>({
+  const [user, setUserprofile] = useState<UserProfile>({
     username: "username",
     bio: "Big Back Reviews",
     profilePic: "placeholder.jpg",
   });
+  const navigation = useNavigation();
+    useEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => router.push('../settings')}>
+          <View style={{ padding: 10 }}>
+            <Ionicons name="settings" size={24} />
+          </View>
+        </TouchableOpacity>
+      )})})
 
+  useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    setUser(firebaseUser);
+  });
+
+  return () => unsubscribe();
+}, []);
+
+  const [userFirebase, setUser] = useState<User | null>(null);
   const [editing, setEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState<"videos" | "liked">("videos");
+  const [activeTab, setActiveTab] = useState<"videos" | "reviews">("videos");
+  const [userVideos, setUserVideos] = useState<string[]>([]);
+  const reviews = Array.from({ length: 6 }, (_, i) => `Review ${i + 1}`);
 
-  const videos = Array.from({ length: 9 }, (_, i) => `Video ${i + 1}`);
-  const liked = Array.from({ length: 6 }, (_, i) => `Liked ${i + 1}`);
+  useEffect(() => {
+  if (!userFirebase) return;
+
+  const fetchUserVideos = async () => {
+    const user_id = userFirebase.uid;
+
+    const reelsRef = ref(storage, `reels/${user_id}`);
+    const result = await listAll(reelsRef);
+
+    const urls = await Promise.all(
+      result.items.map((itemRef) => getDownloadURL(itemRef))
+    );
+
+    setUserVideos(urls);
+  };
+
+  fetchUserVideos();
+}, [userFirebase]);
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => router.push('../settings')}>
-          <Text style={styles.settingsBtn}>⚙</Text>
-        </TouchableOpacity>
-      </View>
-
       <View style={styles.profileHeader}>
         <Image source={{ uri: user.profilePic }} style={styles.profilePic} />
         <Text style={styles.usernameText}>@{user.username}</Text>
@@ -58,28 +94,70 @@ const ProfilePage: React.FC = () => {
       </View>
 
       <View style={styles.tabs}>
-        <TouchableOpacity style={[styles.tab, activeTab === "videos" && styles.activeTab]} onPress={() => setActiveTab("videos")}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "videos" && styles.activeTab]}
+          onPress={() => setActiveTab("videos")}
+        >
           <Text>Videos</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.tab, activeTab === "liked" && styles.activeTab]} onPress={() => setActiveTab("liked")}>
-          <Text>Liked</Text>
+
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "reviews" && styles.activeTab]}
+          onPress={() => setActiveTab("reviews")}
+        >
+          <Text>Reviews</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.videoGrid}>
-        {(activeTab === "videos" ? videos : liked).map((item, i) => (
-          <View key={i} style={styles.videoTile}>
-            <Text>{item}</Text>
-          </View>
+        {(activeTab === "videos" ? userVideos : reviews).map((item, i) => (
+          <TouchableOpacity
+            key={i}
+            style={styles.videoTile}
+            onPress={() =>
+              router.push({
+                pathname: "/main/video/[videoURL]",
+                params: { videoURL: encodeURIComponent(item) },
+              })
+            }
+          >
+            {activeTab === "videos" ? (
+              <Video
+                source={{ uri: item }}
+                style={{ width: "100%", height: "100%" }}
+                resizeMode={ResizeMode.COVER}
+                shouldPlay={false}
+                isMuted
+                isLooping
+              />
+            ) : (
+              <Text>{item}</Text>
+            )}
+          </TouchableOpacity>
         ))}
       </View>
 
       {editing && (
         <View style={styles.editModal}>
           <Text>Edit Profile</Text>
-          <TextInput style={styles.input} value={user.username} onChangeText={(text) => setUser({ ...user, username: text })} />
-          <TextInput style={styles.input} value={user.bio} onChangeText={(text) => setUser({ ...user, bio: text })} />
-          <TextInput style={styles.input} value={user.profilePic} onChangeText={(text) => setUser({ ...user, profilePic: text })} />
+
+          <TextInput
+            style={styles.input}
+            value={user.username}
+            onChangeText={(text) => setUserprofile({ ...user, username: text })}
+          />
+
+          <TextInput
+            style={styles.input}
+            value={user.bio}
+            onChangeText={(text) => setUserprofile({ ...user, bio: text })}
+          />
+
+          <TextInput
+            style={styles.input}
+            value={user.profilePic}
+            onChangeText={(text) => setUserprofile({ ...user, profilePic: text })}
+          />
 
           <TouchableOpacity style={styles.editBtn} onPress={() => setEditing(false)}>
             <Text>Save</Text>
@@ -106,9 +184,30 @@ const styles = StyleSheet.create({
   tab: { flex: 1, padding: 10, alignItems: "center" },
   activeTab: { borderBottomWidth: 3, borderBottomColor: "black" },
   videoGrid: { flexDirection: "row", flexWrap: "wrap" },
-  videoTile: { width: "33%", aspectRatio: 9 / 16, backgroundColor: "#ddd", justifyContent: "center", alignItems: "center" },
-  editModal: { position: "absolute", top: "20%", left: "10%", right: "10%", backgroundColor: "#fff", padding: 20, borderRadius: 10, elevation: 5 },
-  input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 5, padding: 5, marginBottom: 10 },
+  videoTile: {
+    width: "33%",
+    aspectRatio: 9 / 16,
+    backgroundColor: "#ddd",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  editModal: {
+    position: "absolute",
+    top: "20%",
+    left: "10%",
+    right: "10%",
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    elevation: 5,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 5,
+    marginBottom: 10,
+  },
 });
 
 export default ProfilePage;
