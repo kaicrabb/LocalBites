@@ -274,7 +274,7 @@ function HomeScreen() {
       // pull new data from Google API and update restaurants state
       try {
         const token = await SecureStore.getItemAsync('token');
-          const response = await fetch(`https://localbites-4m9e.onrender.com/get_location?lat=${userLocation.latitude}&long=${userLocation.longitude}`, { // change to correct endpoint
+          const response = await fetch(`https://localbites-4m9e.onrender.com/Google_Api/get_location?lat=${userLocation.latitude}&long=${userLocation.longitude}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
