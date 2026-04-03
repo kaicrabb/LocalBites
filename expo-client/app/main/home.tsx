@@ -3,6 +3,7 @@ import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
 import { useNavigation } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
+import * as Location from 'expo-location';
 import { Checkbox } from 'expo-checkbox';
 import Ionicons from '@expo/vector-icons/Ionicons'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -14,12 +15,19 @@ import Slider from '@react-native-community/slider';
 import CreateReview from '../review';
 
 
-const INITIAL_REGION = {
-  latitude: 40.3589695,
-  longitude: -94.8831951,
-  latitudeDelta: 0.0922,
-  longitudeDelta: 0.0421,
-  radius: 50,
+async function getUserLocation() {
+  const { status } = await Location.requestForegroundPermissionsAsync();
+
+  if (status !== 'granted') {
+    console.log('Permission denied');
+    return null;
+  }
+
+  const location = await Location.getCurrentPositionAsync({
+    accuracy: Location.Accuracy.Balanced,
+  });
+
+  return location.coords
 };
 
 export default function App() {
@@ -97,7 +105,36 @@ function HomeScreen() {
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
   const [selectedPriceLevel, setSelectedPriceLevel] = useState<string[]>([]);
   const [selectedGoogleRating, setSelectedGoogleRating] = useState<string[]>([]);
-  const [radius, setRadius] = useState(50);
+  const [radius, setRadius] = useState(30);
+  const [userLocation, setUserLocation] = useState({
+    latitude: 40.3589695,
+    longitude: -94.8831951,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  })
+
+  async function updateLocation() {
+    const coords = await getUserLocation();
+    if (!coords) return;
+
+    setUserLocation(prev => ({
+      ...prev,
+      latitude: coords.latitude,
+      longitude: coords.longitude,
+    }));
+  }
+
+  useEffect(() => {
+    updateLocation(); // initial
+    console.log('User location updated:', userLocation);
+
+    const interval = setInterval(() => {
+      updateLocation();
+    }, 3000); // 5 minutes
+
+    return () => clearInterval(interval);
+  }, []);
+
 
   // Snap positions
   const snapPoints = useMemo(() => ['5%', '50%', '75','100%'], []);
@@ -126,7 +163,6 @@ function HomeScreen() {
         Math.sin(dLon / 2) ** 2;
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
     return R * c;
   };
 
@@ -134,7 +170,7 @@ function HomeScreen() {
     try {
       const token = await SecureStore.getItemAsync('token');
       const response = await fetch(
-        `https://localbites-4m9e.onrender.com/Google_Api/nearby_restaurants?latitude=${INITIAL_REGION.latitude}&longitude=${INITIAL_REGION.longitude}&radius=${INITIAL_REGION.radius*1609}`, {
+        `https://localbites-4m9e.onrender.com/Google_Api/nearby_restaurants?latitude=${userLocation.latitude}&longitude=${userLocation.longitude}&radius=${radius*1609}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -143,6 +179,7 @@ function HomeScreen() {
       });
 
       const data = await response.json();
+      data.sort((a: any, b: any) => a.displayName.localeCompare(b.displayName));
       // console.log('Raw nearby restaurants response:', data);
       setRestaurants(data);
       // console.log('Nearby restaurants:', data.restaurants);
@@ -211,24 +248,46 @@ function HomeScreen() {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity onPress={focusMap}>
+        <TouchableOpacity onPress={checkRestaurants}>
           <View style={{ padding: 10 }}>
-            <MaterialCommunityIcons name = 'home-map-marker' size={32}/>
+            <MaterialCommunityIcons name = 'refresh' size={24}/>
           </View>
         </TouchableOpacity>
       ),
       headerLeft: () => (
         <TouchableOpacity onPress={filtermenu}>
           <View style = {{ padding: 10}}>
-            <MaterialCommunityIcons name = 'filter' size={32}/>
+            <MaterialCommunityIcons name = 'filter' size={24}/>
           </View>
         </TouchableOpacity>
       )
     });
   }, []);
 
-  const focusMap = () => {
-    mapRef.current?.animateToRegion(INITIAL_REGION, 1000);
+  const checkRestaurants = async () => {
+    // try pulling restaurants from our database, if nothing shows up then pull from google API, if nothing shows up alert user that there are no Restaurants in their area.
+    // console.log('starting restaurant check: ',restaurants[0]);
+    updateLocation();
+    getNearbyRestaurants();
+    // console.log('Current restaurants:', restaurants[0]);
+    if (restaurants.length === 0) {
+      // pull new data from Google API and update restaurants state
+      try {
+        const token = await SecureStore.getItemAsync('token');
+          const response = await fetch(`https://localbites-4m9e.onrender.com/get_location?lat=${userLocation.latitude}&long=${userLocation.longitude}`, { // change to correct endpoint
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+          console.log('Google API response:', response);
+          getNearbyRestaurants();
+        } catch (error) {
+          console.error('Error fetching nearby restaurants from Google API:', error);
+        }
+      }
   };
 
   const filtermenu = () => {
@@ -318,8 +377,8 @@ function HomeScreen() {
       
       const matchesRadius = 
         radius === 0 || getDistanceInMiles(
-          INITIAL_REGION.latitude,
-          INITIAL_REGION.longitude,
+          userLocation.latitude,
+          userLocation.longitude,
           r.location.coordinates[1], // lat
           r.location.coordinates[0]  // lng
         ) <= radius;
@@ -433,7 +492,7 @@ function HomeScreen() {
       <MapView style={StyleSheet.absoluteFillObject}
       
       provider={PROVIDER_GOOGLE}
-      initialRegion={INITIAL_REGION}
+      region={userLocation}
       customMapStyle={mapStyle}
       showsUserLocation
       showsMyLocationButton
@@ -525,8 +584,8 @@ function HomeScreen() {
             <Text style={{fontSize:20, fontWeight: 'bold', paddingTop:25}}>Set Radius (Miles)</Text>
             <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 10, color: '#51CCFF' }}>{radius}</Text>
             <Slider
-                minimumValue={0}
-                maximumValue={50}
+                minimumValue={1}
+                maximumValue={30}
                 step={1}
                 value={radius}
                 onValueChange={val => setRadius(val)}
