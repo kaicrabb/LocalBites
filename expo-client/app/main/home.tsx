@@ -14,7 +14,6 @@ import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import Slider from '@react-native-community/slider';
 import CreateReview from '../review';
 
-
 async function getUserLocation() {
   const { status } = await Location.requestForegroundPermissionsAsync();
 
@@ -130,11 +129,12 @@ function HomeScreen() {
 
     const interval = setInterval(() => {
       updateLocation();
-    }, 3000); // 5 minutes
+    }, 300000); // 5 minutes
 
     return () => clearInterval(interval);
   }, []);
 
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms)); 
 
   // Snap positions
   const snapPoints = useMemo(() => ['5%', '50%', '75','100%'], []);
@@ -169,6 +169,7 @@ function HomeScreen() {
   const getNearbyRestaurants = async () => {
     try {
       const token = await SecureStore.getItemAsync('token');
+      console.log('Fetching nearby restaurants');
       const response = await fetch(
         `https://localbites-4m9e.onrender.com/Google_Api/nearby_restaurants?latitude=${userLocation.latitude}&longitude=${userLocation.longitude}&radius=${radius*1609}`, {
         method: 'GET',
@@ -179,9 +180,11 @@ function HomeScreen() {
       });
 
       const data = await response.json();
+      console.log('Sorting nearby restaurants by name');
       data.sort((a: any, b: any) => a.displayName.localeCompare(b.displayName));
       // console.log('Raw nearby restaurants response:', data);
       setRestaurants(data);
+      console.log('Nearby restaurants updated:', data.length);
       // console.log('Nearby restaurants:', data.restaurants);
     } catch (error) {
       console.error('Error fetching nearby restaurants:', error);
@@ -266,24 +269,35 @@ function HomeScreen() {
 
   const checkRestaurants = async () => {
     // try pulling restaurants from our database, if nothing shows up then pull from google API, if nothing shows up alert user that there are no Restaurants in their area.
-    // console.log('starting restaurant check: ',restaurants[0]);
+    console.log('updating location and checking restaurants...');
+    // wait for location to update before pulling restaurants from database, if location is not updated then it will pull based on old location and may not show any restaurants even if there are some nearby.
     updateLocation();
+    await delay(2000); // wait 2 seconds for location to update, not ideal
+    console.log('Current user location:', userLocation);
     getNearbyRestaurants();
     // console.log('Current restaurants:', restaurants[0]);
     if (restaurants.length === 0) {
       // pull new data from Google API and update restaurants state
       try {
         const token = await SecureStore.getItemAsync('token');
+        console.log('No restaurants found, fetching from Google API');
           const response = await fetch(`https://localbites-4m9e.onrender.com/Google_Api/get_location?lat=${userLocation.latitude}&long=${userLocation.longitude}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-
                     'Authorization': `Bearer ${token}`,
                 },
             });
-          console.log('Google API response:', response);
+          console.log('Google API response status:', response.status);
+          
+          const data = await response.json();
+          console.log('Google API data:', data);
+          await delay(3000);
           getNearbyRestaurants();
+          // alert users if there are still no restaurants after pulling from Google API
+            if (restaurants.length === 0) {
+              alert('No restaurants found in your area. Please try again later.');
+            }
         } catch (error) {
           console.error('Error fetching nearby restaurants from Google API:', error);
         }
