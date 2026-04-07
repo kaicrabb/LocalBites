@@ -59,7 +59,7 @@ const ProfilePage: React.FC = () => {
       result.items.map((itemRef) => getDownloadURL(itemRef))
     );
 
-    setUserVideos(urls);
+    setUserVideos(urls.reverse());
   };
 
   fetchUserVideos();
