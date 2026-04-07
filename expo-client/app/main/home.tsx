@@ -3,6 +3,7 @@ import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
 import { useNavigation } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
+import * as Location from 'expo-location';
 import { Checkbox } from 'expo-checkbox';
 import Ionicons from '@expo/vector-icons/Ionicons'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -10,15 +11,22 @@ import { auth } from '../../config/firebaseConfig';
 import { signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import Slider from '@react-native-community/slider';
 import CreateReview from '../review';
 
+async function getUserLocation() {
+  const { status } = await Location.requestForegroundPermissionsAsync();
 
-const INITIAL_REGION = {
-  latitude: 40.3589695,
-  longitude: -94.8831951,
-  latitudeDelta: 0.0922,
-  longitudeDelta: 0.0421,
-  radius: 50,
+  if (status !== 'granted') {
+    console.log('Permission denied');
+    return null;
+  }
+
+  const location = await Location.getCurrentPositionAsync({
+    accuracy: Location.Accuracy.Balanced,
+  });
+
+  return location.coords
 };
 
 export default function App() {
@@ -87,12 +95,46 @@ function HomeScreen() {
   const mapRef = useRef<MapView>(null);
   const [restaurants, setRestaurants] = useState<any[]>([]);
   const [selectedRestaurantData, setSelectedRestaurantData] = useState<any>(null);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showFilterForm, setShowFilterForm] = useState(false);
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
   const [selectedPriceLevel, setSelectedPriceLevel] = useState<string[]>([]);
   const [selectedGoogleRating, setSelectedGoogleRating] = useState<string[]>([]);
+  const [radius, setRadius] = useState(30);
+  const [userLocation, setUserLocation] = useState({
+    latitude: 40.3589695,
+    longitude: -94.8831951,
+    latitudeDelta: 0.0922,
+    longitudeDelta: 0.0421,
+  })
+
+  async function updateLocation() {
+    const coords = await getUserLocation();
+    if (!coords) return;
+
+    setUserLocation(prev => ({
+      ...prev,
+      latitude: coords.latitude,
+      longitude: coords.longitude,
+    }));
+  }
+
+  useEffect(() => {
+    updateLocation(); // initial
+    console.log('User location updated:', userLocation);
+
+    const interval = setInterval(() => {
+      updateLocation();
+    }, 300000); // 5 minutes
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms)); 
 
   // Snap positions
   const snapPoints = useMemo(() => ['5%', '50%', '75','100%'], []);
@@ -100,23 +142,83 @@ function HomeScreen() {
   const handleSheetChanges = useCallback((index: number) => {
     console.log('Sheet position:', index);
   }, []);
+  
+
+  const getDistanceInMiles = (
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+  ) => {
+    const toRad = (value: number) => (value * Math.PI) / 180;
+
+    const R = 3958.8; // Earth radius in miles
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) ** 2;
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
   const getNearbyRestaurants = async () => {
     try {
       const token = await SecureStore.getItemAsync('token');
+      console.log('Fetching nearby restaurants');
       const response = await fetch(
-        `https://localbites-4m9e.onrender.com/Google_Api/nearby_restaurants?latitude=${INITIAL_REGION.latitude}&longitude=${INITIAL_REGION.longitude}&radius=${INITIAL_REGION.radius*1609}`, {
+        `https://localbites-4m9e.onrender.com/Google_Api/nearby_restaurants?latitude=${userLocation.latitude}&longitude=${userLocation.longitude}&radius=${radius*1609}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
       });
+
       const data = await response.json();
+      console.log('Sorting nearby restaurants by name');
+      data.sort((a: any, b: any) => a.displayName.localeCompare(b.displayName));
       // console.log('Raw nearby restaurants response:', data);
       setRestaurants(data);
+      console.log('Nearby restaurants updated:', data.length);
       // console.log('Nearby restaurants:', data.restaurants);
     } catch (error) {
       console.error('Error fetching nearby restaurants:', error);
+    }
+  };
+
+  const fetchReviews = async (restaurantId: string) => {
+    setReviewLoading(true);
+    setReviewError(null);
+    try {
+      const token = await SecureStore.getItemAsync('token');
+      const response = await fetch(
+        `https://localbites-4m9e.onrender.com/reviews?placeId=${restaurantId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setReviewError(data.message || 'Unable to load reviews.');
+        setReviews([]);
+      } else {
+        setReviews(Array.isArray(data.reviews) ? data.reviews : []);
+      }
+    } catch (error) {
+      console.error('Error loading reviews:', error);
+      setReviewError('Unable to load reviews.');
+      setReviews([]);
+    } finally {
+      setReviewLoading(false);
     }
   };
 
@@ -135,10 +237,12 @@ function HomeScreen() {
           'Authorization': `Bearer ${token}`,
         },
       });
+
       const data = await response.json();
       // console.log('Restaurant details response:', data);
       
       setSelectedRestaurantData(data);
+      await fetchReviews(restaurantId);
       bottomSheetRef.current?.snapToIndex(3);
   };
 
@@ -147,24 +251,57 @@ function HomeScreen() {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity onPress={focusMap}>
+        <TouchableOpacity onPress={checkRestaurants}>
           <View style={{ padding: 10 }}>
-            <MaterialCommunityIcons name = 'home-map-marker' size={32}/>
+            <MaterialCommunityIcons name = 'refresh' size={24}/>
           </View>
         </TouchableOpacity>
       ),
       headerLeft: () => (
         <TouchableOpacity onPress={filtermenu}>
           <View style = {{ padding: 10}}>
-            <MaterialCommunityIcons name = 'filter' size={32}/>
+            <MaterialCommunityIcons name = 'filter' size={24}/>
           </View>
         </TouchableOpacity>
       )
     });
   }, []);
 
-  const focusMap = () => {
-    mapRef.current?.animateToRegion(INITIAL_REGION, 1000);
+  const checkRestaurants = async () => {
+    // try pulling restaurants from our database, if nothing shows up then pull from google API, if nothing shows up alert user that there are no Restaurants in their area.
+    console.log('updating location and checking restaurants...');
+    // wait for location to update before pulling restaurants from database, if location is not updated then it will pull based on old location and may not show any restaurants even if there are some nearby.
+    updateLocation();
+    await delay(2000); // wait 2 seconds for location to update, not ideal
+    console.log('Current user location:', userLocation);
+    getNearbyRestaurants();
+    // console.log('Current restaurants:', restaurants[0]);
+    if (restaurants.length === 0) {
+      // pull new data from Google API and update restaurants state
+      try {
+        const token = await SecureStore.getItemAsync('token');
+        console.log('No restaurants found, fetching from Google API');
+          const response = await fetch(`https://localbites-4m9e.onrender.com/Google_Api/get_location?lat=${userLocation.latitude}&long=${userLocation.longitude}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+          console.log('Google API response status:', response.status);
+          
+          const data = await response.json();
+          console.log('Google API data:', data);
+          await delay(3000);
+          getNearbyRestaurants();
+          // alert users if there are still no restaurants after pulling from Google API
+            if (restaurants.length === 0) {
+              alert('No restaurants found in your area. Please try again later.');
+            }
+        } catch (error) {
+          console.error('Error fetching nearby restaurants from Google API:', error);
+        }
+      }
   };
 
   const filtermenu = () => {
@@ -193,6 +330,7 @@ function HomeScreen() {
     Thai: 'thai_restaurant',
     Catering: 'catering_service',
     'Health Food': 'health_food_store',
+    'Coffee Shop': 'coffee_shop',
   };
 
   const togglePriceLevel = (priceLevel: string) => {
@@ -250,11 +388,18 @@ function HomeScreen() {
           const [min, max] = googleRatingMap[label] || [];
           return r.rating >= min && r.rating <= max;
         });
-      return matchesCuisine && matchesPrice && matchesGoogleRating;
+      
+      const matchesRadius = 
+        radius === 0 || getDistanceInMiles(
+          userLocation.latitude,
+          userLocation.longitude,
+          r.location.coordinates[1], // lat
+          r.location.coordinates[0]  // lng
+        ) <= radius;
+      return matchesCuisine && matchesPrice && matchesGoogleRating && matchesRadius;
       })
     : [];
 
-  
 
   const mapStyle = [
   {
@@ -303,6 +448,57 @@ function HomeScreen() {
           return <Text style={{fontSize:16, fontWeight:"600"}}>Unknown</Text>;
         };
 
+  const renderReviewSection = () => {
+    if (reviewLoading) {
+      return (
+        <Text style={{ marginTop: 10, fontStyle: 'italic', color: 'gray' }}>
+          Loading reviews...
+        </Text>
+      );
+    }
+
+    if (reviewError) {
+      return (
+        <Text style={{ marginTop: 10, color: 'red' }}>
+          {reviewError}
+        </Text>
+      );
+    }
+
+    if (reviews.length === 0) {
+      return (
+        <Text style={{ marginTop: 10, fontStyle: 'italic', color: 'gray', paddingBottom:30 }}>
+          No reviews yet for this restaurant.
+        </Text>
+      );
+    }
+
+    return (
+      <View style={{ marginTop: 10, paddingBottom: 30 }}>
+        {reviews.map((review) => (
+          <View key={review._id} style={{ marginVertical: 6, backgroundColor: '#ffffff', borderRadius: 8, padding: 12, borderWidth: 1, borderColor: '#ddd' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+              <Text style={{ fontWeight: '700', marginRight: 8 }}>
+                {review.User?.Username || review.User?.Email || 'Anonymous'}
+              </Text>
+              <Text style={{ color: '#666' }}>
+                {Array.from({ length: 5 }, (_, i) => {
+                  const starIndex = i + 1;
+                  return (
+                    <Text key={starIndex} style={{ color: starIndex <= review.Rating ? '#FFD700' : '#ccc' }}>
+                      ★
+                    </Text>
+                  );
+                })}
+              </Text>
+            </View>
+            <Text style={{ color: '#444' }}>{review.Comment || 'No comment provided.'}</Text>
+          </View>
+        ))}
+      </View>
+    );
+  };
+
   return (
     // Sets up home page view
     <View style={{ flex: 1 }}>
@@ -310,7 +506,7 @@ function HomeScreen() {
       <MapView style={StyleSheet.absoluteFillObject}
       
       provider={PROVIDER_GOOGLE}
-      initialRegion={INITIAL_REGION}
+      region={userLocation}
       customMapStyle={mapStyle}
       showsUserLocation
       showsMyLocationButton
@@ -335,6 +531,7 @@ function HomeScreen() {
           if (lowerType.includes('steak_house')) return 'food-steak';
           if (lowerType.includes('buffet_restaurant')) return 'buffet';
           if (lowerType.includes('fast_food_restaurant')) return 'food';
+          if (lowerType.includes('coffee_shop')) return 'coffee';
 
           return 'food-fork-drink'; // default
         };
@@ -397,8 +594,20 @@ function HomeScreen() {
               <Text style={{ fontSize: 32, fontWeight: 'bold', marginLeft: 20}}>
                 Filters
               </Text>
-
             </View>
+            <Text style={{fontSize:20, fontWeight: 'bold', paddingTop:25}}>Set Radius (Miles)</Text>
+            <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 10, color: '#51CCFF' }}>{radius}</Text>
+            <Slider
+                minimumValue={1}
+                maximumValue={30}
+                step={1}
+                value={radius}
+                onValueChange={val => setRadius(val)}
+                minimumTrackTintColor="#51CCFF"
+                maximumTrackTintColor="#000000"
+                
+              />
+
             <Text style={{fontSize:20, fontWeight: 'bold', paddingTop:25}}>Cuisine Type</Text>
             {Object.keys(cuisineMap).map(label => (
               <View key={label} style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -488,15 +697,16 @@ function HomeScreen() {
             </TouchableOpacity>
             {showReviewForm && (<CreateReview
               restaurantId={selectedRestaurantData._id}
-              _onClose={() => setShowReviewForm(false)}
+              _onClose={async () => {
+                setShowReviewForm(false);
+                await fetchReviews(selectedRestaurantData._id);
+              }}
               />
             )}
             <Text style={{ marginTop: 15, fontSize: 16, fontWeight: '600' }}>
               User Reviews
             </Text>
-            <Text style={{ fontStyle: 'italic', color: 'gray', paddingBottom:30 }}>
-              (User reviews will be displayed here)
-            </Text>
+            {renderReviewSection()}
           </View>
           
         ) : (
