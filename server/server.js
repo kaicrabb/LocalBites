@@ -46,7 +46,7 @@ async function startServer(){
     app.get("/Google_Api/nearby_restaurants", getNearbyRestaurants);
     app.get("/Google_Api/restaurant_details", getRestaurantDetails);
     app.get("/reviews", getReview);
-    app.post("/reviews", authenticateToken, deleteReview);
+    app.delete("/reviews", authenticateToken, deleteReview);
 
     app.listen(port, () => { 
         console.log("Server started on port " + port);
