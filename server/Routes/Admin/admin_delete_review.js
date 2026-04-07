@@ -1,4 +1,4 @@
-const review = require('../../Models/review');
+const review = require('../../Models/reviews');
 
 async function adminDeleteReview(req, res) {
     const reviewId = req.body.reviewId; //get review id from the request body 
