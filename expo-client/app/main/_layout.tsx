@@ -28,6 +28,11 @@ export default function RootLayout() {
       tabBarLabel: "Profile",
       tabBarIcon: ({ color, size }) => <Ionicons name="person" color={color} size={size} />
       }} />
+      <Tabs.Screen name="video/[videoURL]" 
+    options={{ 
+      href: null,
+    }} 
+/>
   </Tabs>
 );
 };

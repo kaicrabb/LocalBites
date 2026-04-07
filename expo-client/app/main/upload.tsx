@@ -1,102 +1,172 @@
 import React, { useState, useEffect } from 'react';
-import { Button, View, Alert, Text } from 'react-native';
+import { 
+  Button, View, Alert, Text, TextInput, StyleSheet, 
+  ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform 
+} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { ref, uploadBytesResumable, getDownloadURL} from 'firebase/storage';
-import { storage, auth } from '../../config/firebaseConfig';
-import * as SecureStore from 'expo-secure-store';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { onAuthStateChanged, User } from 'firebase/auth';
-
-
-
+import { collection, addDoc, serverTimestamp, getFirestore } from 'firebase/firestore'; 
+import { storage, auth } from '../../config/firebaseConfig'; 
+import { db } from '../../config/firebaseConfig';
 
 export default function Reels() {
   const [uploading, setUploading] = useState<boolean>(false);
   const [progress, setProgress] = useState<string>("0");
-  const [downloadURL, setDownloadURL] = useState<string | null>(null);
+  const [caption, setCaption] = useState<string>(" ");
+  const [restaurant, setRestaurant] = useState<string>(" ");
 
   const [user, setUser] = useState<User | null>(null);
-  const [loadingUser, setLoadingUser] = useState(true); // always start as true
+  const [loadingUser, setLoadingUser] = useState(true);
 
-  useEffect(() => { // listen for Firebase auth state changes
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
-      setLoadingUser(false); // done loading
-      if (firebaseUser) console.log("Firebase user ready:", firebaseUser.uid);
-      else console.log("No Firebase user signed in yet");
+      setLoadingUser(false);
     });
-
     return () => unsubscribe();
   }, []);
-  
 
-  const pickAndUploadVideo = async () : Promise<void>=> {
+  const pickAndUploadVideo = async (): Promise<void> => {
+    if (!user) {
+      Alert.alert('Error', 'You must be logged in.');
+      return;
+    }
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Videos,
       allowsEditing: true,
       quality: 1,
     });
 
-    if (result.canceled) {
-      Alert.alert('No video selected');
-      return;
-    }
+    if (result.canceled) return;
 
     const videoUri = result.assets[0].uri;
     setUploading(true);
 
     try {
-      try{
-        if (!user) {
-          console.error("Firebase user not signed in yet");
-          // should probably show a loading indicator or something
-        } else {
-          // we have the user, let's upload the video
-          const user_id = user.uid;
-          console.log("Logged in Firebase UID:", user_id);
- 
-          const response = await fetch(videoUri);
-          const blob = await response.blob();
-          const storageRef = ref(storage, `reels/${user_id}/${Date.now()}_${videoUri.split('/').pop()}`);
-          const uploadTask = uploadBytesResumable(storageRef, blob);
+      const response = await fetch(videoUri);
+      const blob = await response.blob();
+      const storageRef = ref(storage, `reels/${user.uid}/${Date.now()}`);
+      
+      const uploadTask = uploadBytesResumable(storageRef, blob);
 
-          // Listen for state changes, errors, and completion of the upload.
-          uploadTask.on('state_changed',
-            (snapshot) => {
-              const p = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              setProgress(p.toFixed(0));
-            },
-            (error) => {
-              Alert.alert('Upload failed', error.message);
-              setUploading(false);
-            },
-            async () => {
-              const url = await getDownloadURL(uploadTask.snapshot.ref);
-              setDownloadURL(url);
-              setUploading(false);
-              Alert.alert('Upload successful', 'Your video can be viewed from your profile');
-            }
-          );}
-                    }
-          catch (error) {
-              Alert.alert('Error', 'Failed to retrieve user information');
-              setUploading(false);
-              return;
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const p = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setProgress(p.toFixed(0));
+        },
+        (error) => {
+          Alert.alert('Upload failed', error.message);
+          setUploading(false);
+        },
+        async () => {
+          const url = await getDownloadURL(uploadTask.snapshot.ref);
+          try {
+            await addDoc(collection(db, "reels"), {
+              userId: user.uid,
+              videoUrl: url,
+              caption: caption,
+              restaurant: restaurant,
+              createdAt: serverTimestamp(),
+            });
+            Alert.alert('Success', 'Reel posted!');
+            setCaption("");
+            setRestaurant("");
+          } catch (e) {
+            Alert.alert('Database Error', 'Failed to save info.');
+          } finally {
+            setUploading(false);
+            setProgress("0");
           }
+        }
+      );
     } catch (error) {
-      Alert.alert('Error', 'An error occurred while uploading the video');
+      Alert.alert('Error', 'Upload failed');
       setUploading(false);
     }
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      {loadingUser && (
-        <Text style={{ marginBottom: 10, fontStyle: 'italic', color: 'gray' }}>
-          Connecting to Reels User Storage...
-        </Text>
-      )}
-      <Button title="Pick and Upload Video" onPress={pickAndUploadVideo} disabled={uploading || loadingUser} />
-      {uploading && <Text>Uploading: {progress}%</Text>}
-    </View>
+    // 2. KeyboardAvoidingView prevents the keyboard from covering inputs
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+      style={{ flex: 1 }}
+    >
+      {/* 3. ScrollView allows the user to move the screen up/down */}
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {loadingUser ? (
+          <ActivityIndicator size="large" color="#0000ff" />
+        ) : (
+          <View style={styles.innerContainer}>
+            <Text style={styles.header}>Create New Reel</Text>
+
+            <Text style={{ marginBottom: 5, color: 'black' }}>
+              Caption:
+            </Text>
+            
+            <TextInput
+              style={styles.input}
+              placeholder="Write a catchy caption..."
+              value={caption}
+              onChangeText={setCaption}
+              multiline
+              editable={!uploading}
+            />
+
+            <Text style={{ marginBottom: 10, color: 'black' }}>
+              Select Restaurant: 
+            </Text>
+
+            <TextInput
+              style={styles.input}
+              placeholder="Write a catchy caption..."
+              value={restaurant}
+              onChangeText={setRestaurant}
+              multiline
+              editable={!uploading}
+            />
+
+            <Button 
+              title={uploading ? `Uploading... ${progress}%` : "Pick & Post Video"} 
+              onPress={pickAndUploadVideo} 
+              disabled={uploading} 
+            />
+
+            {uploading && (
+              <Text style={{ marginTop: 10 }}>Progress: {progress}%</Text>
+            )}
+          </View>
+        )}
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1, // Ensures the scroll view takes up the full screen
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+  },
+  innerContainer: {
+    padding: 10,
+    alignItems: 'center',
+  },
+  header: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 30,
+  },
+  input: {
+    width: '100%',
+    minHeight: 100,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 20,
+    textAlignVertical: 'top',
+    fontSize: 16,
+  },
+});

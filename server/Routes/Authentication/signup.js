@@ -16,10 +16,13 @@ async function signup(req, res) {
             return res.status(400).json({ message: 'Username already in use' });
         }
 
+        
+
         // Regex for password and username validation
         const userpattern = /^[a-zA-Z0-9_]{3,20}$/
+        const adminpattern = /^[a-zA-Z0-9_]+@LocalBites\.com$/
         const passpattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
-
+            
         // Validate username and password against the regex patterns
         if (!userpattern.test(Username)) {
             return res.status(400).json({ message: 'Username must be 3-20 characters long and can only contain letters, numbers, and underscores' });
@@ -36,7 +39,8 @@ async function signup(req, res) {
         const newUser = new User({
             Username,
             Email,
-            Password: hashedPassword
+            Password: hashedPassword,
+            IsAdmin: adminpattern.test(Email) // Set IsAdmin to true if the email matches the admin pattern
         });
 
         // Save the new user to the database
