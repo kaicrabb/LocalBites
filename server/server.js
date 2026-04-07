@@ -26,6 +26,14 @@ const addReview = require('./Routes/Reviews/add_review');
 const getReview = require('./Routes/Reviews/get_reviews');
 const deleteReview = require('./Routes/Reviews/delete_review');
 
+const adminDeleteReview = require('./Routes/Admin/admin_delete_review');
+const adminDeleteUserAccount = require('./Routes/Admin/admin_delete_user_account');
+const adminRemoveRestaurant = require('./Routes/Admin/admin_remove_restaurant');
+const adminBanUser = require('./Routes/Admin/admin_ban_user_account');
+const adminUnbanUser = require('./Routes/Admin/admin_unban_user_account');
+const adminGetAllUsers = require('./Routes/Admin/admin_get_all_users');
+const adminGetAllRestaurants = require('./Routes/Admin/admin_get_all_restaurants');
+
 async function startServer(){
     // Initialize Express app
     const app = express();
@@ -38,6 +46,7 @@ async function startServer(){
     // Connect to the database
     await connectDB();
 
+    // User post routes
     app.post("/Authentication/signup", signup)
     app.post("/Authentication/login", login)
     app.post("/Authentication/change_password", authenticateToken, changePassword)
@@ -45,13 +54,22 @@ async function startServer(){
     app.post("/reviews", authenticateToken, addReview); 
     app.post("/reviews", authenticateToken, deleteReview);
 
+    // User get routes
     app.get("/user_info", authenticateToken, userInfo);
     app.get("/Authentication/firebase_token", authenticateToken, supplyFirebaseToken);
     app.get("/Google_Api/nearby_restaurants", getNearbyRestaurants);
     app.get("/Google_Api/restaurant_details", getRestaurantDetails);
     app.get("/Google_Api/get_location", getLocation);
     app.get("/reviews", getReview);
-
+    
+    // Admin routes
+    app.post("/Admin/delete_review", authenticateToken, adminDeleteReview);
+    app.post("/Admin/delete_user_account", authenticateToken, adminDeleteUserAccount);
+    app.post("/Admin/remove_restaurant", authenticateToken, adminRemoveRestaurant);
+    app.post("/Admin/ban_user", authenticateToken, adminBanUser);
+    app.post("/Admin/unban_user", authenticateToken, adminUnbanUser);
+    app.get("/Admin/get_all_users", authenticateToken, adminGetAllUsers);
+    app.get("/Admin/get_all_restaurants", authenticateToken, adminGetAllRestaurants);
 
     app.listen(port, () => { 
         console.log("Server started on port " + port);

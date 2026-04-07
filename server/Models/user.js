@@ -18,6 +18,11 @@ const user_schema = new mongoose.Schema({
         type: String, 
         required: true 
     },
+    IsAdmin: { // boolean to determine if user is an admin or not
+        type: Boolean,
+        required: false,
+        default: false
+    }
 })
 
 module.exports = mongoose.model('User', user_schema);
