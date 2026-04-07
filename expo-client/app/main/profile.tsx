@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, StyleSheet } from "react-native";
+import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, StyleSheet, Alert } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { Video, ResizeMode } from "expo-av";
 import { ref, listAll, getDownloadURL } from "firebase/storage";
@@ -111,6 +111,46 @@ const ProfilePage: React.FC = () => {
     fetchProfileReviews();
   }, [userFirebase]);
 
+  const handleDeleteReview = async (reviewId: string) => {
+    Alert.alert('Delete review', 'Do you want to delete this review?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            const token = await SecureStore.getItemAsync('token');
+            if (!token) {
+              Alert.alert('Unauthorized', 'Please log in to delete reviews.');
+              return;
+            }
+
+            const res = await fetch('https://localbites-4m9e.onrender.com/reviews', {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ reviewId }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+              Alert.alert('Error', data?.message || 'Failed to delete review.');
+              return;
+            }
+
+            setProfileReviews((prev) => prev.filter((r) => r._id !== reviewId));
+            Alert.alert('Deleted', 'Your review has been deleted.');
+          } catch (err) {
+            console.error('Delete review error', err);
+            Alert.alert('Error', 'Unable to delete review at this time.');
+          }
+        },
+      },
+    ]);
+  };
+
   const renderReviewsTab = () => {
     if (reviewsLoading) {
       return (
@@ -138,9 +178,14 @@ const ProfilePage: React.FC = () => {
 
     return profileReviews.map((review) => (
       <View key={review._id} style={styles.reviewTile}>
-        <Text style={styles.reviewTitle}>
-          {review.Place?.displayName || 'Unknown Place'}
-        </Text>
+        <View style={styles.reviewHeader}>
+          <Text style={styles.reviewTitle}>
+            {review.Place?.displayName || 'Unknown Place'}
+          </Text>
+          <TouchableOpacity onPress={() => handleDeleteReview(review._id)}>
+            <Ionicons name="trash" size={20} color="#d9534f" />
+          </TouchableOpacity>
+        </View>
         <Text style={styles.reviewRating}>
           {Array.from({ length: 5 }, (_, index) => (
             <Text key={index} style={{ color: index < review.Rating ? '#FFD700' : '#ccc' }}>
@@ -311,6 +356,12 @@ const styles = StyleSheet.create({
   reviewComment: {
     color: "#444",
     fontSize: 14,
+  },
+    reviewHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
   },
   editModal: {
     position: "absolute",
