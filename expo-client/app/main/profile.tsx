@@ -253,7 +253,8 @@ const ProfilePage: React.FC = () => {
       </View>
 
       <View style={styles.videoGrid}>
-        {activeTab === "videos" ? (userVideos.map((item) => (
+        {activeTab === "videos" ?  
+          (userVideos.map((item) => (
             <TouchableOpacity
               key={item}
               style={styles.videoTile}
@@ -264,18 +265,6 @@ const ProfilePage: React.FC = () => {
                 })
               }
             >
-        {(activeTab === "videos" ? userVideos : reviews).map((item, i) => (
-          <TouchableOpacity
-            key={i}
-            style={styles.videoTile}
-            onPress={() =>
-              router.push({
-                pathname: "/main/video/[videoURL]",
-                params: { videoURL: encodeURIComponent(item) },
-              })
-            }
-          >
-            {activeTab === "videos" ? (
               <Video
                 source={{ uri: item }}
                 style={{ width: "100%", height: "100%" }}
