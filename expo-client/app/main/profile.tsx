@@ -16,14 +16,20 @@ interface UserProfile {
 
 const ProfilePage: React.FC = () => {
   const router = useRouter();
-
+  const navigation = useNavigation();
+  const [userFirebase, setUser] = useState<User | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
   const [user, setUserprofile] = useState<UserProfile>({
     username: "username",
     bio: "Big Back Reviews",
     profilePic: "placeholder.jpg",
   });
-  const navigation = useNavigation();
-    useEffect(() => {
+  const [editing, setEditing] = useState(false);
+  const [activeTab, setActiveTab] = useState<"videos" | "reviews">("videos");
+  const [userVideos, setUserVideos] = useState<string[]>([]);
+  const reviews = Array.from({ length: 6 }, (_, i) => `Review ${i + 1}`);
+
+  useEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity onPress={() => router.push('../settings')}>
@@ -31,46 +37,62 @@ const ProfilePage: React.FC = () => {
             <Ionicons name="settings" size={24} />
           </View>
         </TouchableOpacity>
-      )})})
+      )
+    });
+  }, [navigation, router]);
 
   useEffect(() => {
-  const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-    setUser(firebaseUser);
-  });
-
-  return () => unsubscribe();
-}, []);
-
-  const [userFirebase, setUser] = useState<User | null>(null);
-  const [editing, setEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState<"videos" | "reviews">("videos");
-  const [userVideos, setUserVideos] = useState<string[]>([]);
-  const reviews = Array.from({ length: 6 }, (_, i) => `Review ${i + 1}`);
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
-  if (!userFirebase) return;
+    if (!userFirebase) return;
 
-  const fetchUserVideos = async () => {
-    const user_id = userFirebase.uid;
+    const fetchProfileImage = async () => {
+      const user_id = userFirebase.uid;
+      const profilePicRef = ref(storage, `profile/${user_id}`);
 
-    const reelsRef = ref(storage, `reels/${user_id}`);
-    const result = await listAll(reelsRef);
+      try {
+        const url = await getDownloadURL(profilePicRef);
+        setSelectedImage(url);
+      } catch (error) {
+        console.log('No profile image found in storage, showing default.');
+      }
+    };
 
-    const urls = await Promise.all(
-      result.items.map((itemRef) => getDownloadURL(itemRef))
-    );
+    fetchProfileImage();
+  }, [userFirebase]);
 
-    setUserVideos(urls);
-  };
+  useEffect(() => {
+    if (!userFirebase) return;
 
-  fetchUserVideos();
-}, [userFirebase]);
+    const fetchUserVideos = async () => {
+      const user_id = userFirebase.uid;
+
+      const reelsRef = ref(storage, `reels/${user_id}`);
+      const result = await listAll(reelsRef);
+
+      const urls = await Promise.all(
+        result.items.map((itemRef) => getDownloadURL(itemRef))
+      );
+
+      setUserVideos(urls);
+    };
+
+    fetchUserVideos();
+  }, [userFirebase]);
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.profileHeader}>
         <View style={styles.imageContainer}>
-          <ImageViewer imgSource={require('../../assets/images/default.jpg')} />
+          <ImageViewer 
+            imgSource={require('../../assets/images/default.jpg')} 
+            selectedImage={selectedImage} 
+          />
         </View>
         <Text style={styles.usernameText}>@{user.username}</Text>
 
