@@ -6,9 +6,9 @@ import * as SecureStore from 'expo-secure-store';
 import * as ImagePicker from 'expo-image-picker';
 import { useState, useEffect } from 'react';
 import { ref, listAll, getDownloadURL, uploadBytes } from "firebase/storage";
-import { storage, auth } from "../../config/firebaseConfig";
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+import { storage, auth } from "../config/firebaseConfig";
 
 const PlaceholderImage = require ('@/assets/images/default.jpg');
 
@@ -28,7 +28,7 @@ export default function App() {
   };
 
   const handleChangePassword = () => {
-    router.push('/changePassword'); 
+    router.push('/changePassword');
   };
 
   const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
@@ -67,7 +67,7 @@ export default function App() {
       try {
         const response = await fetch(imageUri);
         const blob = await response.blob();
-        const storageRef = ref(storage, `profile/${userFirebase}`);
+        const storageRef = ref(storage, `profile/${userFirebase.uid}`);
         await uploadBytes(storageRef, blob);
         const url = await getDownloadURL(storageRef);
         setSelectedImage(url);

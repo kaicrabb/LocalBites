@@ -218,7 +218,7 @@ const ProfilePage: React.FC = () => {
     <ScrollView style={styles.container}>
       <View style={styles.profileHeader}>
         <View style={styles.imageContainer}>
-          <ImageViewer imgSource={PlaceholderImage} selectedImage={selectedImage} />
+          <ImageViewer imgSource={PlaceholderImage} />
         </View>
         <Text style={styles.usernameText}>@{user.username}</Text>
 
