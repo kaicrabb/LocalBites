@@ -1,5 +1,5 @@
 import { Redirect } from "expo-router";
-import { Text, ScrollView, View} from "react-native";
+import { Text, ScrollView, View, TouchableOpacity} from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -33,6 +33,7 @@ export default function AdminPage() {
         Welcome, {user?.Username}! You have admin access.
       </Text>
       {/* Add admin functionalities here */}
+      
     </ScrollView>
   );
 }

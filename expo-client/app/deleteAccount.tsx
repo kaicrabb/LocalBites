@@ -26,6 +26,7 @@ export default function DeleteAccount() {
             if (response.ok) {
                 Alert.alert('Success', 'Account deleted successfully');
                 await SecureStore.deleteItemAsync("token");
+                await SecureStore.deleteItemAsync("user");
                 router.push('/login');
             } else {
                 Alert.alert('Error', data.message || 'Failed to delete account');

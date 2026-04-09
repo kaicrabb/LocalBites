@@ -15,6 +15,7 @@ export default function App() {
 
   const handleLogout = async (): Promise<void> => {
     await SecureStore.deleteItemAsync("token");
+    await SecureStore.deleteItemAsync("user");
     router.replace("/");
   };
 
