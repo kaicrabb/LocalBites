@@ -54,7 +54,11 @@ export default function RootLayout() {
     tabBarLabel: "Admin",
     tabBarIcon: ({ color, size }) => <Ionicons name="construct" color={color} size={size} />,
     tabBarItemStyle: user?.IsAdmin ? {} : { display: 'none' },
-  }}
+  }} />
+      <Tabs.Screen name="video/[videoURL]" 
+    options={{ 
+      href: null,
+    }} 
 />
   </Tabs>
 );

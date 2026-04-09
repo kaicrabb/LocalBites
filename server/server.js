@@ -52,7 +52,7 @@ async function startServer(){
     app.post("/Authentication/change_password", authenticateToken, changePassword)
     app.post("/Authentication/delete_account", authenticateToken, deleteAccount)
     app.post("/reviews", authenticateToken, addReview); 
-    app.post("/reviews", authenticateToken, deleteReview);
+    app.post("/reviews/delete", authenticateToken, deleteReview);
 
     // User get routes
     app.get("/user_info", authenticateToken, userInfo);
