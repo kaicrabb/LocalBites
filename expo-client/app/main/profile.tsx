@@ -1,16 +1,12 @@
 import { useRouter, useNavigation} from "expo-router";
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, ScrollView, StyleSheet } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { Video, ResizeMode } from "expo-av";
 import { ref, listAll, getDownloadURL } from "firebase/storage";
 import { storage, auth } from "../../config/firebaseConfig";
 import { onAuthStateChanged, User } from 'firebase/auth';
 import ImageViewer from '../ImageViewer';
-import * as SecureStore from 'expo-secure-store';
-
-
-const PlaceholderImage = require('@/assets/images/default.jpg');
 
 interface UserProfile {
   username: string;
@@ -74,7 +70,7 @@ const ProfilePage: React.FC = () => {
     <ScrollView style={styles.container}>
       <View style={styles.profileHeader}>
         <View style={styles.imageContainer}>
-          <ImageViewer imgSource={PlaceholderImage} />
+          <ImageViewer imgSource={require('../../assets/images/default.jpg')} />
         </View>
         <Text style={styles.usernameText}>@{user.username}</Text>
 
