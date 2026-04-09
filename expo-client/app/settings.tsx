@@ -7,7 +7,6 @@ import * as ImagePicker from 'expo-image-picker';
 import { useState, useEffect } from 'react';
 import { ref, listAll, getDownloadURL, uploadBytes } from "firebase/storage";
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 import { storage, auth } from "../config/firebaseConfig";
 
 const PlaceholderImage = require ('@/assets/images/default.jpg');
@@ -36,6 +35,13 @@ export default function App() {
   const [userFirebase, setUser] = useState<User | null>(null);
 
   useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
     if (!userFirebase) return;
 
     const fetchProfileImage = async () => {
@@ -62,12 +68,13 @@ export default function App() {
       allowsEditing: true,
       quality: 0.5,
     });
-    if (!result.canceled && userFirebase) {
+    const currentUser = userFirebase ?? auth.currentUser;
+    if (!result.canceled && currentUser) {
       const imageUri = result.assets[0].uri;
       try {
         const response = await fetch(imageUri);
         const blob = await response.blob();
-        const storageRef = ref(storage, `profile/${userFirebase.uid}`);
+        const storageRef = ref(storage, `profile/${currentUser.uid}`);
         await uploadBytes(storageRef, blob);
         const url = await getDownloadURL(storageRef);
         setSelectedImage(url);

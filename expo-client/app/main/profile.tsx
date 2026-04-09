@@ -1,6 +1,10 @@
 import { useRouter, useNavigation} from "expo-router";
 import React, { useState, useEffect } from "react";
+<<<<<<< HEAD
 import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, StyleSheet, Alert } from "react-native";
+=======
+import { View, Text, TouchableOpacity, TextInput, ScrollView, StyleSheet } from "react-native";
+>>>>>>> ce4027b (I think I got it working #2)
 import { Ionicons } from '@expo/vector-icons';
 import { Video, ResizeMode } from "expo-av";
 import { ref, listAll, getDownloadURL } from "firebase/storage";
@@ -8,10 +12,6 @@ import * as SecureStore from 'expo-secure-store';
 import { storage, auth } from "../../config/firebaseConfig";
 import { onAuthStateChanged, User } from 'firebase/auth';
 import ImageViewer from '../ImageViewer';
-import * as SecureStore from 'expo-secure-store';
-
-
-const PlaceholderImage = require('@/assets/images/default.jpg');
 
 
 interface UserProfile {
@@ -218,7 +218,7 @@ const ProfilePage: React.FC = () => {
     <ScrollView style={styles.container}>
       <View style={styles.profileHeader}>
         <View style={styles.imageContainer}>
-          <ImageViewer imgSource={PlaceholderImage} />
+          <ImageViewer imgSource={require('../../assets/images/default.jpg')} />
         </View>
         <Text style={styles.usernameText}>@{user.username}</Text>
 
