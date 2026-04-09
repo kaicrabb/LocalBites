@@ -136,7 +136,7 @@ const ProfilePage: React.FC = () => {
               return;
             }
 
-            const res = await fetch('https://localbites-4m9e.onrender.com/reviews', {
+            const res = await fetch('https://localbites-4m9e.onrender.com/reviews/delete', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
