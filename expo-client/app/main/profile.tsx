@@ -8,6 +8,7 @@ import * as SecureStore from 'expo-secure-store';
 import { storage, auth } from "../../config/firebaseConfig";
 import { onAuthStateChanged, User } from 'firebase/auth';
 
+
 interface UserProfile {
   username: string;
   bio: string;
@@ -90,12 +91,12 @@ const ProfilePage: React.FC = () => {
         });
 
         const userInfo = await userInfoResponse.json();
-        if (!userInfo.userId) {
+        if (!userInfo.user._id) {
           setReviewsError('Unable to load user information.');
           return;
         }
 
-        const reviewsResponse = await fetch(`https://localbites-4m9e.onrender.com/reviews?userId=${userInfo.userId}`, {
+        const reviewsResponse = await fetch(`https://localbites-4m9e.onrender.com/reviews?userId=${userInfo.user._id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
