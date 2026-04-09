@@ -45,6 +45,7 @@ export default function DeleteReview({ reviewId, onDelete }: DeleteReviewProps) 
     }
   };
 
+  // Simple delete button, can be styled as needed
   return (
     <TouchableOpacity onPress={handleDeleteReview}>
       <Text style={{ color: '#d9534f', fontWeight: '600' }}>Delete Review</Text>
