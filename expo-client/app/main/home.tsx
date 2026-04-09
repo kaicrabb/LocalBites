@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useEffect, useRef, useState } from 'react';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, ScrollView, TextInput, FlatList } from 'react-native';
 import { useNavigation } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import * as Location from 'expo-location';
@@ -101,6 +101,7 @@ function HomeScreen() {
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [showFilterForm, setShowFilterForm] = useState(false);
+  const [showSearchForm, setShowSearchForm] = useState(false);
   const [selectedCuisines, setSelectedCuisines] = useState<string[]>([]);
   const [selectedPriceLevel, setSelectedPriceLevel] = useState<string[]>([]);
   const [selectedGoogleRating, setSelectedGoogleRating] = useState<string[]>([]);
@@ -258,11 +259,19 @@ function HomeScreen() {
         </TouchableOpacity>
       ),
       headerLeft: () => (
-        <TouchableOpacity onPress={filtermenu}>
-          <View style = {{ padding: 10}}>
-            <MaterialCommunityIcons name = 'filter' size={24}/>
-          </View>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row' }}>
+          <TouchableOpacity onPress={filtermenu}>
+            <View style = {{ padding: 10}}>
+              <MaterialCommunityIcons name = 'filter' size={24}/>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={searchmenu}>
+            <View style = {{ padding: 10}}>
+              <MaterialCommunityIcons name = 'map-search' size={24}/>
+            </View>
+          </TouchableOpacity>
+        </View>
       )
     });
   }, []);
@@ -307,6 +316,14 @@ function HomeScreen() {
   const filtermenu = () => {
     setShowFilterForm(true);
   };
+
+  const searchmenu = () => {
+    setShowSearchForm(true);
+  };
+
+  const onUpdateSearch = () => {
+    const [search, updateSearch] = React.useState('')
+  }
 
   const toggleCuisine = (cuisine: string) => {
     setSelectedCuisines(prev =>
@@ -644,6 +661,60 @@ function HomeScreen() {
         </ScrollView>
         </>
       )}
+
+      {showSearchForm && ( <><TouchableOpacity
+      activeOpacity={1}
+      onPress={() => setShowSearchForm(false)} // tap outside to close
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.4)', // THIS is the dim effect
+        zIndex: 999,
+      }}
+    />
+    <ScrollView style={{
+          position: 'absolute',
+          top: 40, 
+          left: 20,
+          right: 20,
+          bottom: 40,
+          backgroundColor: 'rgb(255, 251, 251)',
+          padding: 15,
+          borderRadius: 10,
+          zIndex: 1000,
+          elevation: 10, 
+        }}>
+          <View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 10}}>
+              <TouchableOpacity onPress={() => setShowSearchForm(false)} style={{position: 'absolute', left: 0, padding: 5}}>
+                <MaterialCommunityIcons name="arrow-u-left-top-bold" size={32} />
+              </TouchableOpacity>
+              <View>
+                <TextInput
+                style={{
+                  height: 40,
+                  borderWidth: 1,
+                  paddingLeft: 10,
+                  borderRadius: 8
+                }}
+                placeholder="Search..."
+                value={search}
+                onChangeText={updateSearch}
+                />
+                <FlatList
+                  data={filteredData}
+                  keyExtractor={item => item.id}
+                  renderItem={({ item }) => <Text>{item.name}</Text>}
+                />
+              </View>
+            </View>
+          </View>
+        </ScrollView>
+    </>
+    )}
 
       {/* Create a bottom sheet that will display restaurants*/}
       <BottomSheet
