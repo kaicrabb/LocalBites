@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../../Models/user');
 const admin = require('./firebase_admin');
 const SECRET_KEY = process.env.SECRET_KEY;
+const Bans = require('../../Models/bans');
 
 async function login(req, res){
     try{
@@ -18,6 +19,18 @@ async function login(req, res){
         if (!valid){
             return res.status(401).json({ message: 'Invalid password' });
         }
+
+        // Check if the user is banned
+        const banRecord = await Bans.findOne({ userId: user._id });
+        if (banRecord) {
+            const currentTime = new Date();
+            if (banRecord.expiresAt > currentTime) {
+                return res.status(403).json({ message: `Your account is banned until ${banRecord.expiresAt}. Reason: ${banRecord.reason}` });
+            }
+            // If the ban has expired, remove the ban record and allow login
+            await Bans.findOneAndDelete({ userId: user._id });
+        }
+        
 
         const token = jwt.sign(
             { id: user._id, email: user.Email, username: user.Username, IsAdmin: user.IsAdmin },
