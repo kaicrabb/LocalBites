@@ -6,7 +6,7 @@ async function adminGetAllUsers(req, res) {
         return res.status(403).json({ message: 'Not authorized to get all users' });
     }
     try {
-        const allUsers = await user.find(--{ Password: 0 });
+        const allUsers = await user.find().select('-Password');
         return res.status(200).json({ users: allUsers });
     } catch (err) {
         console.error(err);
