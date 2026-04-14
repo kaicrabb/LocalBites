@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { useState, useEffect } from 'react';
 import * as secureStore from 'expo-secure-store';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -7,6 +7,8 @@ export default function BanUser() {
     const [users, setUsers] = useState<any[]>([]);
     const [token, setToken] = useState<string | null>(null);
     const [showUserToBan, setShowUserToBan] = useState<string | null>(null);
+    const [violation, setViolation] = useState<string>('');
+    const [banDuration, setBanDuration] = useState<number>(0);
 
     useEffect(() => {
         const getToken = async () => {
@@ -44,21 +46,13 @@ export default function BanUser() {
         }
     }, [token]);
 
-    const handleBanUser = (key: string) => {
+    const handleBanUser = (name: string, id: string) => {
         // TODO: Implement ban user logic
-        return (<View><Text>Are you sure you wish to ban <b>{key}</b>?</Text>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 20 }}>
-                    <TouchableOpacity onPress={() => handleConfirmBan(key)}>
-                        <Text>Confirm</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={handleCancelBan}>
-                        <Text>Cancel</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>);
+        console.log(`Ban user: ${name}`);
+        setShowUserToBan(id); // Show confirmation dialog for the selected user
     };
 
-    const handleConfirmBan = async (key: string) => {
+    const handleConfirmBan = async (key: string, violation: string, banDuration: number) => {
         try {
             const response = await fetch(
                 `https://localbites-4m9e.onrender.com/Admin/ban_user`, {
@@ -67,7 +61,7 @@ export default function BanUser() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify({ Username: key }),
+                body: JSON.stringify({ userId: key, reason: violation, duration: banDuration }),
             });
             const data = await response.json();
             if (response.ok) {
@@ -85,10 +79,47 @@ export default function BanUser() {
 
     const handleCancelBan = () => {
         console.log("Ban cancelled");
-        // return to list by just closing the confirmation dialog
-        // This would typically involve setting a state variable to hide the dialog
+        setShowUserToBan(null);
 
     };
+
+     // Confirmation dialog for banning a user
+     if (showUserToBan) {
+        const key = showUserToBan; // Store the username of the user to be banned
+        const user = users.find((u) => u._id === key)?.Username || "the user"; // Find the username based on the user ID
+        return (
+            <ScrollView style={{ flex: 1, padding: 20 }}>
+                <Text style={{ fontSize: 24, fontWeight: 'bold' }}>Confirm Ban</Text>
+                <Text style={{ fontSize: 18, marginBottom: 20 }}>Are you sure you want to ban {user}?</Text>
+                    <View style={{ marginBottom: 20 }}>
+                    <Text style={{ marginBottom: 10 }}>Please provide a reason for the ban:</Text>
+                    <TextInput
+                                    style={{ marginTop: 15, borderWidth: 1, borderColor: '#ccc', padding: 10, borderRadius: 5 }}
+                                    value={violation}
+                                    onChangeText={setViolation}
+                                    maxLength={240}
+                                    multiline
+                                />
+                    </View>
+
+                    <View style={{ flexDirection: 'row', marginBottom: 20 }}>
+                    <Text style={{ marginBottom: 10 }}>Please provide a duration for the ban (days):</Text>
+                    <TextInput placeholder="Ban duration (hours)" style={{ borderWidth: 1, borderColor: '#ccc', padding: 10, marginRight: 10 }} keyboardType="numeric" onChangeText={(text) => setBanDuration(parseInt(text))} />
+                    </View>
+
+                    <TouchableOpacity style={{ backgroundColor: 'red', padding: 10, borderRadius: 5, marginRight: 10 }} onPress={() => handleConfirmBan(key, violation, banDuration)}>
+                        <Text style={{ color: 'white', fontWeight: 'bold' }}>Yes, Ban User</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ backgroundColor: 'gray', padding: 10, borderRadius: 5 }} onPress={handleCancelBan}>
+                        <Text style={{ color: 'white', fontWeight: 'bold' }}>No, Cancel</Text>
+                    </TouchableOpacity>
+                
+            </ScrollView>
+        );
+    }
+
+
+    
 
     return (
         <View>
@@ -97,10 +128,10 @@ export default function BanUser() {
                 <Text style={{ marginTop: 20 }}>This is where you can ban a user. You can select a user from the list of users and confirm the ban action.</Text>
                 {users.map((user) => (
                     <View key={user._id} style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#ccc' }}>
-                        <TouchableOpacity style={{ backgroundColor: 'red', padding: 10, borderRadius: 5, alignItems: 'center', marginBottom: 10 }} onPress={() => handleBanUser(user.Username)}>
+                        <TouchableOpacity style={{ backgroundColor: 'red', padding: 10, borderRadius: 5, alignItems: 'center', marginBottom: 10 }} onPress={() => handleBanUser(user.Username, user._id)}>
                             <MaterialCommunityIcons name="account-cancel" size={40} color="white" />
-                            <Text style={{ fontSize: 18 }}>{user.Username}</Text>
-                            <Text style={{ color: 'gray' }}>{user.Email}</Text>
+                            <Text style={{ fontSize: 18 , color: 'white' }}>{user.Username}</Text>
+                            <Text style={{ color: 'white' }}>{user.Email}</Text>
                         </TouchableOpacity>
                     </View>
                 ))}

@@ -20,12 +20,12 @@ const changePassword = require('./Routes/Authentication/change_password');
 const authenticateToken = require('./Routes/Authentication/authtoken');
 const deleteAccount = require('./Routes/Authentication/delete_account');
 const userInfo = require('./Routes/user_info');
-
 const supplyFirebaseToken = require('./Routes/Authentication/firebasetoken');
 const addReview = require('./Routes/Reviews/add_review');
 const getReview = require('./Routes/Reviews/get_reviews');
 const deleteReview = require('./Routes/Reviews/delete_review');
 
+// admin routes
 const adminDeleteReview = require('./Routes/Admin/admin_delete_review');
 const adminDeleteUserAccount = require('./Routes/Admin/admin_delete_user_account');
 const adminRemoveRestaurant = require('./Routes/Admin/admin_remove_restaurant');
@@ -33,6 +33,7 @@ const adminBanUser = require('./Routes/Admin/admin_ban_user_account');
 const adminUnbanUser = require('./Routes/Admin/admin_unban_user_account');
 const adminGetAllUsers = require('./Routes/Admin/admin_get_all_users');
 const adminGetAllRestaurants = require('./Routes/Admin/admin_get_all_restaurants');
+const adminGetAllBans = require('./Routes/Admin/admin_get_all_bans.js');
 
 async function startServer(){
     // Initialize Express app
@@ -62,14 +63,17 @@ async function startServer(){
     app.get("/Google_Api/get_location", getLocation);
     app.get("/reviews", getReview);
     
-    // Admin routes
+    // Admin post routes
     app.post("/Admin/delete_review", authenticateToken, adminDeleteReview);
     app.post("/Admin/delete_user_account", authenticateToken, adminDeleteUserAccount);
     app.post("/Admin/remove_restaurant", authenticateToken, adminRemoveRestaurant);
     app.post("/Admin/ban_user", authenticateToken, adminBanUser);
     app.post("/Admin/unban_user", authenticateToken, adminUnbanUser);
+
+    // Admin get routes
     app.get("/Admin/get_all_users", authenticateToken, adminGetAllUsers);
     app.get("/Admin/get_all_restaurants", authenticateToken, adminGetAllRestaurants);
+    app.get("/Admin/get_all_bans", authenticateToken, adminGetAllBans);
 
     app.listen(port, () => { 
         console.log("Server started on port " + port);
