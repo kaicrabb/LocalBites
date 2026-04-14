@@ -1,5 +1,5 @@
-import Bans from '../../Models/bans';
-import User from '../../Models/user';
+const Bans = require('../../Models/bans');
+const User = require('../../Models/user');
 
 async function adminGetAllBans(req, res) {
     if (!req.user.IsAdmin) {// check that the user is an admin
