@@ -26,10 +26,7 @@ async function adminBanUserAccount(req, res) {
 
         // Save the ban entry
         await newBan.save();
-
-        // Update the user's status to banned
-        userToBan.isBanned = true;
-        await userToBan.save();
+        await User.findByIdAndUpdate(userIdToBan, { isBanned: true }); // Update the user's status to banned
 
         res.status(200).json({ message: 'User banned successfully' });
     } catch (error) {
