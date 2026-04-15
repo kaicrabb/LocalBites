@@ -2,6 +2,8 @@ import { ScrollView, View, Text, TouchableOpacity, TextInput } from 'react-nativ
 import { useState, useEffect } from 'react';
 import * as secureStore from 'expo-secure-store';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import useUserInfo from '../fetchuser';
+import { Redirect } from 'expo-router';
 
 export default function BanUser() {
     const [users, setUsers] = useState<any[]>([]);
@@ -9,8 +11,9 @@ export default function BanUser() {
     const [showUserToBan, setShowUserToBan] = useState<string | null>(null);
     const [violation, setViolation] = useState<string>('');
     const [banDuration, setBanDuration] = useState<number>(0);
-
-    useEffect(() => {
+    const { user, loading } = useUserInfo();
+    
+        useEffect(() => {
         const getToken = async () => {
             const storedToken = await secureStore.getItemAsync('token');
             setToken(storedToken);
@@ -18,11 +21,23 @@ export default function BanUser() {
         getToken();
     }, []);
 
+        // Call fetchUsers when the component mounts
+    useEffect(() => {
+        if (token) {
+            fetchUsers();
+        }
+    }, [token]);
+
+    if (loading) {
+        return <View><MaterialCommunityIcons name="loading" size={20} /></View>; // Show a loading state while fetching user info
+    }
+    if (!user?.IsAdmin) return <Redirect href="/main/home" />;
+
+
+
     const fetchUsers = async () => {
         try {
             console.log("Fetching users...");
-            const isAdmin = await secureStore.getItemAsync('isAdmin');
-            const convertedIsAdmin = isAdmin === 'true'; // Convert string to boolean
             const response = await fetch(
                 `https://localbites-4m9e.onrender.com/Admin/get_all_users`, {
                 method: 'GET',
@@ -33,18 +48,19 @@ export default function BanUser() {
             });
             const data = await response.json();
             console.log("Users fetched:", data);
-            setUsers(data.users);
+            const alreadyBannedUserIds = await fetch('https://localbites-4m9e.onrender.com/Admin/get_all_bans', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+            }).then(res => res.json()).then(data => data.bans.map((ban: any) => ban.userId));
+            const filteredUsers = data.users.filter((user: any) => !alreadyBannedUserIds.includes(user._id));
+            setUsers(filteredUsers);
         } catch (error) {
             console.error("Error fetching users:", error);
         }
     };
-
-    // Call fetchUsers when the component mounts
-    useEffect(() => {
-        if (token) {
-            fetchUsers();
-        }
-    }, [token]);
 
     const handleBanUser = (name: string, id: string) => {
         // TODO: Implement ban user logic
@@ -104,7 +120,7 @@ export default function BanUser() {
 
                     <View style={{ flexDirection: 'row', marginBottom: 20 }}>
                     <Text style={{ marginBottom: 10 }}>Please provide a duration for the ban (days):</Text>
-                    <TextInput placeholder="Ban duration (hours)" style={{ borderWidth: 1, borderColor: '#ccc', padding: 10, marginRight: 10 }} keyboardType="numeric" onChangeText={(text) => setBanDuration(parseInt(text))} />
+                    <TextInput placeholder="Ban duration (hours)" style={{ borderWidth: 1, borderColor: '#ccc', padding: 10, marginRight: 10 }} keyboardType="numeric" onChangeText={(text) => setBanDuration(parseInt(text)||0)} />
                     </View>
 
                     <TouchableOpacity style={{ backgroundColor: 'red', padding: 10, borderRadius: 5, marginRight: 10 }} onPress={() => handleConfirmBan(key, violation, banDuration)}>

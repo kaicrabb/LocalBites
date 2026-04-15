@@ -6,9 +6,9 @@ interface User {
     Username: string;
     IsAdmin: boolean;
     Email: string;
+    isBanned: boolean;
 }
 
-// need a required default export
 
 export const fetchUserInfo = async (): Promise<User | null> => {
     try {

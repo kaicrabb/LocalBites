@@ -22,6 +22,11 @@ const user_schema = new mongoose.Schema({
         type: Boolean,
         required: false,
         default: false
+    },
+    isBanned: { // boolean to determine if user is banned or not
+        type: Boolean,
+        required: false,
+        default: false
     }
 })
 
