@@ -1,12 +1,13 @@
-import { useRouter } from "expo-router";
+import { useRouter, useNavigation} from "expo-router";
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, StyleSheet } from "react-native";
+import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, StyleSheet, Alert } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { Video, ResizeMode } from "expo-av";
 import { ref, listAll, getDownloadURL } from "firebase/storage";
 import * as SecureStore from 'expo-secure-store';
 import { storage, auth } from "../../config/firebaseConfig";
 import { onAuthStateChanged, User } from 'firebase/auth';
+
 
 interface UserProfile {
   username: string;
@@ -22,6 +23,16 @@ const ProfilePage: React.FC = () => {
     bio: "Big Back Reviews",
     profilePic: "placeholder.jpg",
   });
+  const navigation = useNavigation();
+    useEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity onPress={() => router.push('../settings')}>
+          <View style={{ padding: 10 }}>
+            <Ionicons name="settings" size={24} />
+          </View>
+        </TouchableOpacity>
+      )})})
 
   useEffect(() => {
   const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -52,7 +63,7 @@ const ProfilePage: React.FC = () => {
       result.items.map((itemRef) => getDownloadURL(itemRef))
     );
 
-    setUserVideos(urls);
+    setUserVideos(urls.reverse());
   };
 
   fetchUserVideos();
@@ -80,12 +91,12 @@ const ProfilePage: React.FC = () => {
         });
 
         const userInfo = await userInfoResponse.json();
-        if (!userInfo.userId) {
+        if (!userInfo.user._id) {
           setReviewsError('Unable to load user information.');
           return;
         }
 
-        const reviewsResponse = await fetch(`https://localbites-4m9e.onrender.com/reviews?userId=${userInfo.userId}`, {
+        const reviewsResponse = await fetch(`https://localbites-4m9e.onrender.com/reviews?userId=${userInfo.user._id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -110,6 +121,46 @@ const ProfilePage: React.FC = () => {
 
     fetchProfileReviews();
   }, [userFirebase]);
+
+  const handleDeleteReview = async (reviewId: string) => {
+    Alert.alert('Delete review', 'Do you want to delete this review?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            const token = await SecureStore.getItemAsync('token');
+            if (!token) {
+              Alert.alert('Unauthorized', 'Please log in to delete reviews.');
+              return;
+            }
+
+            const res = await fetch('https://localbites-4m9e.onrender.com/reviews/delete', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ reviewId }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+              Alert.alert('Error', data?.message || 'Failed to delete review.');
+              return;
+            }
+
+            setProfileReviews((prev) => prev.filter((r) => r._id !== reviewId));
+            Alert.alert('Deleted', 'Your review has been deleted.');
+          } catch (err) {
+            console.error('Delete review error', err);
+            Alert.alert('Error', 'Unable to delete review at this time.');
+          }
+        },
+      },
+    ]);
+  };
 
   const renderReviewsTab = () => {
     if (reviewsLoading) {
@@ -138,9 +189,14 @@ const ProfilePage: React.FC = () => {
 
     return profileReviews.map((review) => (
       <View key={review._id} style={styles.reviewTile}>
-        <Text style={styles.reviewTitle}>
-          {review.Place?.displayName || 'Unknown Place'}
-        </Text>
+        <View style={styles.reviewHeader}>
+          <Text style={styles.reviewTitle}>
+            {review.Place?.displayName || 'Unknown Place'}
+          </Text>
+          <TouchableOpacity onPress={() => handleDeleteReview(review._id)}>
+            <Ionicons name="trash" size={20} color="#d9534f" />
+          </TouchableOpacity>
+        </View>
         <Text style={styles.reviewRating}>
           {Array.from({ length: 5 }, (_, index) => (
             <Text key={index} style={{ color: index < review.Rating ? '#FFD700' : '#ccc' }}>
@@ -155,12 +211,6 @@ const ProfilePage: React.FC = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.topBar}>
-        <TouchableOpacity onPress={() => router.push('../settings')}>
-          <Ionicons name="settings" size={24} />
-        </TouchableOpacity>
-      </View>
-
       <View style={styles.profileHeader}>
         <Image source={{ uri: user.profilePic }} style={styles.profilePic} />
         <Text style={styles.usernameText}>@{user.username}</Text>
@@ -204,8 +254,8 @@ const ProfilePage: React.FC = () => {
       </View>
 
       <View style={styles.videoGrid}>
-        {activeTab === "videos" ? (
-          userVideos.map((item) => (
+        {activeTab === "videos" ?  
+          (userVideos.map((item) => (
             <TouchableOpacity
               key={item}
               style={styles.videoTile}
@@ -311,6 +361,12 @@ const styles = StyleSheet.create({
   reviewComment: {
     color: "#444",
     fontSize: 14,
+  },
+    reviewHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
   },
   editModal: {
     position: "absolute",

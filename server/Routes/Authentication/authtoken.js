@@ -13,7 +13,7 @@ const authenticateToken = (req, res, next) => {
     jwt.verify(token, SECRET_KEY, (err, user) => {
         if (err) {
             console.log("JWT ERROR:", err.message);
-            return res.sendStatus(403).json({ message: "Forbidden" });
+            return res.status(403).json({ message: "Forbidden" });
         }
         req.user = user;  // Store user info in the request object
         next();  // Proceed to the next middleware or route handler

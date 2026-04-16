@@ -98,17 +98,16 @@ export default function CreateReview({ restaurantId, _onClose }: Readonly<{ rest
 
             <View style={{ flexDirection: 'row', marginTop: 15, gap: 10 }}>
                 <TouchableOpacity 
-                    style={{ flex: 1, backgroundColor: '#007AFF', padding: 10, borderRadius: 5 }}
-                    onPress={handleSubmit}
-                >
-                    <Text style={{ color: 'white', textAlign: 'center', fontWeight: '600' }}>Submit</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity 
                     style={{ flex: 1, backgroundColor: '#ccc', padding: 10, borderRadius: 5 }}
                     onPress={_onClose}
                 >
                     <Text style={{ color: 'black', textAlign: 'center', fontWeight: '600' }}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                    style={{ flex: 1, backgroundColor: '#007AFF', padding: 10, borderRadius: 5 }}
+                    onPress={handleSubmit}
+                >
+                    <Text style={{ color: 'white', textAlign: 'center', fontWeight: '600' }}>Submit</Text>
                 </TouchableOpacity>
             </View>
         </View>

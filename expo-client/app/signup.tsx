@@ -4,7 +4,7 @@ import { useState } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import {auth} from "../config/firebaseConfig";
 import {signInWithCustomToken } from "firebase/auth";
-
+import { fetchUserInfo } from './fetchuser';
 
 interface SignUpResponse {
   token: string;
@@ -37,7 +37,8 @@ export default function Signup() {
 
         if(response.ok) {
             await SecureStore.setItemAsync("token", data.token);
-            await SecureStore.setItemAsync("firebaseToken", data.firebaseToken);
+            const userinfo = await fetchUserInfo();
+            await SecureStore.setItemAsync("user", JSON.stringify(userinfo));
             await signInWithCustomToken(auth, data.firebaseToken);
             router.replace('/main/home');
         }
