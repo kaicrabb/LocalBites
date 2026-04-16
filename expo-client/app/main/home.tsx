@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useEffect, useRef, useState } from 'react';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, ScrollView, Image } from 'react-native';
 import { useNavigation } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import * as Location from 'expo-location';
@@ -643,8 +643,6 @@ function HomeScreen() {
                 <Text>{label}</Text>
               </View>
               ))}
-
-              <Text style={{fontSize:20, fontWeight: 'bold', paddingTop:25}}>Operating Hours</Text>
           </View>
         </ScrollView>
         </>
@@ -709,6 +707,36 @@ function HomeScreen() {
               </Text>
               {getPriceLevel(selectedRestaurantData.priceLevel)}
             </View>
+            {selectedRestaurantData.photos && selectedRestaurantData.photos.length > 0 ? (
+            <View style={{ marginTop: 10 }}>
+              <Text style={{ fontSize: 14, fontWeight: '600', marginBottom: 5 }}>Photos:</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {selectedRestaurantData.photos.map((photo, idx) => {
+                  // Safely get the image URL
+                  const uri = photo.authorAttributions?.[0]?.photoUri;
+                  if (!uri) return null;
+                  return (
+                    <Image
+                      key={idx}
+                      source={{ uri }}
+                      style={{
+                        width: 200,
+                        height: 150,
+                        borderRadius: 10,
+                        marginRight: 10,
+                        backgroundColor: '#eee',
+                      }}
+                      resizeMode="cover"
+                    />
+                  );
+                })}
+              </ScrollView>
+            </View>
+          ) : (
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
+              <Text style={{ fontSize: 14 }}>Photos: Not available</Text>
+            </View>
+          )}
             {/* Add more details as needed, e.g., photos, reels, Hours, etc. */}
             
             <TouchableOpacity onPress={()  => setShowReviewForm(true)} >
