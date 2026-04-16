@@ -1,10 +1,6 @@
 import { useRouter, useNavigation} from "expo-router";
 import React, { useState, useEffect } from "react";
-<<<<<<< HEAD
 import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, StyleSheet, Alert } from "react-native";
-=======
-import { View, Text, TouchableOpacity, TextInput, ScrollView, StyleSheet } from "react-native";
->>>>>>> ce4027b (I think I got it working #2)
 import { Ionicons } from '@expo/vector-icons';
 import { Video, ResizeMode } from "expo-av";
 import { ref, listAll, getDownloadURL } from "firebase/storage";
@@ -22,20 +18,14 @@ interface UserProfile {
 
 const ProfilePage: React.FC = () => {
   const router = useRouter();
-  const navigation = useNavigation();
-  const [userFirebase, setUser] = useState<User | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+
   const [user, setUserprofile] = useState<UserProfile>({
     username: "username",
     bio: "Big Back Reviews",
     profilePic: "placeholder.jpg",
   });
-  const [editing, setEditing] = useState(false);
-  const [activeTab, setActiveTab] = useState<"videos" | "reviews">("videos");
-  const [userVideos, setUserVideos] = useState<string[]>([]);
-  const reviews = Array.from({ length: 6 }, (_, i) => `Review ${i + 1}`);
-
-  useEffect(() => {
+  const navigation = useNavigation();
+    useEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity onPress={() => router.push('../settings')}>
@@ -43,12 +33,9 @@ const ProfilePage: React.FC = () => {
             <Ionicons name="settings" size={24} />
           </View>
         </TouchableOpacity>
-      )
-    });
-  }, [navigation, router]);
+      )})})
 
   useEffect(() => {
-<<<<<<< HEAD
   const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
     setUser(firebaseUser);
   });
@@ -63,55 +50,25 @@ const ProfilePage: React.FC = () => {
   const [profileReviews, setProfileReviews] = useState<any[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [reviewsError, setReviewsError] = useState<string | null>(null);
-=======
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser);
-    });
-    return () => unsubscribe();
-  }, []);
->>>>>>> a6d8927 (I tried)
 
   useEffect(() => {
-    if (!userFirebase) return;
+  if (!userFirebase) return;
 
-    const fetchProfileImage = async () => {
-      const user_id = userFirebase.uid;
-      const profilePicRef = ref(storage, `profile/${user_id}`);
+  const fetchUserVideos = async () => {
+    const user_id = userFirebase.uid;
 
-      try {
-        const url = await getDownloadURL(profilePicRef);
-        setSelectedImage(url);
-      } catch (error) {
-        console.log('No profile image found in storage, showing default.');
-      }
-    };
+    const reelsRef = ref(storage, `reels/${user_id}`);
+    const result = await listAll(reelsRef);
 
-    fetchProfileImage();
-  }, [userFirebase]);
+    const urls = await Promise.all(
+      result.items.map((itemRef) => getDownloadURL(itemRef))
+    );
 
-<<<<<<< HEAD
     setUserVideos(urls.reverse());
   };
-=======
-  useEffect(() => {
-    if (!userFirebase) return;
->>>>>>> a6d8927 (I tried)
 
-    const fetchUserVideos = async () => {
-      const user_id = userFirebase.uid;
-
-      const reelsRef = ref(storage, `reels/${user_id}`);
-      const result = await listAll(reelsRef);
-
-      const urls = await Promise.all(
-        result.items.map((itemRef) => getDownloadURL(itemRef))
-      );
-
-      setUserVideos(urls);
-    };
-
-    fetchUserVideos();
-  }, [userFirebase]);
+  fetchUserVideos();
+}, [userFirebase]);
 
   useEffect(() => {
     const fetchProfileReviews = async () => {
@@ -257,10 +214,7 @@ const ProfilePage: React.FC = () => {
     <ScrollView style={styles.container}>
       <View style={styles.profileHeader}>
         <View style={styles.imageContainer}>
-          <ImageViewer 
-            imgSource={require('../../assets/images/default.jpg')} 
-            selectedImage={selectedImage} 
-          />
+          <ImageViewer imgSource={require('../../assets/images/default.jpg')} />
         </View>
         <Text style={styles.usernameText}>@{user.username}</Text>
 
