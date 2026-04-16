@@ -239,7 +239,7 @@ function HomeScreen() {
       });
 
       const data = await response.json();
-      // console.log('Restaurant details response:', data);
+      console.log('Restaurant details response:', data);
       
       setSelectedRestaurantData(data);
       await fetchReviews(restaurantId);
@@ -499,6 +499,9 @@ function HomeScreen() {
     );
   };
 
+  //Write restaurant details here, you want to do the photos in a carosel and the opening hours. 
+  // you might want to look at the google reviews to see. 
+
   return (
     // Sets up home page view
     <View style={{ flex: 1 }}>
@@ -640,6 +643,8 @@ function HomeScreen() {
                 <Text>{label}</Text>
               </View>
               ))}
+
+              <Text style={{fontSize:20, fontWeight: 'bold', paddingTop:25}}>Operating Hours</Text>
           </View>
         </ScrollView>
         </>
@@ -666,7 +671,23 @@ function HomeScreen() {
             <Text style={{ color: 'black', fontSize: 18 }}>
               {selectedRestaurantData.formattedAddress}
             </Text>
+            {selectedRestaurantData.regularOpeningHours && selectedRestaurantData.regularOpeningHours.weekdayDescriptions ? (
+            <View style={{ marginTop: 5 }}>
+              <Text style={{ fontSize: 14, fontWeight: '600' }}>Operating Hours:</Text>
+              {selectedRestaurantData.regularOpeningHours.weekdayDescriptions.map((desc, idx) => (
+                <Text key={idx} style={{ fontSize: 14, marginLeft: 10 }}>
+                  {desc}
+                </Text>
+              ))}
+            </View>
+          ) : (
             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
+              <Text style={{ fontSize: 14 }}>
+                Operating Hours: Not available
+              </Text>
+            </View>
+            )}
+             <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
               <Text style={{ fontSize: 14 }}>
                 {"Google Ratings: " + selectedRestaurantData.rating + " "}
               </Text>
@@ -708,7 +729,6 @@ function HomeScreen() {
             </Text>
             {renderReviewSection()}
           </View>
-          
         ) : (
           // Show list of restaurants if a specific one has yet to be chosen.
           <>
