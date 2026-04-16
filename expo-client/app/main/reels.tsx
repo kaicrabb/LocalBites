@@ -22,29 +22,34 @@ export default function ReelFeed() {
   const { user, loading } = useUserInfo();
   const router = useRouter();
 
-    if (loading && user === null) {
-      delay(2000).then(() => {
-        console.log("Loading user info...");
-      });
-      return null; // should make a loading screen here
+  useEffect(() => {
+    if (!loading && user?.isBanned) {
+      const timeout = setTimeout(async () => {
+        await SecureStore.deleteItemAsync("token");
+        await SecureStore.deleteItemAsync("user");
+        router.replace("/");
+      }, 3000);
+
+      return () => clearTimeout(timeout);
     }
-    if (!loading) {
-      if (user?.isBanned) {// show message then log out user
-        delay(3000).then(() => {
-          console.log("Logging out banned user...");
-          SecureStore.deleteItemAsync("token");
-          SecureStore.deleteItemAsync("user");
-          router.replace("/");
-        });
-        return (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ fontSize: 18, color: 'red', textAlign: 'center' }}>
-              Your account has been banned. You will be logged out shortly.
-            </Text>
-          </View>
-        );
-      }
-    }
+  }, [loading, user]);
+  if (!loading) {
+        if (user?.isBanned) {// show message then log out user
+          delay(3000).then(() => {
+            console.log("Logging out banned user...");
+            SecureStore.deleteItemAsync("token");
+            SecureStore.deleteItemAsync("user");
+            router.replace("/");
+          });
+          return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={{ fontSize: 18, color: 'red', textAlign: 'center' }}>
+                Your account has been banned. You will be logged out shortly.
+              </Text>
+            </View>
+          );
+        }
+  }
 
   useEffect(() => {
     const setupAudio = async () => {
