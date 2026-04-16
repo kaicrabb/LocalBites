@@ -447,7 +447,8 @@ function HomeScreen() {
             );
           return <Text style={{fontSize:16, fontWeight:"600"}}>Unknown</Text>;
         };
-
+  
+        
   const renderReviewSection = () => {
     if (reviewLoading) {
       return (
