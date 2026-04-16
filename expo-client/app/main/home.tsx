@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useEffect, useRef, useState } from 'react';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
-import { useNavigation } from 'expo-router';
+import { useNavigation, useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import * as Location from 'expo-location';
 import { Checkbox } from 'expo-checkbox';
@@ -13,6 +13,7 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import Slider from '@react-native-community/slider';
 import CreateReview from '../review';
+import useUserInfo from '../fetchuser';
 
 async function getUserLocation() {
   const { status } = await Location.requestForegroundPermissionsAsync();
@@ -92,6 +93,7 @@ export default function App() {
 
 
 function HomeScreen() {
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
   const mapRef = useRef<MapView>(null);
   const [restaurants, setRestaurants] = useState<any[]>([]);
   const [selectedRestaurantData, setSelectedRestaurantData] = useState<any>(null);
@@ -111,6 +113,38 @@ function HomeScreen() {
     latitudeDelta: 0.0922,
     longitudeDelta: 0.0421,
   })
+
+  const { user, loading } = useUserInfo();
+  const router = useRouter();
+  
+  useEffect(() => {
+    if (!loading && user?.isBanned) {
+      const timeout = setTimeout(async () => {
+        await SecureStore.deleteItemAsync("token");
+        await SecureStore.deleteItemAsync("user");
+        router.replace("/");
+      }, 3000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [loading, user]);
+  if (!loading) {
+        if (user?.isBanned) {// show message then log out user
+          delay(3000).then(() => {
+            console.log("Logging out banned user...");
+            SecureStore.deleteItemAsync("token");
+            SecureStore.deleteItemAsync("user");
+            router.replace("/");
+          });
+          return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={{ fontSize: 18, color: 'red', textAlign: 'center' }}>
+                Your account has been banned. You will be logged out shortly.
+              </Text>
+            </View>
+          );
+        }
+  }
 
   async function updateLocation() {
     const coords = await getUserLocation();
@@ -132,9 +166,7 @@ function HomeScreen() {
     }, 300000); // 5 minutes
 
     return () => clearInterval(interval);
-  }, []);
-
-  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms)); 
+  }, []); 
 
   // Snap positions
   const snapPoints = useMemo(() => ['5%', '50%', '75','100%'], []);
