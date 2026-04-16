@@ -21,3 +21,5 @@ const bans_schema = new mongoose.Schema({
         required: true
     }
 });
+
+module.exports = mongoose.model('Bans', bans_schema);

@@ -7,6 +7,7 @@ import { ref, listAll, getDownloadURL } from "firebase/storage";
 import * as SecureStore from 'expo-secure-store';
 import { storage, auth } from "../../config/firebaseConfig";
 import { onAuthStateChanged, User } from 'firebase/auth';
+import ImageViewer from '../ImageViewer';
 
 
 interface UserProfile {
@@ -212,7 +213,9 @@ const ProfilePage: React.FC = () => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.profileHeader}>
-        <Image source={{ uri: user.profilePic }} style={styles.profilePic} />
+        <View style={styles.imageContainer}>
+          <ImageViewer imgSource={require('../../assets/images/default.jpg')} />
+        </View>
         <Text style={styles.usernameText}>@{user.username}</Text>
 
         <View style={styles.stats}>
@@ -297,11 +300,6 @@ const ProfilePage: React.FC = () => {
             onChangeText={(text) => setUserprofile({ ...user, bio: text })}
           />
 
-          <TextInput
-            style={styles.input}
-            value={user.profilePic}
-            onChangeText={(text) => setUserprofile({ ...user, profilePic: text })}
-          />
 
           <TouchableOpacity style={styles.editBtn} onPress={() => setEditing(false)}>
             <Text>Save</Text>
@@ -317,6 +315,7 @@ const styles = StyleSheet.create({
   topBar: { flexDirection: "row", justifyContent: "space-between", padding: 10 },
   settingsBtn: { fontSize: 20 },
   profileHeader: { alignItems: "center", padding: 20 },
+  imageContainer: { alignItems: "center", marginTop: -80 },
   profilePic: { width: 110, height: 110, borderRadius: 55 },
   usernameText: { fontWeight: "bold", fontSize: 18, marginVertical: 5 },
   stats: { flexDirection: "row", justifyContent: "space-around", width: "80%", marginVertical: 10 },

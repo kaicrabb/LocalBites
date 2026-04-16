@@ -1,5 +1,5 @@
-const user = require('../../Models/user');
-const bans = require('../../Models/bans');
+const User = require('../../Models/user');
+const Bans = require('../../Models/bans');
 
 async function adminBanUserAccount(req, res) {
     const userIdToBan = req.body.userId; //get user id from the request body
@@ -11,24 +11,22 @@ async function adminBanUserAccount(req, res) {
     }
     try {
         // Check if the user exists
-        const userToBan = await user.findById(userIdToBan);
+        const userToBan = await User.findById(userIdToBan);
         if (!userToBan) {
             return res.status(404).json({ message: 'User not found' });
         }
 
         // Create a new ban entry
-        const newBan = new bans({
+        const newBan = new Bans({
             userId: userIdToBan,
             reason: banReason,
-            expiresAt: new Date(Date.now() + banDuration * 24 * 60 * 60 * 1000) // Convert days to milliseconds
+            bannedAt: new Date(),
+            expiresAt: new Date(Date.now() + banDuration * 60 * 60 * 1000) // Convert hours to milliseconds
         });
 
         // Save the ban entry
         await newBan.save();
-
-        // Update the user's status to banned
-        userToBan.isBanned = true;
-        await userToBan.save();
+        await User.findByIdAndUpdate(userIdToBan, { isBanned: true }); // Update the user's status to banned
 
         res.status(200).json({ message: 'User banned successfully' });
     } catch (error) {

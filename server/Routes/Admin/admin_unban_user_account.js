@@ -17,6 +17,7 @@ async function adminUnbanUser(req, res) {
         }
         //unbanning the user
         await bans.findOneAndDelete({ userId: userIdToUnban });
+        await user.findByIdAndUpdate(userIdToUnban, { isBanned: false }); // Update the user's status to unbanned
         console.log('User account unbanned successfully by admin:', userIdToUnban);
         return res.status(200).json({ message: 'User account unbanned successfully' });
     }

@@ -4,7 +4,10 @@ import Button from './Button';
 import ImageViewer from './ImageViewer';  
 import * as SecureStore from 'expo-secure-store'; 
 import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { ref, listAll, getDownloadURL, uploadBytes } from "firebase/storage";
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { storage, auth } from "../config/firebaseConfig";
 
 const PlaceholderImage = require ('@/assets/images/default.jpg');
 
@@ -24,20 +27,63 @@ export default function App() {
   };
 
   const handleChangePassword = () => {
-    router.push('/changePassword'); 
+    router.push('/changePassword');
   };
 
   const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+
+  const [userFirebase, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    if (!userFirebase) return;
+
+    const fetchProfileImage = async () => {
+      const user_id = userFirebase.uid;
+      const profilePicRef = ref(storage, `profile/${user_id}`);
+
+      try {
+        const url = await getDownloadURL(profilePicRef);
+        setSelectedImage(url);
+        await SecureStore.setItemAsync('profileImage', url);
+      } catch (error) {
+        const saved = await SecureStore.getItemAsync('profileImage');
+        if (saved) setSelectedImage(saved);
+        console.log('No profile image found in strorage yet.');
+      }
+    };
+
+    fetchProfileImage();
+  }, [userFirebase]);
+
   const pickImageAsync = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      quality: 1,
+      quality: 0.5,
     });
-    if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
-    } else {
-      console.log('No image selected.');  
+    const currentUser = userFirebase ?? auth.currentUser;
+    if (!result.canceled && currentUser) {
+      const imageUri = result.assets[0].uri;
+      try {
+        const response = await fetch(imageUri);
+        const blob = await response.blob();
+        const storageRef = ref(storage, `profile/${currentUser.uid}`);
+        await uploadBytes(storageRef, blob);
+        const url = await getDownloadURL(storageRef);
+        setSelectedImage(url);
+        await SecureStore.setItemAsync('profileImage', url);
+        alert('Profile picture updated successfully!');
+      } catch (error) {
+        console.error('Error uploading profile picture:', error);
+        alert('Failed to update profile picture. Please try again.');
+      }
     }
   };
 

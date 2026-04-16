@@ -1,13 +1,15 @@
-import { Tabs, Stack} from "expo-router";
+import { Tabs, Stack, useRouter} from "expo-router";
 import { Ionicons } from '@expo/vector-icons';
 import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
 import useUserInfo from "../fetchuser";
+import { View, Text } from "react-native";
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export default function RootLayout() {
   const { user, loading } = useUserInfo();
+  const router = useRouter();
   
   
   if (loading && user === null) {
@@ -19,6 +21,22 @@ export default function RootLayout() {
 
   if(!loading) {
     console.log("User info loaded in RootLayout: ", user);
+    if (user?.isBanned) {// show message then log out user
+      delay(3000).then(() => {
+        console.log("Logging out banned user...");
+        SecureStore.deleteItemAsync("token");
+        SecureStore.deleteItemAsync("user");
+        router.replace("/");
+      });
+      return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <Text style={{ fontSize: 18, color: 'red', textAlign: 'center' }}>
+            Your account has been banned. You will be logged out shortly.
+          </Text>
+        </View>
+      );
+    }
+
   }
 
   return (
