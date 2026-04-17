@@ -27,9 +27,9 @@ async function adminGetAllReviews(req, res) {
                 username: user ? user.Username : 'Unknown User',
                 email: user ? user.Email : 'Unknown Email',
                 placeId: review.Place,
-                restaurantName: restaurant ? restaurant.DisplayName : 'Unknown Restaurant',
-                rating: review.rating,
-                comment: review.comment,
+                restaurantName: restaurant ? restaurant.displayName : 'Unknown Restaurant',
+                rating: review.Rating,
+                comment: review.Comment,
             };
         }));
         return res.status(200).json({ reviews: reviewsWithUserInfo });
