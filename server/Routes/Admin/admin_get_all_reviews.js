@@ -20,7 +20,7 @@ async function adminGetAllReviews(req, res) {
         const allReviews = await reviews.find();
         const reviewsWithUserInfo = await Promise.all(allReviews.map(async (review) => {
             const user = await User.findById(review.User).select('Username Email');
-            const restaurant = await Restaurant.findOne({ placeId: review.Place }).select('DisplayName');
+            const restaurant = await Restaurant.findOne({ placeId: review.Place }).select('displayName');
             return {
                 id: review._id,
                 userId: review.User,
