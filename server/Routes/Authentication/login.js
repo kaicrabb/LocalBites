@@ -1,3 +1,13 @@
+/*
+    * This file defines the route handler for user login functionality.
+    * The route expects a POST request with the user's email and password in the request body.
+    * The handler verifies the user's credentials by checking the email and comparing the provided password with the hashed password stored in the database.
+    * If the credentials are valid, a JSON Web Token (JWT) is generated for the user, and a custom Firebase token is also created for integration with Firebase services.
+    * The response includes the JWT, the Firebase token, and basic user information (excluding sensitive data like the password).
+    * If the credentials are invalid or if there is an error during the login process, appropriate error responses are sent back to the client.
+    * This route is used to authenticate users and provide them with the necessary tokens for accessing protected resources in the application.
+*/
+
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../../Models/user');
