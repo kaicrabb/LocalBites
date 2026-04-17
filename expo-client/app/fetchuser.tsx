@@ -1,5 +1,5 @@
 import * as SecureStore from "expo-secure-store";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface User {
     _id: string;
@@ -45,12 +45,49 @@ export const clearUserInfo = async () => {
     }
 };
 
+export const checkbanned = async (): Promise<boolean> => {
+    try {
+        const token = await SecureStore.getItemAsync("token");
+        if (token) {
+            const response = await fetch("https://localbites-4m9e.onrender.com/user_info", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            if (!response.ok) {
+                console.error("Failed to check ban status:", response.statusText);
+                return false;
+            }
+            const data = await response.json();
+            console.log("Ban status response:", data.user);
+            return data.user.isBanned;
+        }
+        return false;
+    }
+    catch (err) {
+        console.error("Failed to check ban status", err);
+        return false;
+    }
+};
+
 export default function useUserInfo() {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
     const loadUser = async () => {
       try {
+        // check if banned 
+        if (await checkbanned()){
+          console.log("User is banned, clearing info...");
+          const refetch_user = await fetchUserInfo();
+          if (refetch_user && refetch_user.isBanned) {
+            console.log("User is still banned, clearing info...");
+        }
+      }
+      else {
+        console.log("User is not banned, loading info...");
+      }
+
         console.log("Starting user load...");
 
         const userData = await SecureStore.getItemAsync("user");

@@ -12,6 +12,8 @@ export default function BanUser() {
     const [violation, setViolation] = useState<string>('');
     const [banDuration, setBanDuration] = useState<number>(0);
     const { user, loading } = useUserInfo();
+
+    
     
         useEffect(() => {
         const getToken = async () => {
@@ -20,20 +22,6 @@ export default function BanUser() {
         };
         getToken();
     }, []);
-
-        // Call fetchUsers when the component mounts
-    useEffect(() => {
-        if (token) {
-            fetchUsers();
-        }
-    }, [token]);
-
-    if (loading) {
-        return <View><MaterialCommunityIcons name="loading" size={20} /></View>; // Show a loading state while fetching user info
-    }
-    if (!user?.IsAdmin) return <Redirect href="/main/home" />;
-
-
 
     const fetchUsers = async () => {
         try {
@@ -62,6 +50,21 @@ export default function BanUser() {
         }
     };
 
+        // Call fetchUsers when the component mounts
+    useEffect(() => {
+        if (token) {
+            fetchUsers();
+        }
+    }, [token]);
+
+    if (loading) {
+        return <View><MaterialCommunityIcons name="loading" size={20} /></View>; // Show a loading state while fetching user info
+    }
+    if (!user?.IsAdmin) return <Redirect href="/main/home" />;
+
+
+
+    
     const handleBanUser = (name: string, id: string) => {
         // TODO: Implement ban user logic
         console.log(`Ban user: ${name}`);

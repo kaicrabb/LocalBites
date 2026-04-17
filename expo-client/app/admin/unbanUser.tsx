@@ -8,7 +8,6 @@ import * as secureStore from 'expo-secure-store';
 export default function UnbanUser() {
     const [users, setUsers] = useState<any[]>([]);
     const [token, setToken] = useState<string | null>(null);
-    const [showUserToUnban, setShowUserToUnban] = useState<string | null>(null);
     const { user, loading } = useUserInfo();
 
     useEffect(() => {
@@ -18,21 +17,8 @@ export default function UnbanUser() {
         };
         getToken();
     }, []);
-
-        // Call fetchBannedUsers when the component mounts
-    useEffect(() => {
-        if (token) {
-            fetchBannedUsers();
-        }
-    }, [token]);
     
-    if (loading) {
-        return <View><MaterialCommunityIcons name="loading" size={20} /></View>; // Show a loading state while fetching user info
-    }
-    if (!user?.IsAdmin) return <Redirect href="/main/home" />;
-
-
-
+    
     const fetchBannedUsers = async () => {
         try {
             console.log("Fetching banned users...");
@@ -51,6 +37,20 @@ export default function UnbanUser() {
             console.error("Error fetching banned users:", error);
         }
     };
+
+        // Call fetchBannedUsers when the component mounts
+    useEffect(() => {
+        if (token) {
+            fetchBannedUsers();
+        }
+    }, [token]);
+    
+    if (loading) {
+        return <View><MaterialCommunityIcons name="loading" size={20} /></View>; // Show a loading state while fetching user info
+    }
+    if (!user?.IsAdmin) return <Redirect href="/main/home" />;
+
+
 
 
 
