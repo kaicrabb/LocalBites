@@ -23,12 +23,12 @@ export default function ManageReviews() {
     const router = useRouter();
     const handleDeleteReview = () => {
         console.log("Delete Review clicked");
-        router.push("./deleteReview");
+        router.push("/admin/deleteReview");
     }
     
     const handleViewReviewDetails = () => {
         console.log("View Review Details clicked");
-        router.push("./viewReviewDetails");
+        router.push("/admin/viewReviews");
     }
     
     return (

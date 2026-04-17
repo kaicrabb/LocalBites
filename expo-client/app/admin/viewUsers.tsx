@@ -2,6 +2,7 @@
     This file defines the ViewUsers component, which is an admin interface for viewing user information.
     It allows admins to view a list of users, including their profile information and activity history.
     The component checks if the current user is an admin before rendering the user information. 
+    This basically works as a way to view our bans and user folders of our Database without logging into Mongo.
 */
 
 import {View, Text, ScrollView} from 'react-native';
