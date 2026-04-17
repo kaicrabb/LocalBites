@@ -24,7 +24,7 @@ const supplyFirebaseToken = require('./Routes/Authentication/firebasetoken');
 const addReview = require('./Routes/Reviews/add_review');
 const getReview = require('./Routes/Reviews/get_reviews');
 const deleteReview = require('./Routes/Reviews/delete_review');
-const photos = require('./Routes/Google_Api/photos')
+const photos = require('./Routes/Google_Api/photos');
 
 // admin routes
 const adminDeleteReview = require('./Routes/Admin/admin_delete_review');
