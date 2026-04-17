@@ -19,14 +19,14 @@ async function adminGetAllReviews(req, res) {
     try {
         const allReviews = await reviews.find();
         const reviewsWithUserInfo = await Promise.all(allReviews.map(async (review) => {
-            const user = await User.findById(review.userId).select('Username Email');
-            const restaurant = await Restaurant.findOne({ placeId: review.placeId }).select('DisplayName');
+            const user = await User.findById(review.User).select('Username Email');
+            const restaurant = await Restaurant.findOne({ placeId: review.Place }).select('DisplayName');
             return {
                 id: review._id,
-                userId: review.userId,
+                userId: review.User,
                 username: user ? user.Username : 'Unknown User',
                 email: user ? user.Email : 'Unknown Email',
-                placeId: review.placeId,
+                placeId: review.Place,
                 restaurantName: restaurant ? restaurant.DisplayName : 'Unknown Restaurant',
                 rating: review.rating,
                 comment: review.comment,
