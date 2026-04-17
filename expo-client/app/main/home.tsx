@@ -712,8 +712,7 @@ function HomeScreen() {
               <Text style={{ fontSize: 14, fontWeight: '600', marginBottom: 5 }}>Photos:</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 {selectedRestaurantData.photos.map((photo, idx) => {
-                  // Safely get the image URL
-                  const uri = photo.authorAttributions?.[0]?.photoUri;
+                  const uri = `https://localbites-4m9e.onrender.com/Google_Api/photo?name=${encodeURIComponent(photo.name)}`;
                   if (!uri) return null;
                   return (
                     <Image
