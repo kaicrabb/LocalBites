@@ -1,9 +1,8 @@
 const express = require('express');
-const router = express.Router();
 const API_KEY = process.env.API_KEY;
 
 // route to get a photo from google api by photo reference
-router.get('/photo', async (req, res) => {
+const getPhoto = async (req, res) => {
     try {
         const name = req.query.name;
 
@@ -31,6 +30,6 @@ router.get('/photo', async (req, res) => {
         console.error('Error fetching photo:', error);
         res.status(500).json({ message: 'Server error' });
     }
-});
+};
 
-module.exports = router;
+module.exports = getPhoto;
