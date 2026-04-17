@@ -1,7 +1,14 @@
+/*
+    * This file defines the route handler for user signup functionality.
+    * The route expects a POST request with the user's username, email, and password in the request body.
+    * The handler checks if the email or username already exists in the database, validates the username and password against specified regex patterns, hashes the password, creates a new user in the database, and automatically logs in the user after successful signup.
+    * Appropriate success and error responses are sent back to the client based on the outcome of the operation.
+    * This route is publicly accessible and does not require authentication.
+*/
+
 const bcrypt = require('bcryptjs');
 const User = require('../../Models/user');
 const login = require('./login');
-const SECRET_KEY = process.env.SECRET_KEY;
 
 async function signup(req, res) {
     const { Username, Email, Password } = req.body;

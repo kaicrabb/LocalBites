@@ -1,3 +1,9 @@
+/*
+    * This file defines the route handler for retrieving all banned users by an admin.
+    * The route expects a GET request and does not require any parameters.
+    * This route is protected and should only be accessible to users with admin privileges.
+*/
+
 const Bans = require('../../Models/bans');
 const User = require('../../Models/user');
 

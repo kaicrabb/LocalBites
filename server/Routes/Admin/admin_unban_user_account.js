@@ -1,3 +1,11 @@
+/* 
+    * This file defines the route handler for unbanning a user account by an admin.
+    * The route expects a POST request with the user ID to unban.
+    * The handler checks if the requester is an admin, verifies that the user to be unbanned exists, deletes the ban entry from the Bans collection, and updates the user's status to unbanned in the User collection.
+    * Appropriate success and error responses are sent back to the client based on the outcome of the operation.
+    * This route is protected and should only be accessible to users with admin privileges.
+*/
+
 const bans = require('../../Models/bans');
 const user = require('../../Models/user');
 

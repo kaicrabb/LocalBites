@@ -1,4 +1,8 @@
-const express = require('express');
+/*
+    * This file defines the route handler for fetching photos from the Google Places API based on a photo reference.
+    * The route expects a GET request with a photo reference as a query parameter.
+*/
+
 const API_KEY = process.env.API_KEY;
 const { Readable } = require('stream');
 

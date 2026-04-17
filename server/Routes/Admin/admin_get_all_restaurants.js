@@ -1,3 +1,11 @@
+/*
+    * This file defines the route handler for retrieving all restaurants by an admin.
+    * The route expects a GET request and does not require any parameters.
+    * The handler checks if the requester is an admin and retrieves all restaurant documents from the Places collection in the database.
+    * Appropriate success and error responses are sent back to the client based on the outcome of the operation.
+    * This route is protected and should only be accessible to users with admin privileges.
+*/
+
 const places = require('../../Models/places');
 
 async function adminGetAllRestaurants(req, res) {

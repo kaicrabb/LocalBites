@@ -1,30 +1,44 @@
-// General server code, imports other sections of backend code
+/*
+    * This file sets up the Express server for the application, defines the routes for handling various API endpoints, and connects to the database.
+    * It imports necessary modules, initializes the Express app, applies middleware for parsing JSON and handling CORS, and defines the routes for user authentication, restaurant information retrieval, review management, and admin operations.
+    * The server listens on a specified port for incoming requests and handles them according to the defined routes and middleware.
+    * This file serves as the main entry point for the backend server of the application.
+*/
 
 // Import required outside modules
 const express = require('express');
 const bodyParser = require("body-parser"); // Import body-parser for middleware
 const cors = require('cors'); // Importing cors module
 
-// Import backend modules
-const connectDB = require('./Config/db');
-//const createExampleUser = require('./Routes/example_user');
-//const runDemoReview = require('./Routes/example_review');
+// Deprecated imports, may be used for testing
+// const createExampleUser = require('./Routes/example_user');
+// const runDemoReview = require('./Routes/example_review');
 // const callSearchText = require('./Routes/Google_Api/search_places.js');
 // const httpSearchText = require('./Routes/Google_Api/http_search_places.js');
+
+// Import backend modules
+const connectDB = require('./Config/db');
+
+// Google API routes
 const getLocation = require('./Routes/Google_Api/get_location.js');
 const getNearbyRestaurants = require('./Routes/Google_Api/nearby_restaurants');
 const getRestaurantDetails = require('./Routes/Google_Api/restaurant_details');
+const photos = require('./Routes/Google_Api/photos');
+
+// Authentication and user routes
 const signup = require('./Routes/Authentication/signup');
 const login = require('./Routes/Authentication/login');
+const userInfo = require('./Routes/user_info');
 const changePassword = require('./Routes/Authentication/change_password');
 const authenticateToken = require('./Routes/Authentication/authtoken');
 const deleteAccount = require('./Routes/Authentication/delete_account');
-const userInfo = require('./Routes/user_info');
 const supplyFirebaseToken = require('./Routes/Authentication/firebasetoken');
+
+// Review routes
 const addReview = require('./Routes/Reviews/add_review');
 const getReview = require('./Routes/Reviews/get_reviews');
 const deleteReview = require('./Routes/Reviews/delete_review');
-const photos = require('./Routes/Google_Api/photos');
+
 
 // admin routes
 const adminDeleteReview = require('./Routes/Admin/admin_delete_review');

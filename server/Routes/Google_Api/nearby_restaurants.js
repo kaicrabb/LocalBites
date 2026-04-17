@@ -1,3 +1,12 @@
+/*
+    * This file defines the route handler for fetching nearby restaurants based on a given location (latitude and longitude) and radius.
+    * The route expects a GET request with latitude, longitude, and radius as query parameters.
+    * The handler uses MongoDB's geospatial query capabilities to find restaurants within the specified radius of the given location.
+    * The results are processed to return only basic information about each restaurant, such as display name, formatted address, rating, location coordinates, primary type, and price level.
+    * Appropriate error responses are sent back to the client if there is an issue with fetching the nearby restaurants or if there is a server error.
+    * This route can be used by clients to display nearby restaurant options based on the user's current location.
+*/
+
 restuarant = require('../../Models/places');
 
 // get basic info for nearby restaurants by location and radius

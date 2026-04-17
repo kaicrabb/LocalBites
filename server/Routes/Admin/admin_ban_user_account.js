@@ -1,3 +1,10 @@
+/*
+    * This file defines the route handler for banning a user account by an admin.
+    * The route expects a POST request with the user ID to ban, the reason for the ban, and the duration of the ban in hours.
+    * The handler checks if the requester is an admin, verifies that the user to be banned exists, creates a new ban entry in the Bans collection, and updates the user's status to banned in the User collection.
+    * Appropriate success and error responses are sent back to the client based on the outcome of the operation.
+    * This route is protected and should only be accessible to users with admin privileges.
+*/
 const User = require('../../Models/user');
 const Bans = require('../../Models/bans');
 
