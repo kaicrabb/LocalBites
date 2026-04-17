@@ -49,6 +49,7 @@ const adminUnbanUser = require('./Routes/Admin/admin_unban_user_account');
 const adminGetAllUsers = require('./Routes/Admin/admin_get_all_users');
 const adminGetAllRestaurants = require('./Routes/Admin/admin_get_all_restaurants');
 const adminGetAllBans = require('./Routes/Admin/admin_get_all_bans.js');
+const adminGetAllReviews = require('./Routes/Admin/admin_get_all_reviews.js');
 
 async function startServer(){
     // Initialize Express app
@@ -90,6 +91,7 @@ async function startServer(){
     app.get("/Admin/get_all_users", authenticateToken, adminGetAllUsers);
     app.get("/Admin/get_all_restaurants", authenticateToken, adminGetAllRestaurants);
     app.get("/Admin/get_all_bans", authenticateToken, adminGetAllBans);
+    app.get("/Admin/get_all_reviews", authenticateToken, adminGetAllReviews);
 
     app.listen(port, () => { 
         console.log("Server started on port " + port);
