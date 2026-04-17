@@ -1,5 +1,6 @@
 const express = require('express');
 const API_KEY = process.env.API_KEY;
+const { Readable } = require('stream');
 
 // route to get a photo from google api by photo reference
 const getPhoto = async (req, res) => {
@@ -24,8 +25,11 @@ const getPhoto = async (req, res) => {
             return res.status(response.status).send('Failed to fetch image');
         }
         console.log('Photo fetched successfully:', name);
-        res.set('Content-Type', response.headers.get('content-type'));
-        response.body.pipe(res);
+        res.setHeader(
+            "Content-Type",
+            response.headers.get("content-type") || "image/jpeg"
+        );
+        Readable.fromWeb(response.body).pipe(res);
     } catch (error) {
         console.error('Error fetching photo:', error);
         res.status(500).json({ message: 'Server error' });
