@@ -1,3 +1,10 @@
+/*
+    This file defines the UnbanUser component, which is an admin interface for unbanning users. 
+    It allows admins to view a list of banned users and select a user to unban.
+    When a user is selected for unbanning, a confirmation dialog is shown where the admin can confirm the unban action. 
+    The component checks if the current user is an admin before rendering the unbanning options.
+*/
+
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { useState, useEffect } from "react";
 import useUserInfo from "../fetchuser";

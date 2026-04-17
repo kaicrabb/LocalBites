@@ -1,3 +1,11 @@
+/*
+    This file will not be fully implemented due to time constraints, but it defines the ManageContent component, 
+    which would have been an admin interface for managing content on the platform.
+    It would allow admins to view and manage reels, including removing reels, and editing/deleting reel content such as comments or descriptions.
+    The component checks if the current user is an admin before rendering the management options.
+    Each option would navigate to a different screen for performing the respective action.
+*/
+
 import { View, Text } from 'react-native';
 import useUserInfo  from "../fetchuser";
 import { MaterialCommunityIcons } from "@expo/vector-icons";

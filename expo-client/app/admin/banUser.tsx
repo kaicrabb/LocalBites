@@ -1,3 +1,9 @@
+/*
+    This file defines the BanUser component, which is an admin interface for banning users. 
+    It allows admins to view a list of users and select a user to ban.
+    When a user is selected for banning, a confirmation dialog is shown where the admin can provide a reason for the ban and specify the duration of the ban. 
+    The component checks if the current user is an admin before rendering the banning options.
+*/
 import { ScrollView, View, Text, TouchableOpacity, TextInput } from 'react-native';
 import { useState, useEffect } from 'react';
 import * as secureStore from 'expo-secure-store';

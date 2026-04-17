@@ -1,3 +1,10 @@
+/*
+    This file defines the ManagePlaces component, which is an admin interface for managing restaurant information.
+    It allows admins to view and manage restaurants, including adding, editing, viewing, and deleting restaurant information.
+    The component checks if the current user is an admin before rendering the management options.
+    Each option would navigate to a different screen for performing the respective action.
+*/
+
 import { View, Text } from 'react-native';
 import useUserInfo  from "../fetchuser";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
