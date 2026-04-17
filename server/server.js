@@ -24,6 +24,7 @@ const supplyFirebaseToken = require('./Routes/Authentication/firebasetoken');
 const addReview = require('./Routes/Reviews/add_review');
 const getReview = require('./Routes/Reviews/get_reviews');
 const deleteReview = require('./Routes/Reviews/delete_review');
+const photos = require('./Routes/Google_Api/photos')
 
 // admin routes
 const adminDeleteReview = require('./Routes/Admin/admin_delete_review');
@@ -62,7 +63,8 @@ async function startServer(){
     app.get("/Google_Api/restaurant_details", getRestaurantDetails);
     app.get("/Google_Api/get_location", getLocation);
     app.get("/reviews", getReview);
-    
+    app.get("/Google_Api/photo", photos);
+
     // Admin post routes
     app.post("/Admin/delete_review", authenticateToken, adminDeleteReview);
     app.post("/Admin/delete_user_account", authenticateToken, adminDeleteUserAccount);
