@@ -14,7 +14,7 @@ async function getRestaurantDetails(req, res) {
         // if there are photos, create an array of photo URLs to send back to the client
         if (restaurantObj.photos?.length > 0) {
             restaurantObj.photoUrls = restaurantObj.photos.map(photo =>
-                `/api/photo?name=${encodeURIComponent(photo.name)}`
+                `/Google_Api/photo?name=${encodeURIComponent(photo.name)}`
             );
         }
 
