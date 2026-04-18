@@ -113,6 +113,8 @@ This is a cross-platform mobile application (iOS & Android) and website where us
     │   │   │   ├── admin_get_all_bans.js        //admin option to get all banned users from database
     
     │   │   │   ├── admin_get_all_restaurants.js //admin option to get all restaurants from database
+
+    │   │   │   ├── admin_get_all_reviews.js //admin option to get all reviews and related info from database
     
     │   │   │   ├── admin_get_all_users.js       //admin option to get all users info from database
     
