@@ -1,10 +1,11 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';       
 import { useState } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import {auth} from "../config/firebaseConfig";
 import {signInWithCustomToken } from "firebase/auth";
 import { fetchUserInfo } from './fetchuser';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface SignUpResponse {
   token: string;
@@ -17,6 +18,7 @@ export default function Signup() {
     const [Email, setEmail] = useState('');
     const [Password, setPassword] = useState('');
     const [Username, setUsername] = useState('');
+    const {height} = useWindowDimensions();
 
     const handleSignUp = async () => {
         if(!Email || !Password || !Username) {
@@ -55,24 +57,29 @@ export default function Signup() {
 
     return (
         <View style={styles.container}>
+            <LinearGradient
+          // Background Linear Gradient
+          colors={['rgba(59, 211, 79, 0.8)', 'rgba(59, 181, 211, 0.8)']}
+          style={[styles.background, {height}]}
+        />
             <Text style={styles.title}>Sign Up</Text>
             <TextInput
                 placeholder='Username'
-                placeholderTextColor="#000000"
+                placeholderTextColor="#ffffff"
                 value={Username}
                 onChangeText={setUsername}
                 style={styles.input}
             />
             <TextInput
                 placeholder='Email'
-                placeholderTextColor="#000000"
+                placeholderTextColor="#ffffff"
                 value={Email}
                 onChangeText={setEmail}
                 style={styles.input}
             />
             <TextInput
                 placeholder='Password'
-                placeholderTextColor="#000000"
+                placeholderTextColor="#ffffff"
                 value={Password}
                 onChangeText={setPassword}
                 secureTextEntry
@@ -91,9 +98,15 @@ export default function Signup() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20 },
-  title: { fontSize: 28, fontWeight: "bold", marginBottom: 20 },
-  input: { width: "100%", padding: 12, borderWidth: 1, borderColor: "#ccc", borderRadius: 8, marginBottom: 12 },
+  title: { fontSize: 28, fontWeight: "bold", marginBottom: 20, color:'white' },
+  input: { width: "100%", padding: 12, borderWidth: 1, borderColor: "#ccc", borderRadius: 8, marginBottom: 12, color:'white'},
   button: { backgroundColor: "#007AFF", padding: 12, borderRadius: 8, width: "100%", alignItems: "center", marginBottom: 12 },
   buttonText: { color: "#fff", fontWeight: "bold" },
-  link: { color: "#007AFF", marginTop: 8 }
+  link: { color: "#007AFF", marginTop: 8 },
+  background:{
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+  },
 });
