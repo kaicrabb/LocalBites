@@ -16,7 +16,6 @@ export default function ViewUsers() {
     const { user, loading } = useUserInfo();
     const [reviews, setReviews] = useState<any[]>([]);
     const [token, setToken] = useState<string | null>(null);
-    const [bannedUsers, setbannedUsers] = useState<any[]>([]);
     
      useEffect(() => {
         const getToken = async () => {
