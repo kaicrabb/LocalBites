@@ -93,7 +93,6 @@ export default function ViewUsers() {
 
     if (!user?.IsAdmin) return <Redirect href="/main/home" />;
 
-    // 🔍 FILTER LOGIC (local only)
     const filteredRestaurants = restaurants.filter((restaurant: any) =>
         restaurant.displayName
             ?.toLowerCase()
@@ -101,7 +100,7 @@ export default function ViewUsers() {
     );
 
     return (
-        <ScrollView contentContainerStyle={{ padding: 20 }}>
+        <View style={{paddingBottom:90}}>
             <Text style={{ fontSize: 24, fontWeight: 'bold', textAlign: 'center' }}>
                 View Restaurants
             </Text>
@@ -117,6 +116,8 @@ export default function ViewUsers() {
                     borderRadius: 8,
                 }}
             />
+        <ScrollView contentContainerStyle={{ padding: 20 }}>
+            
 
             {filteredRestaurants.map((restaurant: any) => {const restaurantReviews = reviews.filter((review: any) => review.placeId === restaurant._id);
             return (
@@ -248,5 +249,6 @@ export default function ViewUsers() {
                     </View> 
             )})}   
         </ScrollView>
+        </View>
     );
 }

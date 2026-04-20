@@ -12,12 +12,12 @@ import { Redirect } from "expo-router";
 import * as SecureStore from 'expo-secure-store';
 import { useState, useEffect } from 'react';
 
-export default function ViewUsers() {
+export default function ViewReviews() {
     const { user, loading } = useUserInfo();
     const [reviews, setReviews] = useState<any[]>([]);
     const [token, setToken] = useState<string | null>(null);
     
-     useEffect(() => {
+    useEffect(() => {
         const getToken = async () => {
             const storedToken = await SecureStore.getItemAsync('token');
             setToken(storedToken);

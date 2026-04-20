@@ -5,7 +5,7 @@
     * Each Restaurant entry includes a "Delete Restuarant" button that triggers a confirmation prompt before sending a request to the server to delete the restaurant.
     * The component also checks if the current user is an admin and redirects non-admin users back to the home screen.
 */
-import {ScrollView, View, Text, TouchableOpacity} from 'react-native';
+import {ScrollView, View, Text, TouchableOpacity, TextInput} from 'react-native';
 import { useState, useEffect } from 'react';
 import * as secureStore from 'expo-secure-store';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -17,6 +17,8 @@ export default function DeleteRestaurantAccount() {
     const [token, setToken] = useState<string | null>(null);
     const { user, loading } = useUserInfo();
     const [restaurantToDelete, setRestaurantToDelete] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState("");
+
     useEffect(() => {
         const getToken = async () => {
             const storedToken = await secureStore.getItemAsync('token');
@@ -100,6 +102,13 @@ export default function DeleteRestaurantAccount() {
         setRestaurantToDelete(null); // Close the confirmation form after deletion
     };
 
+    const filteredRestaurants = restaurants.filter((restaurant: any) =>
+        restaurant.displayName
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase())
+    );
+
+
     if (restaurantToDelete) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
@@ -117,18 +126,32 @@ export default function DeleteRestaurantAccount() {
     }
 
     return (
-        <ScrollView contentContainerStyle={{ padding: 20, alignItems: 'center' }}>
-            <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 20 }}>Delete Restaurant</Text>
-            {restaurants.map((restaurant) => (
-                <View key={restaurant._id} style={{ marginBottom: 10, padding: 10, backgroundColor: '#f0f0f0', borderRadius: 5,  alignContent: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#ccc', width: '90%' }}>
-                    <Text style={{ fontSize: 18, textAlign: 'center' }}>{restaurant.displayName}</Text>
-                    <Text style={{ fontSize: 14, textAlign: 'center', color: '#333' }}>{restaurant.formattedAddress}</Text>
-                    <TouchableOpacity style={{ marginTop: 10, padding: 10, backgroundColor: 'red', borderRadius: 5, alignItems: 'center' }} onPress={() => handleconfirmDelete(restaurant._id)}>
-                        <MaterialCommunityIcons name="storefront-remove" size={20} color="white" />
-                        <Text style={{ color: 'white', fontWeight: 'bold' }}>Delete Restaurant</Text>
-                    </TouchableOpacity>
-                </View>
-            ))}
-        </ScrollView>
+        <View style={{paddingBottom:90}}>
+            <Text style={{marginTop:15, fontWeight:'700'}}>Search Restaurant Names</Text>
+            <TextInput
+                placeholder="Search restaurants..."
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                style={{
+                    padding: 10,
+                    borderWidth: 1,
+                    borderColor: '#ccc',
+                    borderRadius: 8,
+                }}
+            />
+            <ScrollView contentContainerStyle={{ padding: 20, alignItems: 'center' }}>
+                <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 20 }}>Delete Restaurant</Text>
+                {filteredRestaurants.map((restaurant) => (
+                    <View key={restaurant._id} style={{ marginBottom: 10, padding: 10, backgroundColor: '#f0f0f0', borderRadius: 5,  alignContent: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#ccc', width: '90%' }}>
+                        <Text style={{ fontSize: 18, textAlign: 'center' }}>{restaurant.displayName}</Text>
+                        <Text style={{ fontSize: 14, textAlign: 'center', color: '#333' }}>{restaurant.formattedAddress}</Text>
+                        <TouchableOpacity style={{ marginTop: 10, padding: 10, backgroundColor: 'red', borderRadius: 5, alignItems: 'center' }} onPress={() => handleconfirmDelete(restaurant._id)}>
+                            <MaterialCommunityIcons name="storefront-remove" size={20} color="white" />
+                            <Text style={{ color: 'white', fontWeight: 'bold' }}>Delete Restaurant</Text>
+                        </TouchableOpacity>
+                    </View>
+                ))}
+            </ScrollView>
+        </View>
     );
 }

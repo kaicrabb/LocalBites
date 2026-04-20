@@ -5,7 +5,7 @@
     The component checks if the current user is an admin before rendering the unbanning options.
 */
 
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, TextInput } from "react-native";
 import { useState, useEffect } from "react";
 import useUserInfo from "../fetchuser";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -16,6 +16,7 @@ export default function UnbanUser() {
     const [users, setUsers] = useState<any[]>([]);
     const [token, setToken] = useState<string | null>(null);
     const { user, loading } = useUserInfo();
+    const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
         const getToken = async () => {
@@ -87,16 +88,34 @@ export default function UnbanUser() {
         }
     };
 
-
+    const filteredUsers = users.filter((ban: any) =>
+        ban.username
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase())
+    );
 
     return (
+        <View>
+            <Text style={{marginTop:15, fontWeight:'700'}}>Search by Username</Text>
+            <TextInput
+                placeholder="Search by Username..."
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                style={{
+                    padding: 10,
+                    borderWidth: 1,
+                    borderColor: '#ccc',
+                    borderRadius: 8,
+                }}
+            />
+        
         <ScrollView contentContainerStyle={{ padding: 20 }}>
             <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 20 }}>Unban Users</Text>
             <Text style={{ marginBottom: 15 }}>This is where you can unban a user. You can select a user from the list of banned users and confirm the unban action.</Text>
-            {users.length === 0 ? (
-                <Text>No banned users found.</Text>
+            {filteredUsers.length === 0 ? (
+                <Text style={{fontWeight:'bold', fontSize:24, paddingTop:30, color:'red'}}>No banned users found.</Text>
             ) : (
-                users.map((ban) => (
+                filteredUsers.map((ban) => (
                     <View key={ban._id} style={{ marginBottom: 15, padding: 15, borderWidth: 1, borderColor: '#ccc', borderRadius: 8 }}>
                         <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{ban.username}</Text>
                         <Text>Reason: {ban.reason}</Text>
@@ -110,5 +129,6 @@ export default function UnbanUser() {
                 ))
             )}
         </ScrollView>
+        </View>
     );
 }

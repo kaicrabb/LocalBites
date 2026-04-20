@@ -5,7 +5,7 @@
     This basically works as a way to view our bans and user folders of our Database without logging into Mongo.
 */
 
-import {View, Text, ScrollView} from 'react-native';
+import {View, Text, ScrollView, TextInput} from 'react-native';
 import useUserInfo  from "../fetchuser";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Redirect } from "expo-router";
@@ -17,6 +17,8 @@ export default function ViewUsers() {
     const [users, setUsers] = useState<any[]>([]);
     const [token, setToken] = useState<string | null>(null);
     const [bannedUsers, setbannedUsers] = useState<any[]>([]);
+    const [searchQuery, setSearchQuery] = useState("");
+
     
      useEffect(() => {
         const getToken = async () => {
@@ -78,11 +80,30 @@ export default function ViewUsers() {
         }
         if (!user?.IsAdmin) return <Redirect href="/main/home" />;
 
+    const filteredUsers = users.filter((restaurant: any) =>
+        restaurant.Username
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase())
+    );
+
     return (
+        <View style={{paddingBottom:90}}>
+            <Text style={{marginTop:15, fontWeight:'700'}}>Search by Usernames</Text>
+            <TextInput
+                placeholder="Search by username..."
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                style={{
+                    padding: 10,
+                    borderWidth: 1,
+                    borderColor: '#ccc',
+                    borderRadius: 8,
+                }}
+            />
         <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
             <Text style={{ fontSize: 24, fontWeight: 'bold' }}>View Users</Text>
             <Text style={{ marginTop: 20 }}>This is where you can view all users, including their profile information and activity history.</Text>
-            {users.map((user: any) => (
+            {filteredUsers.map((user: any) => (
                 <View key={user._id} style={{ marginTop: 20, padding: 10, borderWidth: 1, borderColor: '#ccc', borderRadius: 5, width: '90%' }}>
                     <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{user.Username}</Text>
                     <Text>Email: {user.Email}</Text>
@@ -103,5 +124,6 @@ export default function ViewUsers() {
                 </View>
             ))}
         </ScrollView>
+        </View>
     );
 }

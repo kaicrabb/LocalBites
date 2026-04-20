@@ -5,7 +5,7 @@
     * Each user entry includes a "Delete User" button that triggers a confirmation prompt before sending a request to the server to delete the user account.
     * The component also checks if the current user is an admin and redirects non-admin users back to the home screen.
 */
-import {ScrollView, View, Text, TouchableOpacity} from 'react-native';
+import {ScrollView, View, Text, TouchableOpacity, TextInput} from 'react-native';
 import { useState, useEffect } from 'react';
 import * as secureStore from 'expo-secure-store';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -17,6 +17,7 @@ export default function DeleteUserAccount() {
     const [token, setToken] = useState<string | null>(null);
     const { user, loading } = useUserInfo();
     const [userToDelete, setUserToDelete] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState("");
     useEffect(() => {
         const getToken = async () => {
             const storedToken = await secureStore.getItemAsync('token');
@@ -115,10 +116,29 @@ export default function DeleteUserAccount() {
         );
     }
 
+    const filteredUsers = users.filter((user: any) =>
+        user.Username
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase())
+    );
+
     return (
+        <View>
+            <Text style={{marginTop:15, fontWeight:'700'}}>Search by Username</Text>
+            <TextInput
+                placeholder="Search users..."
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                style={{
+                    padding: 10,
+                    borderWidth: 1,
+                    borderColor: '#ccc',
+                    borderRadius: 8,
+                }}
+            />
         <ScrollView contentContainerStyle={{ padding: 20, alignItems: 'center' }}>
             <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 20 }}>Delete User Account</Text>
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
                 <View key={user._id} style={{ marginBottom: 10, padding: 10, backgroundColor: '#f0f0f0', borderRadius: 5,  alignContent: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#ccc', width: '90%' }}>
                     <Text style={{ fontSize: 18, textAlign: 'center' }}>{user.Username}</Text>
                     <Text style={{ fontSize: 14, textAlign: 'center', color: '#333' }}>{user.Email}</Text>
@@ -129,5 +149,6 @@ export default function DeleteUserAccount() {
                 </View>
             ))}
         </ScrollView>
+        </View>
     );
 }
