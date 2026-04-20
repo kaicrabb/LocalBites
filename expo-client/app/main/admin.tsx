@@ -46,7 +46,6 @@ export default function AdminPage() {
       <Text style={{ fontSize: 18, marginBottom: 10 }}>
         Welcome, {user?.Username}! You have admin access.
       </Text>
-      {/* Add admin functionalities here */}
       <TouchableOpacity style={{ marginTop: 20, padding: 10, backgroundColor: "red", borderRadius: 5, alignItems: "center" }} onPress={handleManageUsers}>
         <MaterialCommunityIcons name="account-cancel" size={40} color="white" />
         <Text style={{ color: "white", fontWeight: "bold" }}>Manage User Profiles</Text>
@@ -58,10 +57,6 @@ export default function AdminPage() {
         <TouchableOpacity style={{ marginTop: 20, padding: 10, backgroundColor: "purple", borderRadius: 5, alignItems: "center" }} onPress={handleManagePlaces}>
         <MaterialCommunityIcons name="map-marker" size={40} color="white" />
         <Text style={{ color: "white", fontWeight: "bold" }}>Manage Places</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={{ marginTop: 20, padding: 10, backgroundColor: "blue", borderRadius: 5, alignItems: "center" }} onPress={handleManageContent}>
-        <MaterialCommunityIcons name="file-document" size={40} color="white" />
-        <Text style={{ color: "white", fontWeight: "bold" }}>Manage Content (WIP)</Text>
         </TouchableOpacity>
     </ScrollView>
   );
