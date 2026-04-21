@@ -6,7 +6,7 @@
     * This route can be used by clients to update information intended mainly for displays not identifying or blocking actions.
 */
 
-const user = require('../Models/user');
+const User = require('../Models/user');
 
 async function updateUserInfo(req, res) {
     try {

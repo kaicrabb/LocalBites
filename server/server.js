@@ -29,10 +29,12 @@ const photos = require('./Routes/Google_Api/photos');
 const signup = require('./Routes/Authentication/signup');
 const login = require('./Routes/Authentication/login');
 const userInfo = require('./Routes/user_info');
+const updateUserInfo = require('./Routes/update_user_info')
 const changePassword = require('./Routes/Authentication/change_password');
 const authenticateToken = require('./Routes/Authentication/authtoken');
 const deleteAccount = require('./Routes/Authentication/delete_account');
 const supplyFirebaseToken = require('./Routes/Authentication/firebasetoken');
+
 
 // Review routes
 const addReview = require('./Routes/Reviews/add_review');
@@ -70,6 +72,7 @@ async function startServer(){
     app.post("/Authentication/delete_account", authenticateToken, deleteAccount)
     app.post("/reviews", authenticateToken, addReview); 
     app.post("/reviews/delete", authenticateToken, deleteReview);
+    app.post("update_user_profile", authenticateToken, updateUserInfo);
 
     // User get routes
     app.get("/user_info", authenticateToken, userInfo);
