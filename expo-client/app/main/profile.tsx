@@ -1,13 +1,14 @@
 import { useRouter, useNavigation } from "expo-router";
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, TextInput, ScrollView, StyleSheet, Alert } from "react-native";
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Video, ResizeMode } from "expo-av";
 import { ref, listAll, getDownloadURL } from "firebase/storage";
 import * as SecureStore from 'expo-secure-store';
 import { storage, auth } from "../../config/firebaseConfig";
 import { onAuthStateChanged, User } from 'firebase/auth';
 import ImageViewer from '../ImageViewer';
+import useUserInfo from "../fetchuser";
 
 interface UserProfile {
   username: string;
@@ -22,11 +23,22 @@ const ProfilePage: React.FC = () => {
   // State Management
   const [userFirebase, setUser] = useState<User | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | undefined>(undefined);
+  const {user: userPull, loading} = useUserInfo();
+  
   const [userProfile, setUserProfile] = useState<UserProfile>({
-    username: "username",
-    bio: "Big Back Reviews",
+    username: 'Unkown Username',
+    bio: "Add a Bio!",
     profilePic: "placeholder.jpg",
   });
+  useEffect(() => {
+    if (userPull) {
+      setUserProfile((prev) => ({
+        ...prev,
+        username: userPull.Username ?? prev.bio,
+        bio: userPull.Bio ?? prev.bio,
+      }));
+    }
+  }, [userPull]);
   
   const [editing, setEditing] = useState(false);
   const [activeTab, setActiveTab] = useState<"videos" | "reviews">("videos");
@@ -136,7 +148,11 @@ const ProfilePage: React.FC = () => {
 
     fetchProfileReviews();
   }, [userFirebase]);
-
+  
+  if (loading) {
+        return <View><MaterialCommunityIcons name="loading" size={20} /></View>; // Show a loading state while fetching user info
+    }
+  
   const handleDeleteReview = async (reviewId: string) => {
     Alert.alert('Delete review', 'Do you want to delete this review?', [
       { text: 'Cancel', style: 'cancel' },
@@ -167,6 +183,40 @@ const ProfilePage: React.FC = () => {
     ]);
   };
 
+  const handleUpdateProfile = async ()=>{
+    
+    try{
+      const token = await SecureStore.getItemAsync('token');
+        const response = await fetch('https://localbites-4m9e.onrender.com/update_user_profile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            Username: userProfile.username,
+            Bio: userProfile.bio,
+          }),
+        });
+        const data = await response.json();
+        if(response.ok) {
+          setUserProfile((prev) => ({
+            ...prev,
+            username: data.user.Username,
+            bio: data.user.Bio,
+          }));
+
+          Alert.alert("Success", "Profile updated!");
+          setEditing(false);
+        }else {
+          Alert.alert("Error", data.message || "Update failed");
+        }
+    }
+    catch(error){
+      console.error(error);
+      Alert.alert("Error", "Something went wrong");
+    }
+  }
   return (
     <ScrollView style={styles.container}>
       <View style={styles.profileHeader}>
@@ -234,7 +284,8 @@ const ProfilePage: React.FC = () => {
           <View style={styles.editModal}>
             <Text style={styles.modalTitle}>Update Profile</Text>
             <TextInput style={styles.input} value={userProfile.username} onChangeText={(t) => setUserProfile({...userProfile, username: t})} />
-            <TouchableOpacity style={[styles.actionBtn, styles.saveBtn]} onPress={() => setEditing(false)}>
+            <TextInput style={styles.input} value={userProfile.bio} onChangeText={(t) => setUserProfile({...userProfile, bio: t})} />
+            <TouchableOpacity style={[styles.actionBtn, styles.saveBtn]} onPress={handleUpdateProfile}>
               <Text style={{ color: "white" }}>Save Changes</Text>
             </TouchableOpacity>
           </View>
