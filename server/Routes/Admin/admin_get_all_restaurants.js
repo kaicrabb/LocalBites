@@ -1,7 +1,14 @@
+/*
+    * This file defines the route handler for retrieving all restaurants by an admin.
+    * The route expects a GET request and does not require any parameters.
+    * The handler checks if the requester is an admin and retrieves all restaurant documents from the Places collection in the database.
+    * Appropriate success and error responses are sent back to the client based on the outcome of the operation.
+    * This route is protected and should only be accessible to users with admin privileges.
+*/
+
 const places = require('../../Models/places');
 
 async function adminGetAllRestaurants(req, res) {
-    const restaurantIdToDelete = req.body.restaurantId; //get restaurant id from the request body
     if (!req.user.IsAdmin) {// check that the user is an admin
         console.log('Unauthorized to get all restaurants:', 'by user:', req.user.id);
         return res.status(403).json({ message: 'Not authorized to get all restaurants' });

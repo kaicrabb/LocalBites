@@ -1,3 +1,11 @@
+/*
+    * This file defines the route handler for removing a restaurant by an admin.
+    * The route expects a POST request with the restaurant ID to delete.
+    * The handler checks if the requester is an admin, verifies that the restaurant to be deleted exists, and deletes the restaurant from the Places collection.
+    * Appropriate success and error responses are sent back to the client based on the outcome of the operation.
+    * This route is protected and should only be accessible to users with admin privileges.
+*/
+
 const places = require('../../Models/places');
 
 async function adminRemoveRestaurant(req, res) {

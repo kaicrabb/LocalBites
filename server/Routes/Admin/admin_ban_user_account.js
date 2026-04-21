@@ -1,5 +1,12 @@
-const user = require('../../Models/user');
-const bans = require('../../Models/bans');
+/*
+    * This file defines the route handler for banning a user account by an admin.
+    * The route expects a POST request with the user ID to ban, the reason for the ban, and the duration of the ban in hours.
+    * The handler checks if the requester is an admin, verifies that the user to be banned exists, creates a new ban entry in the Bans collection, and updates the user's status to banned in the User collection.
+    * Appropriate success and error responses are sent back to the client based on the outcome of the operation.
+    * This route is protected and should only be accessible to users with admin privileges.
+*/
+const User = require('../../Models/user');
+const Bans = require('../../Models/bans');
 
 async function adminBanUserAccount(req, res) {
     const userIdToBan = req.body.userId; //get user id from the request body
@@ -11,24 +18,22 @@ async function adminBanUserAccount(req, res) {
     }
     try {
         // Check if the user exists
-        const userToBan = await user.findById(userIdToBan);
+        const userToBan = await User.findById(userIdToBan);
         if (!userToBan) {
             return res.status(404).json({ message: 'User not found' });
         }
 
         // Create a new ban entry
-        const newBan = new bans({
+        const newBan = new Bans({
             userId: userIdToBan,
             reason: banReason,
-            expiresAt: new Date(Date.now() + banDuration * 24 * 60 * 60 * 1000) // Convert days to milliseconds
+            bannedAt: new Date(),
+            expiresAt: new Date(Date.now() + banDuration * 60 * 60 * 1000) // Convert hours to milliseconds
         });
 
         // Save the ban entry
         await newBan.save();
-
-        // Update the user's status to banned
-        userToBan.isBanned = true;
-        await userToBan.save();
+        await User.findByIdAndUpdate(userIdToBan, { isBanned: true }); // Update the user's status to banned
 
         res.status(200).json({ message: 'User banned successfully' });
     } catch (error) {

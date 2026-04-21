@@ -1,3 +1,10 @@
+/*
+    * This file defines the Mongoose schema and model for the "User" collection in the MongoDB database.
+    * Each document in this collection represents a user of the application, who can leave reviews for restaurants.
+    * The schema includes fields for the username, email, password, whether the user is an admin, and whether the user is banned.
+    * The model is exported for use in other parts of the application, such as in the authentication routes and admin routes.
+*/
+
 const mongoose = require('mongoose');
 
 const user_schema = new mongoose.Schema({
@@ -22,6 +29,15 @@ const user_schema = new mongoose.Schema({
         type: Boolean,
         required: false,
         default: false
+    },
+    isBanned: { // boolean to determine if user is banned or not
+        type: Boolean,
+        required: false,
+        default: false
+    },
+    Bio:{ //optional bio
+        type: String,
+        required: false,
     }
 })
 

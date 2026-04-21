@@ -1,3 +1,8 @@
+/*
+    * This file defines the route handler for fetching location information based on latitude and longitude using the Google Geocoding API.
+    * The route expects a GET request with latitude and longitude as query parameters.
+    * The handler makes a request to the Google Geocoding API to retrieve location details, and if successful, it also triggers a search for restaurants in the retrieved location using the http_search_places function.
+*/
 const axios = require('axios');
 require('dotenv').config();
 const httpSearchText = require('./http_search_places.js');

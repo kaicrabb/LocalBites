@@ -1,3 +1,10 @@
+/*
+    * This file defines the Mongoose schema and model for the "Places" collection in the MongoDB database.
+    * Each document in this collection represents a restaurant that can be reviewed by users.
+    * The schema includes fields for the restaurant's display name, primary type, an array of types, location (as a GeoJSON point), formatted address, rating, price level, meal services offered (lunch, breakfast, dinner), dining options (delivery, dine-in), national phone number, website URI, regular opening hours, and an array of photos.
+    * The model is exported for use in other parts of the application, such as in the routes for fetching restaurant details and reviews.
+*/
+
 const mongoose = require('mongoose');
 
 const places_schema = new mongoose.Schema({

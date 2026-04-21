@@ -1,9 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, FlatList, Dimensions, TouchableWithoutFeedback } from 'react-native';
+import { Text, View, FlatList, Dimensions, TouchableWithoutFeedback } from 'react-native';
 import { ResizeMode, Video, Audio } from 'expo-av';
 import { ref, listAll, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../config/firebaseConfig';
 import { useIsFocused } from '@react-navigation/native';
+import useUserInfo from '../fetchuser';
+import * as SecureStore from 'expo-secure-store';
+import { useRouter } from 'expo-router';
+
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 const { height } = Dimensions.get('window');
 
@@ -14,6 +19,37 @@ export default function ReelFeed() {
 
   const isFocused = useIsFocused();
   const videoRefs = useRef<(Video | null)[]>([]);
+  const { user, loading } = useUserInfo();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && user?.isBanned) {
+      const timeout = setTimeout(async () => {
+        await SecureStore.deleteItemAsync("token");
+        await SecureStore.deleteItemAsync("user");
+        router.replace("/");
+      }, 3000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [loading, user]);
+  if (!loading) {
+        if (user?.isBanned) {// show message then log out user
+          delay(3000).then(() => {
+            console.log("Logging out banned user...");
+            SecureStore.deleteItemAsync("token");
+            SecureStore.deleteItemAsync("user");
+            router.replace("/");
+          });
+          return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+              <Text style={{ fontSize: 18, color: 'red', textAlign: 'center' }}>
+                Your account has been banned. You will be logged out shortly.
+              </Text>
+            </View>
+          );
+        }
+  }
 
   useEffect(() => {
     const setupAudio = async () => {

@@ -1,3 +1,11 @@
+/*
+    * This file defines the route handler for deleting a user's account.
+    * The route expects a POST request with the user's password in the request body for verification.
+    * The handler verifies the user's identity using the authenticated token, checks if the provided password is correct, and deletes the user's account from the database if the password is valid.
+    * Appropriate success and error responses are sent back to the client based on the outcome of the operation.
+    * This route is protected and should only be accessible to authenticated users.
+*/
+
 const User = require('../../Models/user');
 const bcrypt = require('bcryptjs');
 

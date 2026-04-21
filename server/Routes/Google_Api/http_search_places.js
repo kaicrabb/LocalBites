@@ -1,3 +1,11 @@
+/*
+    * This file defines the function for searching places using the Google Places API with a text query.
+    * The function makes a POST request to the Google Places API endpoint with the specified query and retrieves a list of places that match the query.
+    * The results are processed to filter out chain restaurants and fast food restaurants, and the remaining unique restaurants are saved to the database.
+    * The function also handles pagination by checking for a nextPageToken in the API response and making subsequent requests to retrieve additional results until there are no more pages of results.
+    * This function is used in the get_location route handler to search for restaurants in a specific location based on the latitude and longitude provided by the client.
+*/
+
 const axios = require('axios');
 require('dotenv').config();
 
