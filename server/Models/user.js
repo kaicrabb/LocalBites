@@ -34,6 +34,10 @@ const user_schema = new mongoose.Schema({
         type: Boolean,
         required: false,
         default: false
+    },
+    Bio:{ //optional bio
+        type: String,
+        required: false,
     }
 })
 
