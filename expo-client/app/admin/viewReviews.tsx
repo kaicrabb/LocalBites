@@ -110,7 +110,10 @@ export default function ViewReviews() {
                             }}
                         >
                             <Text style={{ fontSize:16, fontWeight: '500' }}>
-                                Place: {review.restaurantName ?? "Unknown"}
+                                Restaurant: {review.restaurantName ?? "Unknown"}
+                            </Text>
+                            <Text>
+                                Address: {review.formattedAddress ?? "Unknown Address"}
                             </Text>
                             <Text>PlaceID: {review.placeId}</Text>
 
