@@ -28,6 +28,7 @@ async function adminGetAllReviews(req, res) {
                 email: user ? user.Email : 'Unknown Email',
                 placeId: review.Place,
                 restaurantName: restaurant ? restaurant.displayName : 'Unknown Restaurant',
+                formattedAddress: restaurant ? restaurant.formattedAddress: 'Unknown Location',
                 rating: review.Rating,
                 comment: review.Comment,
             };

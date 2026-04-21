@@ -108,6 +108,7 @@ export default function ViewUsers() {
                     <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{user.Username}</Text>
                     <Text>Email: {user.Email}</Text>
                     <Text>UserID: {user._id}</Text>
+                    <Text style={{backgroundColor: '#e8e4e4',}}>Bio: {user.Bio}</Text>
                     <Text>Banned: {user.isBanned ? 'Yes' : 'No'}</Text>
                     {/* If user is banned, display ban details by pulling that from fetchBannedUsers */}
                     {user.isBanned && (bannedUsers as any[]).find((ban: any) => ban.userId?.toString() === user._id?.toString()) && (

@@ -114,6 +114,7 @@ export default function DeleteReview() {
                     <View key={review.id} style={{ marginTop: 20, padding: 10, backgroundColor: "#f0f0f0", borderRadius: 5, width: '80%', borderColor:'grey', borderBottomWidth:4}}>
                         <Text style={{ fontWeight: "bold" }}>{review.username?? "Unknown User"}</Text>
                         <Text>Restaurant: {review.restaurantName?? "Unknown Restaurant"}</Text>
+                        <Text>Address: {review.formattedAddress?? "Unknown Address"}</Text>
                         <Text>Rating: {review.rating}</Text>
                         <Text style={{backgroundColor: 'lightgrey'}}>{review.comment}</Text>
                         <TouchableOpacity style={{ marginTop: 10, padding: 10, backgroundColor: 'red', borderRadius: 5, alignItems: 'center' }} onPress={()=>setReviewToDelete(review.id)}>
