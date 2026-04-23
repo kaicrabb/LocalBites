@@ -39,8 +39,10 @@ async function login(req, res){
             }
             // If the ban has expired, remove the ban record and allow login
             await Bans.findOneAndDelete({ userId: user._id });
+            user.isBanned = false;
+            await user.save();
         }
-        
+    
 
         const token = jwt.sign(
             { id: user._id, email: user.Email, username: user.Username, IsAdmin: user.IsAdmin },

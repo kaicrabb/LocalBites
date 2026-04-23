@@ -123,7 +123,7 @@ export default function DeleteUserAccount() {
     );
 
     return (
-        <View>
+        <View style={{paddingBottom:90}}>
             <Text style={{marginTop:15, fontWeight:'700'}}>Search by Username</Text>
             <TextInput
                 placeholder="Search users..."
