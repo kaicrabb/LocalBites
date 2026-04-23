@@ -255,7 +255,7 @@ const ProfilePage: React.FC = () => {
         {activeTab === "videos" ? (
           userVideos.map((item, i) => (
             <TouchableOpacity key={i} style={styles.gridTile} onPress={() => router.push({ pathname: "/main/video/[videoURL]", params: { videoURL: encodeURIComponent(item) } })}>
-              <Video source={{ uri: item }} style={StyleSheet.absoluteFill} resizeMode={ResizeMode.COVER} isMuted />
+              <Video source={{ uri: item }} style={{width: '100%', height: '100%'}} resizeMode={ResizeMode.COVER} isMuted />
             </TouchableOpacity>
           ))
         ) : (
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
   tab: { flex: 1, padding: 12, alignItems: "center", flexDirection: 'row', justifyContent: 'center', gap: 5 },
   activeTab: { borderBottomWidth: 2, borderBottomColor: "black" },
   grid: { flexDirection: "row", flexWrap: "wrap" },
-  gridTile: { width: "33.3%", aspectRatio: 1, backgroundColor: "#f0f0f0", borderWidth: 0.5, borderColor: '#fff' },
+  gridTile: { width: "33.3%", aspectRatio: 1, backgroundColor: "#f0f0f0", borderWidth: 0.5, borderColor: '#fff', },
   reviewTile: { padding: 15, borderBottomWidth: 1, borderColor: '#eee', width: '100%' },
   reviewTitle: { fontWeight: 'bold', fontSize: 16 },
   modalOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 },
