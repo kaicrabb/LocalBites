@@ -119,7 +119,7 @@ export default function ViewUsers() {
                             <Text style={{ color: '#721c24' }}>Banned until: {new Date(bannedUsers.find((ban: any) => ban.userId?.toString() === user._id?.toString())?.expiresAt || '').toLocaleDateString() || 'N/A'}</Text>
                         </View>
                     )}
-                    <Text>Admin: {user.isAdmin ? 'Yes' : 'No'}</Text>
+                    <Text>Admin: {user.IsAdmin ? 'Yes' : 'No'}</Text>
                     {/* Add more user details as needed */}
                     
                 </View>
