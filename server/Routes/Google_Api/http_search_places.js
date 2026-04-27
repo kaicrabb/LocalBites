@@ -22,6 +22,7 @@ function delay(ms) {
 }
 
 async function httpSearchText(query){
+    let results = []
     const q = {
         textQuery: query
     };
@@ -33,10 +34,10 @@ async function httpSearchText(query){
             'X-Goog-FieldMask': 'nextPageToken,places.displayName.text,places.types,places.primaryType,places.formattedAddress,places.rating,places.priceLevel,places.location,places.servesLunch,places.servesBreakfast,places.servesDinner,places.delivery,places.dineIn,places.nationalPhoneNumber,places.websiteUri,places.regularOpeningHours,places.photos',
         },
     });
-    logResults(response, response.data.nextPageToken, query);
+    logResults(response, response.data.nextPageToken, query, results);
 }
 
-async function logResults(response, pageToken, query){
+async function logResults(response, pageToken, query, results){
     for (let i = 0; i < response.data.places.length; i++) {
         const exists = await Restaurant.findOne({displayName: response.data.places[i].displayName.text});
         const chain = chains.includes(response.data.places[i].displayName.text);
@@ -65,6 +66,15 @@ async function logResults(response, pageToken, query){
                 regularOpeningHours: response.data.places[i].regularOpeningHours,
                 photos: response.data.places[i].photos
             });
+
+            // Frontend return
+            results.push({
+                name: response.data.places[i].displayName.text,
+                address: response.data.places[i].formattedAddress,
+                rating: rating,
+                location: response.data.places[i].location
+            });
+
             await workingRestaurant.save();
             console.log("New Restaurant "+response.data.places[i].displayName.text+" saved!");
         }
@@ -91,14 +101,15 @@ async function logResults(response, pageToken, query){
         await delay(1000);
         console.log("Parsing next page of results...");
         await delay(1000);
-        nextPage(pageToken, query);
+        return await nextPage(pageToken, query, results);
     }
     else {
         console.log("No more results...")
+        return results;
     }
 }
 
-async function nextPage(pageToken, query){
+async function nextPage(pageToken, query, results){
     const response = await axios.post(endpoint,
         {
             textQuery: query,
@@ -110,6 +121,6 @@ async function nextPage(pageToken, query){
             'X-Goog-FieldMask': 'nextPageToken,places.displayName.text,places.types,places.primaryType,places.formattedAddress,places.rating,places.priceLevel,places.location',
         }}
     );
-    logResults(response, response.data.nextPageToken, query);
+    logResults(response, response.data.nextPageToken, query, results);
 }
 module.exports = httpSearchText;
