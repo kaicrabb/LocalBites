@@ -34,6 +34,7 @@ const adminUnbanUser = require('./Routes/Admin/admin_unban_user_account');
 const adminGetAllUsers = require('./Routes/Admin/admin_get_all_users');
 const adminGetAllRestaurants = require('./Routes/Admin/admin_get_all_restaurants');
 const adminGetAllBans = require('./Routes/Admin/admin_get_all_bans.js');
+const adminAddRestaurants = require('./Routes/Admin/admin_add_restaurant_locations.js');
 
 async function startServer(){
     // Initialize Express app
@@ -67,6 +68,7 @@ async function startServer(){
     app.post("/Admin/delete_review", authenticateToken, adminDeleteReview);
     app.post("/Admin/delete_user_account", authenticateToken, adminDeleteUserAccount);
     app.post("/Admin/remove_restaurant", authenticateToken, adminRemoveRestaurant);
+    app.post("/Admin/fetch_new_restaurant", authenticateToken, adminAddRestaurants);
     app.post("/Admin/ban_user", authenticateToken, adminBanUser);
     app.post("/Admin/unban_user", authenticateToken, adminUnbanUser);
 
