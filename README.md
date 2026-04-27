@@ -17,9 +17,17 @@ This is a cross-platform mobile application (iOS & Android) and website where us
 - To start the frontend run ```npx expo start --tunnel```
 
 ### Starting server
+- The server as of April 27, 2026 is running on render at https://localbites-4m9e.onrender.com
+   - Deploying the server is needed due to how expo go works not allowing a connection between a backend server on our laptops and our phones.
+   - this render will likely shut down shortly after classes due to how render works
 - Access the backend by running ```cd server``` 
 - If required modules are not installed on your system run ```npm install```
 - To start the server run ```node server.js```
+- Some environment variables are required:
+   - API_KEY : This is a key for the google API's the current API's used are the Geocoding and Places API
+   - URI: This is for the Mongodb database connection
+   - FIREBASE_KEY: This contains a json object version of the service account keys given by firebase
+   - SECRET_KEY: This key is used for JWT, you can make your own or find a key generator for it
 
 ### File Structure
 
@@ -32,7 +40,13 @@ This is a cross-platform mobile application (iOS & Android) and website where us
     
     │       │   ├── banUser.tsx   //admin page for banning users
     
-    │       │   ├── manageContent.tsx //admin page for managing user uploaded content(WIP)
+    │       │   ├── deleteRestaurant.tsx //admin page for removing restaurants
+
+    │       │   ├── deleteReview.tsx //admin page for deleting user reviews
+
+    │       │   ├── deleteUserAccount.tsx //admin page for deleting a users account
+
+    │       │   ├── fetchRestaurants.tsx //admin page for adding new restaurants by fetching with the Google API for the inputted location
     
     │       │   ├── managePlaces.tsx //admin page for managing stored restaurants
     
@@ -41,10 +55,18 @@ This is a cross-platform mobile application (iOS & Android) and website where us
     │       │   ├── manageUsers.tsx //admin page for managing users (bans, unbans, account info)
     
     │       │   ├── unbanUser.tsx //admin page to unban users
+
+    │       │   ├── viewRestaurants.tsx //admin page to view all restaurants and related info
+
+    │       │   ├── viewReviews.tsx //admin page to view all reviews and related information
     
     │       │   └── viewUsers.tsx //admin page to view all users and their information
     
     │       ├── main/
+    
+    │       │   ├── video/
+
+    |       │   │   └── [videoURL].tsx   //allows for you to play your own videos off profile page
     
     │       │   ├── layout.tsx       //sets redirects for app
     
@@ -103,6 +125,8 @@ This is a cross-platform mobile application (iOS & Android) and website where us
     │   ├── Routes/
     
     │   │   ├── Admin/
+
+    │   │   │   ├── admin_add_restaurant_locations.js   //admin post function for adding new restaurants
     
     │   │   │   ├── admin_ban_user_account.js    //admin option to ban a users account
     
@@ -145,6 +169,8 @@ This is a cross-platform mobile application (iOS & Android) and website where us
     │   │   │   ├── http_search_places.js        //uses http requests to Google Places API to get nearby restaurants
     
     │   │   │   ├── nearby_restaurants.js        //gets the basic details of nearby restaurants stored in the database
+
+    │   │   │   ├── photos.js                    //takes the photo name from database and runs google photo api to get actual photo urls for displaying
     
     │   │   │   ├── restaurant_details.js          //gets all the details for a specific restaurant
     
