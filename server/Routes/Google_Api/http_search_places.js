@@ -34,7 +34,7 @@ async function httpSearchText(query){
             'X-Goog-FieldMask': 'nextPageToken,places.displayName.text,places.types,places.primaryType,places.formattedAddress,places.rating,places.priceLevel,places.location,places.servesLunch,places.servesBreakfast,places.servesDinner,places.delivery,places.dineIn,places.nationalPhoneNumber,places.websiteUri,places.regularOpeningHours,places.photos',
         },
     });
-    logResults(response, response.data.nextPageToken, query, results);
+    return await logResults(response, response.data.nextPageToken, query, results);
 }
 
 async function logResults(response, pageToken, query, results){
@@ -121,6 +121,6 @@ async function nextPage(pageToken, query, results){
             'X-Goog-FieldMask': 'nextPageToken,places.displayName.text,places.types,places.primaryType,places.formattedAddress,places.rating,places.priceLevel,places.location',
         }}
     );
-    logResults(response, response.data.nextPageToken, query, results);
+    return await logResults(response, response.data.nextPageToken, query, results);
 }
 module.exports = httpSearchText;
