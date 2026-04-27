@@ -7,6 +7,7 @@ interface User {
     IsAdmin: boolean;
     Email: string;
     isBanned: boolean;
+    Bio: string;
 }
 
 

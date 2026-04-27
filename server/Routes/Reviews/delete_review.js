@@ -1,3 +1,11 @@
+/*
+    * This file defines the route handler for deleting a review for a restaurant.
+    * The route expects a POST request with the review ID to delete in the request body.
+    * The handler checks if the user is authenticated, verifies that the review to be deleted exists and that the authenticated user is the owner of the review, and deletes the review from the database.
+    * Appropriate success and error responses are sent back to the client based on the outcome of the operation.
+    * This route is protected and should only be accessible to authenticated users who own the review they are trying to delete.
+*/
+
 const Review = require('../../Models/reviews');
 
 async function deleteReview(req, res) {

@@ -1,5 +1,9 @@
+/*
+    * This file is deprecated due to the lack of features in the offical Client Library for the Google Places API. The library does not support pagination.
+    * The http_search_places function in get_location.js is used instead to search for restaurants using the Google Places API with a text query, and it handles pagination to retrieve all results.
+    * The callSearchText function in this file was an initial attempt to use the official Client Library to search for places.
+*/
 const Restaurant = require('../../Models/places');
-//google places integration
 require('dotenv').config(); 
 const {PlacesClient} = require('@googlemaps/places').v1;
 const { GoogleAuth } = require('google-auth-library');

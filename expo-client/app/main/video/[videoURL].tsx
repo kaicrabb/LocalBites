@@ -2,10 +2,12 @@ import { useLocalSearchParams } from "expo-router";
 import { Video, ResizeMode } from "expo-av";
 import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
 import { useRouter } from "expo-router";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+
 
 export default function VideoPlayer() {
   const { videoURL } = useLocalSearchParams();
-  const decodedUrl = decodeURIComponent(videoURL as string);
+  const decodedUrl = videoURL as string;
   const router = useRouter();
 
   return (
@@ -20,9 +22,9 @@ export default function VideoPlayer() {
 
       <TouchableOpacity
         style={styles.backBtn}
-        onPress={() => router.push("/main/profile")}
+        onPress={() => router.back()}
       >
-        <Text style={{ color: "white", fontSize: 18 }}>Back</Text>
+        <MaterialCommunityIcons name="arrow-left" size={48}/>
       </TouchableOpacity>
     </View>
   );
@@ -31,5 +33,5 @@ export default function VideoPlayer() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "black" },
   video: { width: "100%", height: "100%" },
-  backBtn: { position: "absolute", top: 50, left: 20 },
+  backBtn: { position: "absolute", top: 10, left: 20, zIndex:10 },
 });

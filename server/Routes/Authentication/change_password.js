@@ -1,3 +1,11 @@
+/*
+    * This file defines the route handler for changing a user's password.
+    * The route expects a POST request with the current password and the new password in the request body.
+    * The handler verifies the user's identity using the authenticated token, checks if the current password is correct, and updates the password in the database if the new password meets complexity requirements.
+    * Appropriate success and error responses are sent back to the client based on the outcome of the operation.
+    * This route is protected and should only be accessible to authenticated users.
+*/
+
 const bcrypt = require('bcryptjs');
 const User = require('../../Models/user');
 

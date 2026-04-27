@@ -77,8 +77,8 @@ export default function ViewReviews() {
 
     return (
         <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ fontSize: 24, fontWeight: 'bold' }}>View Users</Text>
-            <Text style={{ marginTop: 20 }}>This is where you can view all users, including their profile information and activity history.</Text>
+            <Text style={{ fontSize: 24, fontWeight: 'bold' }}>View Reviews</Text>
+            <Text style={{ marginTop: 20 }}>This is where you can view all Reviews by the user who made them and relevant related info.</Text>
             {groupedReviews.map((userGroup: any) => (
                 <View
                     key={userGroup.userId}
@@ -110,7 +110,10 @@ export default function ViewReviews() {
                             }}
                         >
                             <Text style={{ fontSize:16, fontWeight: '500' }}>
-                                Place: {review.restaurantName ?? "Unknown"}
+                                Restaurant: {review.restaurantName ?? "Unknown"}
+                            </Text>
+                            <Text>
+                                Address: {review.formattedAddress ?? "Unknown Address"}
                             </Text>
                             <Text>PlaceID: {review.placeId}</Text>
 

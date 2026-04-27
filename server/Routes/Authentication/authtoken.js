@@ -1,3 +1,10 @@
+/*
+    * This file defines the middleware function for authenticating JSON Web Tokens (JWT) in incoming requests.
+    * The function checks for the presence of a token in the Authorization header, verifies the token using a secret key, and attaches the decoded user information to the request object if the token is valid.
+    * If the token is missing or invalid, appropriate error responses are sent back to the client.
+    * This middleware can be used to protect routes that require authentication by ensuring that only requests with valid tokens can access those routes.
+*/
+
 const jwt = require('jsonwebtoken'); // Import jsonwebtoken for tokenization
 const SECRET_KEY = process.env.SECRET_KEY;
 

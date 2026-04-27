@@ -1,3 +1,11 @@
+/*
+    * This file defines the route handler for deleting a user account by an admin.
+    * The route expects a POST request with the user ID to delete.
+    * The handler checks if the requester is an admin, verifies that the user to be deleted exists, and deletes the user from the User collection.
+    * Appropriate success and error responses are sent back to the client based on the outcome of the operation.
+    * This route is protected and should only be accessible to users with admin privileges.
+*/
+
 const user = require('../../Models/user');
 
 async function adminDeleteUserAccount(req, res) {
