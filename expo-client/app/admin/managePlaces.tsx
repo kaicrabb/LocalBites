@@ -32,6 +32,11 @@ export default function ManagePlaces() {
         router.push("/admin/viewRestaurants");
     }
 
+    const handleAddRestuarants = () => {
+        console.log("Add Restaurants Menu Clicked");
+        router.push("/admin/fetchRestaurants");
+    }
+
     return (
         <ScrollView style={{ flex: 1}} contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <Text style={{ fontSize: 24, fontWeight: 'bold'}}>Manage Restaurants</Text>
@@ -43,6 +48,10 @@ export default function ManagePlaces() {
                     <TouchableOpacity style={{ marginTop: 20, padding: 10, backgroundColor: "blue", borderRadius: 5, alignItems: "center", width: '80%' }} onPress={handleViewRestaurantDetails}>
                         <MaterialCommunityIcons name="database-eye" size={40} color="white" />
                         <Text style={{ color: "white", fontWeight: "bold" }}>View Restaurant Details</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{ marginTop: 20, padding: 10, backgroundColor: "green", borderRadius: 5, alignItems: "center", width: '80%' }} onPress={handleAddRestuarants}>
+                        <MaterialCommunityIcons name="storefront-plus" size={40} color="white" />
+                        <Text style={{ color: "white", fontWeight: "bold" }}>Add Restaurants</Text>
                     </TouchableOpacity>
                 </ScrollView>
             );
